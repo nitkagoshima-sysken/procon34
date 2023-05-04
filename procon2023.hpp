@@ -12,6 +12,12 @@
 typedef unsigned char Field_t;
 typedef unsigned char Length_t;
 
+#define CASTLE_POINT   10
+#define WALL_POINT     20
+#define POSITION_POINT 30
+
+#define TURN_NUM 30
+
 typedef enum {
   FILD_NONE,
   FILD_WALL1,

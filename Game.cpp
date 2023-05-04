@@ -14,9 +14,22 @@ Game::Game(FieldInfo *info, Field_t **map) {
     agent[i] = new Agent(x1, y1, Player1, info->height, info->width);
     agent[i+info->agent] = new Agent(x2, y2, Player2, info->height, info->width);
   }
+
+  log = new Action*[TURN_NUM];
+
+  turn = 0;
 }
 
 Game::~Game() {
+  for(int i = 0; log[i]; i++) {
+    delete[] log[i];
+  }
+  delete log;
+
+  for(int i = 0; i < fieldinfo->height; i++) {
+    delete[] FieldMap[i];
+  }
+  delete FieldMap;
 }
 
 int Game::findAgent(FieldKIND agent, int *x, int *y) {
@@ -37,7 +50,7 @@ void Game::draw() {
   for(Length_t i = 0; i < fieldinfo->height; i++) {
     for(Length_t j = 0; j < fieldinfo->width; j++) {
       switch(FieldMap[i][j]) {
-        case FILD_NONE : cout << "-="; break;
+        case FILD_NONE : cout << "--"; break;
         case FILD_WALL1: cout << "#1"; break;
         case FILD_WALL2: cout << "#2"; break;
         case FILD_POND : cout << "PD"; break;
@@ -83,7 +96,10 @@ bool Game::isObjAtCoord(int x, int y) {
   return true;
 }
 
-int Game::ActionAnAgent(int who, Action act, Direction direc) {
+int Game::ActionAnAgent(int who, Action act) {
+
+  ActionKind kind = (ActionKind)act.kind;
+  Direction direc = (Direction)act.direc;
 
   int x, y, belong;
 
@@ -98,14 +114,13 @@ int Game::ActionAnAgent(int who, Action act, Direction direc) {
     return ACT_FAILED;
   }
 
-
-  if(act == ACT_MOVE && !isObjAtCoord(mx, my)) {
+  if(kind == ACT_MOVE && !isObjAtCoord(mx, my)) {
     FieldMap[my][mx] = FieldMap[y][x];
     FieldMap[y][x] = FILD_NONE;
     return ACT_SUCCESS;
   }
 
-  if(act == ACT_BUILD && !isObjAtCoord(mx, my)) {
+  if(kind == ACT_BUILD && !isObjAtCoord(mx, my)) {
     if(belong == Player1)
       FieldMap[my][mx] = FILD_WALL1;
     else if(belong == Player2)
@@ -113,14 +128,14 @@ int Game::ActionAnAgent(int who, Action act, Direction direc) {
     return ACT_SUCCESS;
   }
 
-  if(act == ACT_DEMOLISH && belong == Player1
+  if(kind == ACT_DEMOLISH && belong == Player1
                          && getInfoAtCoord(mx, my) == FILD_WALL1)
   {
     FieldMap[my][mx] = FILD_NONE;
     return ACT_SUCCESS;
   }
 
-  if(act == ACT_DEMOLISH && belong == Player2
+  if(kind == ACT_DEMOLISH && belong == Player2
                          && getInfoAtCoord(mx, my) == FILD_WALL2)
   {
     FieldMap[my][mx] = FILD_NONE;
@@ -130,17 +145,32 @@ int Game::ActionAnAgent(int who, Action act, Direction direc) {
   return ACT_FAILED;
 }
 
-int Game::ActionAgent(int belong, Action *act, Direction *direc) {
+int Game::ActionAgent(int belong, Action *act) {
 
   int offset;
   offset = (belong == Player1) ? 0 : fieldinfo->agent;
   for(int i = 0; i < fieldinfo->agent; i++) {
-    if(ActionAnAgent(i + offset, act[i], direc[i]) == ACT_FAILED) {
-      cerr << "agent " << i+offset << ": アクション失敗\n";
-      return ACT_FAILED;
+    if(ActionAnAgent(i + offset, act[i]) == ACT_FAILED) {
+      act[i].kind = ACT_NONE;
     }
   }
+  addLog(act);
   return ACT_SUCCESS;
+}
+
+void Game::addLog(Action *log) {
+  Game::log[turn] = log;
+  turn++;
+  Game::log[turn] = nullptr;
+}
+
+void Game::printLog() {
+  for(int i = 0; log[i]; i++) {
+    for(int j = 0; j < fieldinfo->agent; j++) {
+      cout << j << ": " << "{ " << (int)log[i][j].kind << ", " << (int)log[i][j].direc << " } ";
+    }
+    cout << endl;
+  }
 }
 
 // class Agent

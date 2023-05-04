@@ -24,21 +24,24 @@ int main(int argc, char *argv[]) {
 
   game.draw();
 
-  Action act1[] = {ACT_MOVE, ACT_BUILD, ACT_MOVE, ACT_MOVE};
-  Direction direc1[] = {DOWN, RIGHT, DOWN, DOWN};
- 
-  if(game.ActionAgent(Player1, act1, direc1) == ACT_FAILED)
+  ActionKind kind[] = {ACT_MOVE, ACT_BUILD, ACT_MOVE, ACT_MOVE};
+  Direction direc[] = {DOWN, RIGHT, DownRIGHT, DOWN};
+
+  Action *act;
+
+  act = new Action[info->agent];
+
+  for(int i = 0; i < info->agent; i++) {
+    act[i].kind = kind[i];
+    act[i].direc = direc[i];
+  }
+
+  if(game.ActionAgent(Player1, act) == ACT_FAILED)
     cerr << "アクション失敗\n";
 
   game.draw();
 
-  Action act2[] = {ACT_MOVE, ACT_BUILD, ACT_MOVE, ACT_MOVE};
-  Direction direc2[] = {DOWN, RIGHT, DOWN, DOWN};
-
-  if(game.ActionAgent(Player2, act2, direc2) == ACT_FAILED)
-    cerr << "アクション失敗\n";
-
-  game.draw();
+  game.printLog();
 
   return 0;
 }
