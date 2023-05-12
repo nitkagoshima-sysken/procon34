@@ -57,7 +57,7 @@ public:
   int ActionAnAgent(bool belong, FieldKIND who, Action act);
   int ActionAgent(bool belong, Action *act);
 
-  void addLog(Action *log);
+  void addLog(Action *act_log);
 
   void printLog();
 };

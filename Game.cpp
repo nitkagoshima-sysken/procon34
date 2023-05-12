@@ -21,15 +21,15 @@ Game::Game(FieldInfo *info, Field_t **map) {
 }
 
 Game::~Game() {
-  // for(int i = 0; log[i]; i++) {
-  //   delete[] log[i];
-  // }
-  // delete log;
+  for(int i = 0; log[i]; i++) {
+    delete[] log[i];
+  }
+  delete log;
 
-  // for(int i = 0; i < fieldinfo->height; i++) {
-  //   delete[] FieldMap[i];
-  // }
-  // delete FieldMap;
+  for(int i = 0; i < fieldinfo->height; i++) {
+    delete[] FieldMap[i];
+  }
+  delete FieldMap;
 }
 
 int Game::findAgent(FieldKIND agent, uint8_t *x, uint8_t *y) {
@@ -206,14 +206,13 @@ int Game::ActionAgent(bool belong, Action *act) {
       return ACT_FAILED;
     }
   }
-  addLog(act);
   return ACT_SUCCESS;
 }
 
-void Game::addLog(Action *log) {
-  Game::log[turn] = log;
+void Game::addLog(Action *act_log) {
+  this->log[turn] = act_log;
   turn++;
-  Game::log[turn] = nullptr;
+  this->log[turn] = nullptr;
 }
 
 void Game::printLog() {

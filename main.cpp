@@ -29,12 +29,12 @@ int main(int argc, char *argv[]) {
 
   bool current_turn = Player1;
 
-  Action *act;
-  act = new Action[info->agent];
 
   for(int turn = 0; turn < TURN_NUM; turn++) {
+    Action *act;
+    act = new Action[info->agent];
     cout << "current turn: " << (current_turn ? "player1" : "player2") << endl;
-  
+
     int offset = (current_turn == Player1) ? FILD_AGENT11 : FILD_AGENT21;
     for(int i = 0; i < info->agent; i++) {
       vector<Action> legal_act;
@@ -49,8 +49,15 @@ int main(int argc, char *argv[]) {
     }
     current_turn = 1 - current_turn;
 
+    game.addLog(act);
+
+    for(int j = 0; j < info->agent; j++) {
+        cout << j << ": " << "{ " << (int)act[j].kind << ", " << (int)act[j].direc << " } ";
+    }
     game.draw();
   }
+
+  game.printLog();
 
   return 0;
 }
