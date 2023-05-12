@@ -1,7 +1,6 @@
 CC	= g++
 CFLAGS = -Wall -O3
 SRCS = Game.cpp
-SRCS += procon2023.cpp
 SRCS += main.cpp
 SRCS += FieldMap.cpp
 

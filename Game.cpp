@@ -182,12 +182,14 @@ int Game::ActionAnAgent(bool belong, FieldKIND who, Action act) {
     return ACT_SUCCESS;
   }
 
-  if(kind == ACT_DEMOLISH && belong == Player1 &&
-     (getInfoAtCoord(mx, my) == FILD_WALL1 || getInfoAtCoord(mx, my) == FILD_WALL2)
-    )
+  if(kind == ACT_DEMOLISH)
   {
-    FieldMap[my][mx] = FILD_NONE;
-    return ACT_SUCCESS;
+    switch(getInfoAtCoord(mx, my)) {
+      case FILD_WALL1:
+      case FILD_WALL2:
+        FieldMap[my][mx] = FILD_NONE;
+        return ACT_SUCCESS;
+    }
   }
 
   cerr << "Act failed: " << (int)who << endl; 

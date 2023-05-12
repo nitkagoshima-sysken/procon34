@@ -33,6 +33,7 @@ int main(int argc, char *argv[]) {
   act = new Action[info->agent];
 
   for(int turn = 0; turn < TURN_NUM; turn++) {
+    cout << "current turn: " << (current_turn ? "player1" : "player2") << endl;
   
     int offset = (current_turn == Player1) ? FILD_AGENT11 : FILD_AGENT21;
     for(int i = 0; i < info->agent; i++) {
@@ -43,10 +44,9 @@ int main(int argc, char *argv[]) {
       act[i] = legal_act[rand_act];
 
       // cout << "select: " << (int)act[i].kind << ", " << (int)act[i].direc << endl;
+      game.ActionAnAgent(current_turn, (FieldKIND)(i+offset), act[i]);
+
     }
-
-    game.ActionAgent(current_turn, act);
-
     current_turn = 1 - current_turn;
 
     game.draw();
