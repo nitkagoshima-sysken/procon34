@@ -1,11 +1,14 @@
 #ifndef FIELD_HPP_
 #define FIELD_HPP_
 
+#include "procon2023.hpp"
+
 typedef enum {
   ACT_NONE,
   ACT_MOVE,
   ACT_BUILD,
   ACT_DEMOLISH,
+  ACT_MAX,
 } ActionKind;
 
 typedef enum {
@@ -17,11 +20,12 @@ typedef enum {
   UpLEFT,
   UP,
   UpRIGHT,
+  Direction_Max,
 } Direction;
 
 typedef struct {
-  uint8_t kind   : 4;
-  uint8_t direc  : 4;
+  uint8_t kind  : 4;
+  uint8_t direc : 4;
 } Action;
 
 enum {
@@ -29,38 +33,29 @@ enum {
   ACT_FAILED,
 };
 
-class Agent {
-private:
-  int x, y;
-  int belong;
-  Length_t height, width;
-public:
-  Agent(int x, int y, int belong, int height, int width);
-  void getAgent(int *x, int *y, int *belong);
-  int setAgent(int x, int y);
-};
-
 class Game {
 private:
   Field_t **FieldMap;
-  FieldInfo *fieldinfo;
-  Agent **agent;
   Action **log;
   uint8_t turn;
 public:
+  bool current_turn;
+  FieldInfo *fieldinfo;
   Game(FieldInfo *info, Field_t **map);
   ~Game();
 
   void draw();
 
-  FieldKIND getInfoAtCoord(int x, int y);
-  bool isObjAtCoord(int x, int y);
-  bool isIgnoreCoord(int x, int y);
+  FieldKIND getInfoAtCoord(uint8_t x, uint8_t y);
+  bool isObjAtCoord(uint8_t x, uint8_t y);
+  bool isIgnoreCoord(uint8_t x, uint8_t y);
 
-  int findAgent(FieldKIND agent, int *x, int *y);
+  int findAgent(FieldKIND agent, uint8_t *x, uint8_t *y);
 
-  int ActionAnAgent(int who, Action act);
-  int ActionAgent(int belong, Action *act);
+  void getLegalAct(std::vector<Action> &action, FieldKIND who); // 合法手を取得
+
+  int ActionAnAgent(bool belong, FieldKIND who, Action act);
+  int ActionAgent(bool belong, Action *act);
 
   void addLog(Action *log);
 

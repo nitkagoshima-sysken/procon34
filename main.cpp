@@ -1,9 +1,12 @@
 #include "procon2023.hpp"
 #include "Game.hpp"
 #include "FieldMap.hpp"
+#include <vector>
 using namespace std;
 
 int main(int argc, char *argv[]) {
+
+  srand((unsigned)time(NULL));
 
   if(argc < 2) {
     cerr << "ファイルを指定してください" << endl;
@@ -20,28 +23,34 @@ int main(int argc, char *argv[]) {
 
   map.AnalyzeFile(&info, &fieldmap);
 
-  Game game(info, fieldmap);
+  Game game = Game(info, fieldmap);
 
   game.draw();
 
-  ActionKind kind[] = {ACT_MOVE, ACT_BUILD, ACT_MOVE, ACT_MOVE};
-  Direction direc[] = {DOWN, RIGHT, DownRIGHT, DOWN};
+  bool current_turn = Player1;
 
   Action *act;
-
   act = new Action[info->agent];
 
-  for(int i = 0; i < info->agent; i++) {
-    act[i].kind = kind[i];
-    act[i].direc = direc[i];
+  for(int turn = 0; turn < TURN_NUM; turn++) {
+  
+    int offset = (current_turn == Player1) ? FILD_AGENT11 : FILD_AGENT21;
+    for(int i = 0; i < info->agent; i++) {
+      vector<Action> legal_act;
+      game.getLegalAct(legal_act, (FieldKIND)(i+offset));
+
+      int rand_act = rand()%legal_act.size();
+      act[i] = legal_act[rand_act];
+
+      // cout << "select: " << (int)act[i].kind << ", " << (int)act[i].direc << endl;
+    }
+
+    game.ActionAgent(current_turn, act);
+
+    current_turn = 1 - current_turn;
+
+    game.draw();
   }
-
-  if(game.ActionAgent(Player1, act) == ACT_FAILED)
-    cerr << "アクション失敗\n";
-
-  game.draw();
-
-  game.printLog();
 
   return 0;
 }

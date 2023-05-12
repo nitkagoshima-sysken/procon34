@@ -3,9 +3,10 @@
 
 #include <iostream>
 #include <string.h>
+#include <vector>
 
-#define Player1 0
-#define Player2 1
+#define Player1 true
+#define Player2 false
 
 #define PI 3.14
 
@@ -16,7 +17,7 @@ typedef unsigned char Length_t;
 #define WALL_POINT     20
 #define POSITION_POINT 30
 
-#define TURN_NUM 30
+#define TURN_NUM 100
 
 typedef enum {
   FILD_NONE,
@@ -49,5 +50,9 @@ typedef struct {
   int pond;
   int castle;
 } FieldInfo;
+
+//戦略
+#define MONTE_CARLO 0
+#define RANDOM 1
 
 #endif
