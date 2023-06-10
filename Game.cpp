@@ -4,10 +4,9 @@
 #include <vector>
 using namespace std;
 
-Game::Game(FieldInfo *info, Field_t **map) {
-  fieldinfo = info;
-  FieldMap = map;
-  for(int i = 0; i < info->agent; i++) {
+Game::Game(Field *field) {
+  this->field = field;
+  for(int i = 0; i < field->fieldinfo->agent; i++) {
     uint8_t x1, y1, x2, y2;
     findAgent((FieldKIND)(i + FILD_AGENT11), &x1, &y1);
     findAgent((FieldKIND)(i + FILD_AGENT21), &x2, &y2);
@@ -25,17 +24,12 @@ Game::~Game() {
     delete[] log[i];
   }
   delete log;
-
-  for(int i = 0; i < fieldinfo->height; i++) {
-    delete[] FieldMap[i];
-  }
-  delete FieldMap;
 }
 
 int Game::findAgent(FieldKIND agent, uint8_t *x, uint8_t *y) {
-  for(int i = 0; i < fieldinfo->height; i++) {
-    for(int j = 0; j < fieldinfo->width; j++) {
-      if(FieldMap[i][j] == agent) {
+  for(int i = 0; i < field->fieldinfo->height; i++) {
+    for(int j = 0; j < field->fieldinfo->width; j++) {
+      if(field->FieldMap[i][j].kind == agent) {
         *y = i;
         *x = j;
         // cout << "find agent at " << j << ", " << i << "\n";
@@ -44,56 +38,6 @@ int Game::findAgent(FieldKIND agent, uint8_t *x, uint8_t *y) {
     }
   }
   return 1;
-}
-
-void Game::draw() {
-  for(Length_t i = 0; i < fieldinfo->height; i++) {
-    for(Length_t j = 0; j < fieldinfo->width; j++) {
-      switch(FieldMap[i][j]) {
-        case FILD_NONE : cout << "--"; break;
-        case FILD_WALL1: cout << "#1"; break;
-        case FILD_WALL2: cout << "#2"; break;
-        case FILD_POND : cout << "PD"; break;
-        case FILD_CASL : cout << "@@"; break;
-
-        case FILD_AGENT11 : cout << "A1"; break;
-        case FILD_AGENT12 : cout << "A2"; break;
-        case FILD_AGENT13 : cout << "A3"; break;
-        case FILD_AGENT14 : cout << "A4"; break;
-        case FILD_AGENT15 : cout << "A5"; break;
-        case FILD_AGENT16 : cout << "A6"; break;
-
-        case FILD_AGENT21 : cout << "B1"; break;
-        case FILD_AGENT22 : cout << "B2"; break;
-        case FILD_AGENT23 : cout << "B3"; break;
-        case FILD_AGENT24 : cout << "B4"; break;
-        case FILD_AGENT25 : cout << "B5"; break;
-        case FILD_AGENT26 : cout << "B6"; break;
-      }
-    }
-    cout << "\n";
-  }
-  cout << "\n";
-}
-
-FieldKIND Game::getInfoAtCoord(uint8_t x, uint8_t y) {
-  if(isIgnoreCoord(x, y))
-    return FILD_OutOfRange; 
-  
-  return (FieldKIND)FieldMap[y][x];
-}
-
-bool Game::isIgnoreCoord(uint8_t x, uint8_t y) {
-  if(x < 0 || x > fieldinfo->width - 1 || y < 0 || y > fieldinfo->height - 1) {
-    return true;
-  }
-  return false;
-}
-
-bool Game::isObjAtCoord(uint8_t x, uint8_t y) {
-  if(FieldMap[y][x] == FILD_NONE)
-    return false;
-  return true;
 }
 
 void Game::getLegalAct(vector<Action> &action, FieldKIND who) {
@@ -110,12 +54,12 @@ void Game::getLegalAct(vector<Action> &action, FieldKIND who) {
     uint8_t mx = x + round(cos(direc * PI/4));
     uint8_t my = y + round(sin(direc * PI/4));
     
-    if(isIgnoreCoord(mx, my)) {
+    if(field->isIgnoreCoord(mx, my)) {
       // cout << "is ignore Coord" << endl;
       continue;
     }
     act.direc = direc;
-    switch(getInfoAtCoord(mx, my)) {
+    switch(field->getInfoAtCoord(mx, my)) {
       case FILD_WALL1:
       case FILD_WALL2:
         // cout << "demolish" << endl;
@@ -138,7 +82,7 @@ void Game::getLegalAct(vector<Action> &action, FieldKIND who) {
     uint8_t mx = x + round(cos(direc * PI/4));
     uint8_t my = y + round(sin(direc * PI/4));
 
-    if(isIgnoreCoord(mx, my) || isObjAtCoord(mx, my)) {
+    if(field->isIgnoreCoord(mx, my) || field->isObjAtCoord(mx, my)) {
       continue;
     }
 
@@ -156,6 +100,8 @@ int Game::ActionAnAgent(bool belong, FieldKIND who, Action act) {
   ActionKind kind = (ActionKind)act.kind;
   Direction direc = (Direction)act.direc;
 
+  Field_t **map = field->FieldMap;
+
   uint8_t x, y;
 
   findAgent(who, &x, &y);
@@ -163,31 +109,31 @@ int Game::ActionAnAgent(bool belong, FieldKIND who, Action act) {
   uint8_t mx = x + round(cos(direc * PI/4));
   uint8_t my = y + round(sin(direc * PI/4));
 
-  if(isIgnoreCoord(mx, my)) {
+  if(field->isIgnoreCoord(mx, my)) {
     cerr << "Ignore coord:" << (int)who << endl;
     return ACT_FAILED;
   }
 
-  if(kind == ACT_MOVE && !isObjAtCoord(mx, my)) {
-    FieldMap[my][mx] = FieldMap[y][x];
-    FieldMap[y][x] = FILD_NONE;
+  if(kind == ACT_MOVE && !field->isObjAtCoord(mx, my)) {
+    map[my][mx] = map[y][x];
+    map[y][x].kind = FILD_NONE;
     return ACT_SUCCESS;
   }
 
-  if(kind == ACT_BUILD && !isObjAtCoord(mx, my)) {
+  if(kind == ACT_BUILD && !field->isObjAtCoord(mx, my)) {
     if(belong == Player1)
-      FieldMap[my][mx] = FILD_WALL1;
+      map[my][mx].kind = FILD_WALL1;
     else if(belong == Player2)
-      FieldMap[my][mx] = FILD_WALL2;
+      map[my][mx].kind = FILD_WALL2;
     return ACT_SUCCESS;
   }
 
   if(kind == ACT_DEMOLISH)
   {
-    switch(getInfoAtCoord(mx, my)) {
+    switch(field->getInfoAtCoord(mx, my)) {
       case FILD_WALL1:
       case FILD_WALL2:
-        FieldMap[my][mx] = FILD_NONE;
+        map[my][mx].kind = FILD_NONE;
         return ACT_SUCCESS;
     }
   }
@@ -200,7 +146,7 @@ int Game::ActionAgent(bool belong, Action *act) {
 
   int offset;
   offset = (belong == Player1) ? FILD_AGENT11 : FILD_AGENT21;
-  for(int i = 0; i < fieldinfo->agent; i++) {
+  for(int i = 0; i < field->fieldinfo->agent; i++) {
     if(ActionAnAgent(belong, FieldKIND(i+offset), act[i]) == ACT_FAILED) {
       act[i].kind = ACT_NONE;
       return ACT_FAILED;
@@ -217,7 +163,7 @@ void Game::addLog(Action *act_log) {
 
 void Game::printLog() {
   for(int i = 0; log[i]; i++) {
-    for(int j = 0; j < fieldinfo->agent; j++) {
+    for(int j = 0; j < field->fieldinfo->agent; j++) {
       cout << j << ": " << "{ " << (int)log[i][j].kind << ", " << (int)log[i][j].direc << " } ";
     }
     cout << endl;

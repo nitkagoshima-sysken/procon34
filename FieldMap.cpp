@@ -70,9 +70,9 @@ void Map::AnalyzeFile(FieldInfo **info, Field_t ***map) {
         cerr << "フィールド情報を記載してください" << endl;
         break;
       }
-      *map = new Field_t*[(int)height];
+      *map = new Field_t*[(int)height]();
       for(int i = 0; i < (int)height; i++) {
-        (*map)[i] = new Field_t[(int)width];
+        (*map)[i] = new Field_t[(int)width]();
       }
 
       char *q = p;
@@ -86,14 +86,14 @@ void Map::AnalyzeFile(FieldInfo **info, Field_t ***map) {
           
           if(cmp(p, "-=")) {
             p += 2;
-            (*map)[i][j] = FILD_NONE;
+            (*map)[i][j].kind = FILD_NONE;
             j++;
             continue;
           }
 
           if(cmp(p, "PD")) {
             p += 2;
-            (*map)[i][j] = FILD_POND;
+            (*map)[i][j].kind = FILD_POND;
             pond++;
             j++;
             continue;
@@ -101,7 +101,7 @@ void Map::AnalyzeFile(FieldInfo **info, Field_t ***map) {
 
           if(cmp(p, "@@")) {
             p += 2;
-            (*map)[i][j] = FILD_CASL;
+            (*map)[i][j].kind = FILD_CASL;
             castle++;
             j++;
             continue;
@@ -109,7 +109,7 @@ void Map::AnalyzeFile(FieldInfo **info, Field_t ***map) {
 
           if(cmp(p, "A1")) {
             p += 2;
-            (*map)[i][j] = FILD_AGENT11;
+            (*map)[i][j].kind = FILD_AGENT11;
             agent++;
             j++;
             continue;
@@ -117,7 +117,7 @@ void Map::AnalyzeFile(FieldInfo **info, Field_t ***map) {
 
           if(cmp(p, "A2")) {
             p += 2;
-            (*map)[i][j] = FILD_AGENT12;
+            (*map)[i][j].kind = FILD_AGENT12;
             agent++;
             j++;
             continue;
@@ -125,7 +125,7 @@ void Map::AnalyzeFile(FieldInfo **info, Field_t ***map) {
 
           if(cmp(p, "A3")) {
             p += 2;
-            (*map)[i][j] = FILD_AGENT13;
+            (*map)[i][j].kind = FILD_AGENT13;
             agent++;
             j++;
             continue;
@@ -133,7 +133,7 @@ void Map::AnalyzeFile(FieldInfo **info, Field_t ***map) {
 
           if(cmp(p, "A4")) {
             p += 2;
-            (*map)[i][j] = FILD_AGENT14;
+            (*map)[i][j].kind = FILD_AGENT14;
             agent++;
             j++;
             continue;
@@ -141,7 +141,7 @@ void Map::AnalyzeFile(FieldInfo **info, Field_t ***map) {
 
           if(cmp(p, "A5")) {
             p += 2;
-            (*map)[i][j] = FILD_AGENT15;
+            (*map)[i][j].kind = FILD_AGENT15;
             agent++;
             j++;
             continue;
@@ -149,7 +149,7 @@ void Map::AnalyzeFile(FieldInfo **info, Field_t ***map) {
 
           if(cmp(p, "A6")) {
             p += 2;
-            (*map)[i][j] = FILD_AGENT16;
+            (*map)[i][j].kind = FILD_AGENT16;
             agent++;
             j++;
             continue;
@@ -157,42 +157,42 @@ void Map::AnalyzeFile(FieldInfo **info, Field_t ***map) {
 
           if(cmp(p, "B1")) {
             p += 2;
-            (*map)[i][j] = FILD_AGENT21;
+            (*map)[i][j].kind = FILD_AGENT21;
             j++;
             continue;
           }
 
           if(cmp(p, "B2")) {
             p += 2;
-            (*map)[i][j] = FILD_AGENT22;
+            (*map)[i][j].kind = FILD_AGENT22;
             j++;
             continue;
           }
 
           if(cmp(p, "B3")) {
             p += 2;
-            (*map)[i][j] = FILD_AGENT23;
+            (*map)[i][j].kind = FILD_AGENT23;
             j++;
             continue;
           }
 
           if(cmp(p, "B4")) {
             p += 2;
-            (*map)[i][j] = FILD_AGENT24;
+            (*map)[i][j].kind = FILD_AGENT24;
             j++;
             continue;
           }
 
           if(cmp(p, "B5")) {
             p += 2;
-            (*map)[i][j] = FILD_AGENT25;
+            (*map)[i][j].kind = FILD_AGENT25;
             j++;
             continue;
           }
 
           if(cmp(p, "B6")) {
             p += 2;
-            (*map)[i][j] = FILD_AGENT26;
+            (*map)[i][j].kind = FILD_AGENT26;
             j++;
             continue;
           }

@@ -10,8 +10,12 @@
 
 #define PI 3.14
 
-typedef unsigned char Field_t;
 typedef unsigned char Length_t;
+
+typedef struct {
+  unsigned char encamp : 2;
+  unsigned char kind : 6;
+} Field_t;
 
 #define CASTLE_POINT   10
 #define WALL_POINT     20
@@ -40,6 +44,10 @@ typedef enum {
   FILD_AGENT24,
   FILD_AGENT25,
   FILD_AGENT26,
+
+  FILD_POSITION_NONE = 0,
+  FILD_POSITION_RED  = 1,
+  FILD_POSIITON_BLUE = 2,
 
 } FieldKIND;
 

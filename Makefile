@@ -3,6 +3,7 @@ CFLAGS = -Wall -O3
 SRCS = Game.cpp
 SRCS += main.cpp
 SRCS += FieldMap.cpp
+SRCS += Field.cpp
 
 OBJS=$(SRCS:.cpp=.o)
 

@@ -1,7 +1,8 @@
-#ifndef FIELD_HPP_
-#define FIELD_HPP_
+#ifndef GAME_HPP_
+#define GAME_HPP_
 
 #include "procon2023.hpp"
+#include "Field.hpp"
 
 typedef enum {
   ACT_NONE,
@@ -35,30 +36,28 @@ enum {
 
 class Game {
 private:
-  Field_t **FieldMap;
   Action **log;
   uint8_t turn;
 public:
+  Field *field;
   bool current_turn;
-  FieldInfo *fieldinfo;
-  Game(FieldInfo *info, Field_t **map);
+  Game(Field *field);
   ~Game();
 
   void draw();
 
-  FieldKIND getInfoAtCoord(uint8_t x, uint8_t y);
-  bool isObjAtCoord(uint8_t x, uint8_t y);
-  bool isIgnoreCoord(uint8_t x, uint8_t y);
+  FieldKIND getInfoAtCoord(uint8_t x, uint8_t y); // 座標のフィールド情報
+  bool isObjAtCoord(uint8_t x, uint8_t y); // オブジェクトがあるかどうか
+  bool isIgnoreCoord(uint8_t x, uint8_t y); // 違反座標かどうか
 
-  int findAgent(FieldKIND agent, uint8_t *x, uint8_t *y);
+  int findAgent(FieldKIND agent, uint8_t *x, uint8_t *y); // 引数で渡されたエージェントを見つける
 
   void getLegalAct(std::vector<Action> &action, FieldKIND who); // 合法手を取得
 
-  int ActionAnAgent(bool belong, FieldKIND who, Action act);
-  int ActionAgent(bool belong, Action *act);
+  int ActionAnAgent(bool belong, FieldKIND who, Action act); // 一人のエージェントのアクション
+  int ActionAgent(bool belong, Action *act); // playerのエージェントのアクション
 
-  void addLog(Action *act_log);
-
+  void addLog(Action *act_log); // ターン毎のエージェントのログを配列に追加
   void printLog();
 };
 

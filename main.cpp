@@ -1,6 +1,7 @@
 #include "procon2023.hpp"
 #include "Game.hpp"
 #include "FieldMap.hpp"
+#include "Field.hpp"
 #include <vector>
 using namespace std;
 
@@ -23,12 +24,12 @@ int main(int argc, char *argv[]) {
 
   map.AnalyzeFile(&info, &fieldmap);
 
-  Game game = Game(info, fieldmap);
+  Field field = Field(fieldmap, info);
+  Game game = Game(&field);
 
-  game.draw();
+  game.field->draw();
 
   bool current_turn = Player1;
-
 
   for(int turn = 0; turn < TURN_NUM; turn++) {
     Action *act;
@@ -51,10 +52,8 @@ int main(int argc, char *argv[]) {
 
     game.addLog(act);
 
-    for(int j = 0; j < info->agent; j++) {
-        cout << j << ": " << "{ " << (int)act[j].kind << ", " << (int)act[j].direc << " } ";
-    }
-    game.draw();
+    // 
+    game.field->draw();
   }
 
   game.printLog();
