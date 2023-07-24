@@ -10,7 +10,7 @@ private:
 public:
   Map(char *path);
   ~Map();
-  void readMapFile();
+  int readMapFile();
   void AnalyzeFile(FieldInfo **info, Field_t ***map);
 };
 

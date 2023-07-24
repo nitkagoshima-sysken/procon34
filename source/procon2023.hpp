@@ -21,7 +21,7 @@ typedef struct {
 #define WALL_POINT     20
 #define POSITION_POINT 30
 
-#define TURN_NUM 30
+#define TURN_NUM 10
 
 typedef enum {
   FILD_NONE,

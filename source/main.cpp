@@ -22,6 +22,9 @@ int main(int argc, char *argv[]) {
   FieldInfo *info;
   Field_t **fieldmap;
 
+  if(map.readMapFile() < 0) {
+    return 1;
+  }
   map.AnalyzeFile(&info, &fieldmap);
 
   Field field = Field(fieldmap, info);
