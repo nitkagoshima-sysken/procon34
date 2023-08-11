@@ -16,7 +16,9 @@ public:
   FieldKIND getInfoAtCoord(uint8_t x, uint8_t y); // 座標のフィールド情報
   bool isObjAtCoord(uint8_t x, uint8_t y); // オブジェクトがあるかどうか
   bool isIgnoreCoord(uint8_t x, uint8_t y); // 違反座標かどうか
-  void labeling();
+  char **labeling();
+
+  unsigned char **get_agent();
 };
 
 #endif

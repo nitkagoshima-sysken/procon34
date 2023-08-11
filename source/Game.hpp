@@ -29,6 +29,11 @@ typedef struct {
   uint8_t direc : 4;
 } Action;
 
+typedef struct {
+  Action *act;
+  uint8_t x, y;
+} Log;
+
 enum {
   ACT_SUCCESS,
   ACT_FAILED,
@@ -36,7 +41,7 @@ enum {
 
 class Game {
 private:
-  Action **log;
+  Log **log;
   uint8_t turn;
 public:
   Field *field;
@@ -57,7 +62,9 @@ public:
   int ActionAnAgent(bool belong, FieldKIND who, Action act); // 一人のエージェントのアクション
   int ActionAgent(bool belong, Action *act); // playerのエージェントのアクション
 
-  void addLog(Action *act_log); // ターン毎のエージェントのログを配列に追加
+  int Encamp_Update();
+
+  void addLog(Log *act_log); // ターン毎のエージェントのログを配列に追加
   void printLog();
 };
 

@@ -4,7 +4,8 @@
 #include <vector>
 using namespace std;
 
-Game::Game(Field *field) {
+Game::Game(Field *field)
+{
   this->field = field;
   for(int i = 0; i < field->fieldinfo->agent; i++) {
     uint8_t x1, y1, x2, y2;
@@ -12,21 +13,23 @@ Game::Game(Field *field) {
     findAgent((FieldKIND)(i + FILD_AGENT21), &x2, &y2);
   }
 
-  log = new Action*[TURN_NUM];
+  log = new Log*[TURN_NUM];
 
   current_turn = Player1;
 
   turn = 0;
 }
 
-Game::~Game() {
+Game::~Game()
+{
   for(int i = 0; log[i]; i++) {
     delete[] log[i];
   }
   delete log;
 }
 
-int Game::findAgent(FieldKIND agent, uint8_t *x, uint8_t *y) {
+int Game::findAgent(FieldKIND agent, uint8_t *x, uint8_t *y)
+{
   for(int i = 0; i < field->fieldinfo->height; i++) {
     for(int j = 0; j < field->fieldinfo->width; j++) {
       if(field->FieldMap[i][j].kind == agent) {
@@ -40,7 +43,8 @@ int Game::findAgent(FieldKIND agent, uint8_t *x, uint8_t *y) {
   return 1;
 }
 
-void Game::getLegalAct(vector<Action> &action, FieldKIND who) {
+void Game::getLegalAct(vector<Action> &action, FieldKIND who)
+{
   
   Action act;
 
@@ -95,7 +99,8 @@ void Game::getLegalAct(vector<Action> &action, FieldKIND who) {
 
 }
 
-int Game::ActionAnAgent(bool belong, FieldKIND who, Action act) {
+int Game::ActionAnAgent(bool belong, FieldKIND who, Action act)
+{
 
   ActionKind kind = (ActionKind)act.kind;
   Direction direc = (Direction)act.direc;
@@ -142,7 +147,8 @@ int Game::ActionAnAgent(bool belong, FieldKIND who, Action act) {
   return ACT_FAILED;
 }
 
-int Game::ActionAgent(bool belong, Action *act) {
+int Game::ActionAgent(bool belong, Action *act)
+{
 
   int offset;
   offset = (belong == Player1) ? FILD_AGENT11 : FILD_AGENT21;
@@ -155,16 +161,39 @@ int Game::ActionAgent(bool belong, Action *act) {
   return ACT_SUCCESS;
 }
 
-void Game::addLog(Action *act_log) {
+int Game::Encamp_Update()
+{
+  char **map;
+  Log **actions = this->log;
+
+  for(int i = 0; i < this->field->fieldinfo->agent; i++) {
+    if(actions[turn][i].act->kind != ACT_BUILD)
+      continue;
+    Log action = actions[turn][i];
+
+    Direction direc = (Direction)action.act->direc;
+    // 基点となる城壁の座標
+    uint8_t basic_x = action.x + round(cos(direc * PI/4));
+    uint8_t basic_y = action.y + round(sin(direc * PI/4));
+
+    
+
+  }
+
+}
+
+void Game::addLog(Log *act_log)
+{
   this->log[turn] = act_log;
   turn++;
   this->log[turn] = nullptr;
 }
 
-void Game::printLog() {
+void Game::printLog()
+{
   for(int i = 0; log[i]; i++) {
     for(int j = 0; j < field->fieldinfo->agent; j++) {
-      cout << j << ": " << "{ " << (int)log[i][j].kind << ", " << (int)log[i][j].direc << " } ";
+      cout << j << ": " << "{ " << (int)log[i][j].act->kind << ", " << (int)log[i][j].act->direc << " } ";
     }
     cout << endl;
   }

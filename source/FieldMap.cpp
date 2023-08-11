@@ -4,7 +4,8 @@
 #include <cstring>
 using namespace std;
 
-bool cmp(char *p, char *q) {
+bool cmp(char *p, char *q)
+{
   return memcmp(p, q, strlen(q)) == 0;
 }
 
@@ -13,12 +14,14 @@ Map::Map(char *path) {
   buf = nullptr;
 }
 
-Map::~Map() {
+Map::~Map()
+{
   if(buf != nullptr)
     delete[] buf;
 }
 
-int Map::readMapFile() {
+int Map::readMapFile()
+{
   ifstream ifmap;
 
   ifmap.open(MapFilePath, ios::out);
@@ -39,7 +42,8 @@ int Map::readMapFile() {
   return 0;
 }
 
-void Map::AnalyzeFile(FieldInfo **info, Field_t ***map) {
+void Map::AnalyzeFile(FieldInfo **info, Field_t ***map)
+{
   char *p = buf;
   char *q = buf;
   Length_t height = 1, width = 1;

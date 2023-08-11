@@ -2,12 +2,14 @@
 #include "procon2023.hpp"
 using namespace std;
 
-Field::Field(Field_t **fieldmap, FieldInfo *info) {
+Field::Field(Field_t **fieldmap, FieldInfo *info)
+{
   this->FieldMap = fieldmap;
   this->fieldinfo = info;
 }
 
-void Field::draw() {
+void Field::draw()
+{
   for(Length_t i = 0; i < fieldinfo->height; i++) {
     for(Length_t j = 0; j < fieldinfo->width; j++) {
 
@@ -44,21 +46,24 @@ void Field::draw() {
   cout << "\n";
 }
 
-FieldKIND Field::getInfoAtCoord(uint8_t x, uint8_t y) {
+FieldKIND Field::getInfoAtCoord(uint8_t x, uint8_t y)
+{
   if(isIgnoreCoord(x, y))
     return FILD_OutOfRange; 
   
   return (FieldKIND)FieldMap[y][x].kind;
 }
 
-bool Field::isIgnoreCoord(uint8_t x, uint8_t y) {
+bool Field::isIgnoreCoord(uint8_t x, uint8_t y)
+{
   if(x < 0 || x > fieldinfo->width - 1 || y < 0 || y > fieldinfo->height - 1) {
     return true;
   }
   return false;
 }
 
-bool Field::isObjAtCoord(uint8_t x, uint8_t y) {
+bool Field::isObjAtCoord(uint8_t x, uint8_t y)
+{
   if(FieldMap[y][x].kind == FILD_NONE)
     return false;
   return true;

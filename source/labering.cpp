@@ -1,7 +1,8 @@
 #include "procon2023.hpp"
 #include "labering.hpp"
 
-void labering(Game &game, const FieldKIND target, Length_t height, Length_t width) {
+void labering(Game &game, const FieldKIND target, Length_t height, Length_t width)
+{
   // TODO ゲームルール: 陣地の実装
 
   uint8_t lookup_table[10] = {0};
@@ -19,7 +20,8 @@ void labering(Game &game, const FieldKIND target, Length_t height, Length_t widt
       left_field_kind = game.getInfoAtCoord(i, j - 1);
 
       if((top_field_kind != target && left_field_kind != target) ||
-          top_field_kind == FILD_OutOfRange && left_field_kind == FILD_OutOfRange) {
+          top_field_kind == FILD_OutOfRange && left_field_kind == FILD_OutOfRange)
+          {
         lookup_table[cur_label] = cur_label;
         cur_label++;
       } else {
