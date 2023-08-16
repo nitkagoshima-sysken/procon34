@@ -40,6 +40,7 @@ int main(int argc, char *argv[])
     Log *log;
     act = new Action[info->agent];
     log = new Log[info->agent];
+    cout << "turn: " << turn << endl;
     cout << "current turn: " << (current_turn ? "player1" : "player2") << endl;
 
     int offset = (current_turn == Player1) ? FILD_AGENT11 : FILD_AGENT21;
@@ -56,11 +57,11 @@ int main(int argc, char *argv[])
       // 陣地ができたかどうかを確認し，更新する
       // game.Encamp_Update();
       
-      log->act = act;
+      log[i].act = act+i;
       uint8_t x, y;
       game.findAgent((FieldKIND)(i+offset), &x, &y);
-      log->x = x;
-      log->y = y;
+      log[i].x = x;
+      log[i].y = y;
     }
     current_turn = 1 - current_turn;
 

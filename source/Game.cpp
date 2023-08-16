@@ -2,6 +2,7 @@
 #include "Game.hpp"
 #include <math.h>
 #include <vector>
+#include <iomanip>
 using namespace std;
 
 Game::Game(Field *field)
@@ -122,6 +123,10 @@ int Game::ActionAnAgent(bool belong, FieldKIND who, Action act)
   if(kind == ACT_MOVE && !field->isObjAtCoord(mx, my)) {
     map[my][mx] = map[y][x];
     map[y][x].kind = FILD_NONE;
+
+    cout << "Player" << (int)belong << "'s agent" << (int)(who - ((belong == Player1) ? FILD_AGENT11 : FILD_AGENT21)) << " move "
+         << "( " << (int)mx << ", " << (int)my << " )\n";
+
     return ACT_SUCCESS;
   }
 
@@ -130,6 +135,10 @@ int Game::ActionAnAgent(bool belong, FieldKIND who, Action act)
       map[my][mx].kind = FILD_WALL1;
     else if(belong == Player2)
       map[my][mx].kind = FILD_WALL2;
+
+    cout << "Player" << (int)belong << "'s agent" << (int)(who - ((belong == Player1) ? FILD_AGENT11 : FILD_AGENT21)) << " build "
+         << "( " << (int)mx << ", " << (int)my << " )\n";
+      
     return ACT_SUCCESS;
   }
 
@@ -139,7 +148,11 @@ int Game::ActionAnAgent(bool belong, FieldKIND who, Action act)
       case FILD_WALL1:
       case FILD_WALL2:
         map[my][mx].kind = FILD_NONE;
-        return ACT_SUCCESS;
+
+      cout << "Player" << (int)belong << "'s agent" << (int)(who - ((belong == Player1) ? FILD_AGENT11 : FILD_AGENT21)) << " demolish "
+         << "( " << (int)mx << ", " << (int)my << " )\n";
+
+      return ACT_SUCCESS;
     }
   }
 
@@ -200,9 +213,9 @@ void Game::addLog(Log *act_log)
 
 void Game::printLog()
 {
-  for(int i = 0; log[i]; i++) {
+  for(int i = 0; i < TURN_NUM; i++) {
     for(int j = 0; j < field->fieldinfo->agent; j++) {
-      cout << j << ": " << "{ " << (int)log[i][j].act->kind << ", " << (int)log[i][j].act->direc << " } ";
+      cout << setw(2) << right<< i << ": " << "{ " << (int)log[i][j].act->kind << ", " << (int)log[i][j].act->direc << " } ";
     }
     cout << endl;
   }
