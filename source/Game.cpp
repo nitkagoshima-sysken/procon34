@@ -176,31 +176,6 @@ int Game::ActionAgent(bool belong, Action *act)
 
 int Game::Encamp_Update()
 {
-  Log **actions = this->log;
-  FieldKIND turn_wall = (this->current_turn == Player1) ? FILD_WALL1 : FILD_WALL2;
-
-  for(int i = 0; i < this->field->fieldinfo->agent; i++) {
-    if(actions[turn][i].act->kind != ACT_BUILD)
-      continue;
-    Log action = actions[turn][i];
-
-    Direction direc = (Direction)action.act->direc;
-    // 基点となる城壁の座標
-    uint8_t basic_x = action.x + round(cos(direc * PI/4));
-    uint8_t basic_y = action.y + round(sin(direc * PI/4));
-
-    for(int j = 0; j < 8; j++) {
-      // 8方向
-      uint8_t mx = basic_x + round(cos(j * PI/4));
-      uint8_t my = basic_y + round(sin(j * PI/4));
-
-      if(this->field->getInfoAtCoord(mx, my) != turn_wall)
-        continue;
-
-      // 調べてく
-    }
-
-  }
 
 }
 
