@@ -9,6 +9,7 @@ Field::Field(Field_t **fieldmap, FieldInfo *info)
 }
 
 void Field::draw()
+//TODO
 {
   for(Length_t i = 0; i < fieldinfo->height; i++) {
     for(Length_t j = 0; j < fieldinfo->width; j++) {

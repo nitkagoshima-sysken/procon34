@@ -10,12 +10,18 @@
 
 #define PI 3.14
 
-typedef unsigned char Length_t;
+#define PLAYER1_ENCAMP_BIT (1<<0)
+#define PLAYER2_ENCAMP_BIT (1<<1)
+#define CASTLE_BIT         (1<<2)
+#define POND_BIT           (1<<3)
+#define WALL1_BIT          (1<<4)
+#define WALL2_BIT          (1<<5)
+#define AGENT1_BIT         (1<<6)
+#define AGENT2_BIT         (1<<7)
 
-typedef struct {
-  unsigned char encamp : 2;
-  unsigned char kind : 6;
-} Field_t;
+typedef unsigned char Field_t;
+
+typedef unsigned char Length_t;
 
 #define CASTLE_POINT   10
 #define WALL_POINT     20
