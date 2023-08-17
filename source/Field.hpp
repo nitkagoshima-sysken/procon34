@@ -17,10 +17,8 @@ public:
   //bool isObjAtCoord(uint8_t x, uint8_t y); // オブジェクトがあるかどうか
   bool isIgnoreCoord(uint8_t x, uint8_t y); // 違反座標かどうか
 
-  bool move_enable(uint8_t x, uint8_t y); //移動できるかどうか
+  bool move_enable(uint8_t x, uint8_t y, bool belong); //移動できるかどうか
   bool build_enable(uint8_t x, uint8_t y); //建築できるかどうか
-
-  char **labeling();
 
   unsigned char **get_agent();
 };

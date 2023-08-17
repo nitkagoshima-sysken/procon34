@@ -65,7 +65,7 @@ public:
 
   void getLegalAct(std::vector<Action> &action, FieldKIND who); // 合法手を取得
 
-  int ActionAnAgent(bool belong, FieldKIND who, Action act); // 一人のエージェントのアクション
+  int ActionAnAgent(bool belong, uint8_t backnumber, Action act); // 一人のエージェントのアクション
   int ActionAgent(bool belong, Action *act); // playerのエージェントのアクション
 
   int Encamp_Update();
