@@ -221,7 +221,7 @@ void Game::printLog()
   }
 }
 
-int score()
+int Game::score()
 {
   int score1=0;
   int score2=0;

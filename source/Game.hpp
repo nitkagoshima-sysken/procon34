@@ -39,12 +39,19 @@ enum {
   ACT_FAILED,
 };
 
+class Agent {
+public:
+  uint8_t x, y;
+  uint8_t backnumber;
+};
+
 class Game {
 private:
   Log **log;
   uint8_t turn;
 public:
   Field *field;
+  Agent agent[6];
   bool current_turn;
   Game(Field *field);
   ~Game();
