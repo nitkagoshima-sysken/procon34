@@ -174,32 +174,65 @@ int Game::ActionAgent(bool belong, Action *act)
   return ACT_SUCCESS;
 }
 
-int Game::Encamp_Update()
+void Game::pushCell(Cell *stack, short &sp, uint8_t x, uint8_t y)
 {
-  Log **actions = this->log;
-  FieldKIND turn_wall = (this->current_turn == Player1) ? FILD_WALL1 : FILD_WALL2;
+  stack[sp].x = x;
+  stack[sp].y = y;
+  sp++;
+}
 
-  for(int i = 0; i < this->field->fieldinfo->agent; i++) {
-    if(actions[turn][i].act->kind != ACT_BUILD)
-      continue;
-    Log action = actions[turn][i];
+void Game::popCell(Cell *stack, short &sp, uint8_t &x, uint8_t &y)
+{
+  x = stack[sp].x;
+  y = stack[sp].y;
+  sp--;
+}
 
-    Direction direc = (Direction)action.act->direc;
-    // 基点となる城壁の座標
-    uint8_t basic_x = action.x + round(cos(direc * PI/4));
-    uint8_t basic_y = action.y + round(sin(direc * PI/4));
+void Game::Encamp_Update(uint8_t seed_x, uint8_t seed_y)
+{
+  if(field->isIgnoreCoord(seed_x, seed_y))
+    return;
 
-    for(int j = 0; j < 8; j++) {
-      // 8方向
-      uint8_t mx = basic_x + round(cos(j * PI/4));
-      uint8_t my = basic_y + round(sin(j * PI/4));
+  bool bitmap[field->fieldinfo->height][field->fieldinfo->width];
+  Cell stack[STACK_MAX_NUM];
+  short sp = 0;
 
-      if(this->field->getInfoAtCoord(mx, my) != turn_wall)
-        continue;
+  uint8_t target_wall = (current_turn == Player1) ? BIT_WALL1 : BIT_WALL2;
 
-      // 調べてく
+  for(uint8_t i = 0; i < field->fieldinfo->height; i++) {
+    for(uint8_t j = 0; j < field->fieldinfo->width; j++) {
+      bitmap[i][j] = false;
     }
+  }
 
+  if(field->FieldMap[seed_y][seed_x] & target_wall) { // シード座標が城壁ならストップ
+    return;
+  }
+  pushCell(stack, sp, seed_x, seed_y);
+
+  while(sp >= 0) {
+
+    for(int direc = 0; direc < 8; direc++) {
+      uint8_t mx = seed_x + round(cos(direc * PI/4));
+      uint8_t my = seed_y + round(sin(direc * PI/4));
+
+      if(field->isIgnoreCoord(mx, my)) { // 途中でフィールド範囲外に到達したということは陣地形成していない
+        return;
+      }
+
+      if(!(field->FieldMap[my][mx] & target_wall)) { // 城壁じゃなければ(陣地になる可能性があれば)
+        pushCell(stack, sp, mx, my);
+        bitmap[my][mx] = true;
+      }
+    }
+  }
+  // ここまで来たということは陣地形成されている
+  for(uint8_t i = 0; i < field->fieldinfo->height; i++) {
+    for(uint8_t j = 0; j < field->fieldinfo->width; j++) {
+      if(bitmap[i][j]) {
+        field->fieldinfo[i][j] |= target_wall;
+      }
+    }
   }
 
 }
@@ -221,26 +254,26 @@ void Game::printLog()
   }
 }
 
-int score()
+int Game::score()
 {
   int score1=0;
   int score2=0;
 
-  for(int i=0 ; i < this.field->fieldinfo->height ; i++){
-    for(int j=0 ; j < this.field->fieldinfo->width ; j++){
-      if(this.field->FieldMap[i][j] & BIT_WALL1){
+  for(int i=0 ; i < this->field->fieldinfo->height ; i++){
+    for(int j=0 ; j < this->field->fieldinfo->width ; j++){
+      if(this->field->FieldMap[i][j] & BIT_WALL1){
         score1 += WALL_POINT;
-      }else if(this.field->FieldMap[i][j] & BIT_ENCAMP1){
+      }else if(this->field->FieldMap[i][j] & BIT_ENCAMP1){
         score1 += POSITION_POINT;
-        if(this.field->FieldMap[i][j] & BIT_CASTLE){
+        if(this->field->FieldMap[i][j] & BIT_CASTLE){
           score1 += CASTLE_POINT;
         }
       }
-      if(this.field->FieldMap[i][j] & BIT_WALL2){
+      if(this->field->FieldMap[i][j] & BIT_WALL2){
         score2 += WALL_POINT;
-      }else if(this.field->FieldMap[i][j] & BIT_ENCAMP2){
+      }else if(this->field->FieldMap[i][j] & BIT_ENCAMP2){
         score2 += POSITION_POINT;
-        if(this.field->FieldMap[i][j] & BIT_CASTLE){
+        if(this->field->FieldMap[i][j] & BIT_CASTLE){
           score2 += CASTLE_POINT;
         }
       }
