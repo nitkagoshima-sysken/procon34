@@ -67,7 +67,6 @@ int main(int argc, char *argv[])
 
     game.addLog(log);
 
-    // 
     game.field->draw();
   }
 
