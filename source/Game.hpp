@@ -39,11 +39,10 @@ enum {
   ACT_FAILED,
 };
 
-class Agent {
-public:
+typedef struct {
   uint8_t x, y;
   uint8_t backnumber;
-};
+} Agent;
 
 class Game {
 private:
