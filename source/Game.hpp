@@ -51,7 +51,7 @@ private:
   uint8_t turn;
 public:
   Field *field;
-  Agent agent[6];
+  Agent *agent;
   bool current_turn;
   Game(Field *field);
   ~Game();

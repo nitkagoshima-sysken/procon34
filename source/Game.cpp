@@ -18,6 +18,8 @@ Game::Game(Field *field)
 
   current_turn = Player1;
 
+  agent = new Agent[field->fieldinfo->agent]();
+
   turn = 0;
 }
 
