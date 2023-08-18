@@ -51,9 +51,23 @@ bool Field::isIgnoreCoord(uint8_t x, uint8_t y)
   return false;
 }
 
-bool Field::isObjAtCoord(uint8_t x, uint8_t y)
+/*bool Field::isObjAtCoord(uint8_t x, uint8_t y)
 {
   if(FieldMap[y][x].kind == FILD_NONE)
+    return false;
+  return true;
+}*/
+
+bool Field::move_enable(uint8_t x, uint8_t y)
+{
+  if(FieldMap[y][x] & (BIT_AGENT1 | BIT_AGENT2 | BIT_POND | BIT_WALL2))
+    return false;
+  return true;
+}
+
+bool Field::build_enable(uint8_t x, uint8_t y)
+{
+  if(FieldMap[y][x] & (BIT_AGENT1 | BIT_AGENT2 | BIT_CASTLE | BIT_WALL2 | BIT_WALL1))
     return false;
   return true;
 }
