@@ -58,9 +58,10 @@ bool Field::isIgnoreCoord(uint8_t x, uint8_t y)
   return true;
 }*/
 
-bool Field::move_enable(uint8_t x, uint8_t y)
+bool Field::move_enable(uint8_t x, uint8_t y, bool belong)
 {
-  if(FieldMap[y][x] & (BIT_AGENT1 | BIT_AGENT2 | BIT_POND | BIT_WALL2))
+  bool target_wall = (belong == Player1) ? BIT_WALL1 : BIT_WALL2;
+  if(FieldMap[y][x] & (BIT_AGENT1 | BIT_AGENT2 | BIT_POND | target_wall))
     return false;
   return true;
 }

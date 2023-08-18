@@ -18,7 +18,7 @@ Game::Game(Field *field)
 
   current_turn = Player1;
 
-  agent = new Agent[field->fieldinfo->agent]();
+  agent = new Agent[field->fieldinfo->agent];
 
   turn = 0;
 }
@@ -29,21 +29,6 @@ Game::~Game()
     delete[] log[i];
   }
   delete log;
-}
-
-int Game::findAgent(FieldKIND agent, uint8_t *x, uint8_t *y)
-{
-  for(int i = 0; i < field->fieldinfo->height; i++) {
-    for(int j = 0; j < field->fieldinfo->width; j++) {
-      if(field->FieldMap[i][j].kind == agent) {
-        *y = i;
-        *x = j;
-        // cout << "find agent at " << j << ", " << i << "\n";
-        return 0;
-      }
-    }
-  }
-  return 1;
 }
 
 void Game::getLegalAct(vector<Action> &action, uint8_t b_nomber)
@@ -75,7 +60,7 @@ void Game::getLegalAct(vector<Action> &action, uint8_t b_nomber)
       act.kind = ACT_BUILD;
       action.push_back(act);
     }
-    if(field->move_enable(mx,my)){
+    if(field->move_enable(mx,my, current_turn)){
       act.kind = ACT_MOVE;
       action.push_back(act);
     }
@@ -100,7 +85,7 @@ void Game::getLegalAct(vector<Action> &action, uint8_t b_nomber)
 
 }
 
-int Game::ActionAnAgent(bool belong, FieldKIND who, Action act)
+int Game::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
 {
 
   ActionKind kind = (ActionKind)act.kind;
@@ -110,53 +95,51 @@ int Game::ActionAnAgent(bool belong, FieldKIND who, Action act)
 
   uint8_t x, y;
 
-  findAgent(who, &x, &y);
+  x = agent[backnumber].x;
+  y = agent[backnumber].y;
 
   uint8_t mx = x + round(cos(direc * PI/4));
   uint8_t my = y + round(sin(direc * PI/4));
 
+  uint8_t target_agent = (belong == Player1) ? BIT_AGENT1 : BIT_AGENT2;
+  uint8_t target_wall = (belong == Player1) ? BIT_WALL1 : BIT_WALL2;
+
   if(field->isIgnoreCoord(mx, my)) {
-    cerr << "Ignore coord:" << (int)who << endl;
+    cerr << "Ignore coord:" << (int)backnumber << endl;
     return ACT_FAILED;
   }
 
-  if(kind == ACT_MOVE && !field->isObjAtCoord(mx, my)) {
-    map[my][mx] = map[y][x];
-    map[y][x].kind = FILD_NONE;
+  if(kind == ACT_MOVE && field->move_enable(mx, my, belong)) {
+    map[my][mx] |= (target_agent & map[y][x]); // Agentを移動
+    agent[backnumber].x = mx;
+    agent[backnumber].y = my; // Agent構造体のx, y座標も移動させて帳尻合わせ
 
-    cout << "Player" << (int)belong << "'s agent" << (int)(who - ((belong == Player1) ? FILD_AGENT11 : FILD_AGENT21)) << " move "
+    cout << "Player" << (int)belong << "'s agent" << (int)(backnumber - ((belong == Player1) ? FILD_AGENT11 : FILD_AGENT21)) << " move "
          << "( " << (int)mx << ", " << (int)my << " )\n";
 
     return ACT_SUCCESS;
   }
 
-  if(kind == ACT_BUILD && !field->isObjAtCoord(mx, my)) {
-    if(belong == Player1)
-      map[my][mx].kind = FILD_WALL1;
-    else if(belong == Player2)
-      map[my][mx].kind = FILD_WALL2;
+  if(kind == ACT_BUILD && field->build_enable(mx, my)) {
+      map[my][mx] |= target_wall;
 
-    cout << "Player" << (int)belong << "'s agent" << (int)(who - ((belong == Player1) ? FILD_AGENT11 : FILD_AGENT21)) << " build "
+    cout << "Player" << (int)belong << "'s agent" << (int)(backnumber - ((belong == Player1) ? FILD_AGENT11 : FILD_AGENT21)) << " build "
          << "( " << (int)mx << ", " << (int)my << " )\n";
       
     return ACT_SUCCESS;
   }
 
-  if(kind == ACT_DEMOLISH)
-  {
-    switch(field->getInfoAtCoord(mx, my)) {
-      case FILD_WALL1:
-      case FILD_WALL2:
-        map[my][mx].kind = FILD_NONE;
+  if(kind == ACT_DEMOLISH) {
+    if(field->FieldMap[my][mx] & (BIT_WALL1 | BIT_WALL2))
+        map[my][mx] &= !(BIT_WALL1 | BIT_WALL2);
 
-      cout << "Player" << (int)belong << "'s agent" << (int)(who - ((belong == Player1) ? FILD_AGENT11 : FILD_AGENT21)) << " demolish "
+      cout << "Player" << (int)belong << "'s agent" << (int)(backnumber - ((belong == Player1) ? FILD_AGENT11 : FILD_AGENT21)) << " demolish "
          << "( " << (int)mx << ", " << (int)my << " )\n";
 
       return ACT_SUCCESS;
-    }
   }
 
-  cerr << "Act failed: " << (int)who << endl; 
+  cerr << "Act failed: " << (int)backnumber << endl; 
   return ACT_FAILED;
 }
 
