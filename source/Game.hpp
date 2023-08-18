@@ -66,6 +66,8 @@ public:
 
   void addLog(Log *act_log); // ターン毎のエージェントのログを配列に追加
   void printLog();
+
+  int score();
 };
 
 #endif

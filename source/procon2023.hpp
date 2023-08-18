@@ -10,21 +10,21 @@
 
 #define PI 3.14
 
-#define PLAYER1_ENCAMP_BIT (1<<0)
-#define PLAYER2_ENCAMP_BIT (1<<1)
-#define CASTLE_BIT         (1<<2)
-#define POND_BIT           (1<<3)
-#define WALL1_BIT          (1<<4)
-#define WALL2_BIT          (1<<5)
-#define AGENT1_BIT         (1<<6)
-#define AGENT2_BIT         (1<<7)
+#define BIT_ENCAMP1        (1<<0)
+#define BIT_ENCAMP2        (1<<1)
+#define BIT_CASTLE         (1<<2)
+#define BIT_POND           (1<<3)
+#define BIT_WALL1          (1<<4)
+#define BIT_WALL2          (1<<5)
+#define BIT_AGENT1         (1<<6)
+#define BIT_AGENT2         (1<<7)
 
 typedef unsigned char Field_t;
 
 typedef unsigned char Length_t;
 
-#define CASTLE_POINT   10
-#define WALL_POINT     20
+#define CASTLE_POINT   100
+#define WALL_POINT     10
 #define POSITION_POINT 30
 
 #define TURN_NUM 50

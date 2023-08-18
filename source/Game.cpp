@@ -220,3 +220,30 @@ void Game::printLog()
     cout << endl;
   }
 }
+
+int score()
+{
+  int score1=0;
+  int score2=0;
+
+  for(int i=0 ; i < this.field->fieldinfo->height ; i++){
+    for(int j=0 ; j < this.field->fieldinfo->width ; j++){
+      if(this.field->FieldMap[i][j] & BIT_WALL1){
+        score1 += WALL_POINT;
+      }else if(this.field->FieldMap[i][j] & BIT_ENCAMP1){
+        score1 += POSITION_POINT;
+        if(this.field->FieldMap[i][j] & BIT_CASTLE){
+          score1 += CASTLE_POINT;
+        }
+      }
+      if(this.field->FieldMap[i][j] & BIT_WALL2){
+        score2 += WALL_POINT;
+      }else if(this.field->FieldMap[i][j] & BIT_ENCAMP2){
+        score2 += POSITION_POINT;
+        if(this.field->FieldMap[i][j] & BIT_CASTLE){
+          score2 += CASTLE_POINT;
+        }
+      }
+    }
+  }
+}
