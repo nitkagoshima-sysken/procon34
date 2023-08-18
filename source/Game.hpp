@@ -56,7 +56,8 @@ private:
   uint8_t turn;
 public:
   Field *field;
-  Agent *agent;
+  Agent *agent1;
+  Agent *agent2;
   bool current_turn;
   Game(Field *field);
   ~Game();
@@ -66,8 +67,6 @@ public:
   FieldKIND getInfoAtCoord(uint8_t x, uint8_t y); // 座標のフィールド情報
   bool isObjAtCoord(uint8_t x, uint8_t y); // オブジェクトがあるかどうか
   bool isIgnoreCoord(uint8_t x, uint8_t y); // 違反座標かどうか
-
-  int findAgent(FieldKIND agent, uint8_t *x, uint8_t *y); // 引数で渡されたエージェントを見つける
 
   void getLegalAct(std::vector<Action> &action, uint8_t b_nomber); // 合法手を取得
 

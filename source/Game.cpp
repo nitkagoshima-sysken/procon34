@@ -8,17 +8,33 @@ using namespace std;
 Game::Game(Field *field)
 {
   this->field = field;
+
+  agent1 = new Agent[field->fieldinfo->agent];
+  agent2 = new Agent[field->fieldinfo->agent];
+
   for(int i = 0; i < field->fieldinfo->agent; i++) {
     uint8_t x1, y1, x2, y2;
-    findAgent((FieldKIND)(i + FILD_AGENT11), &x1, &y1);
-    findAgent((FieldKIND)(i + FILD_AGENT21), &x2, &y2);
+    int cnt1 = 0, cnt2 = 0;
+    for(int j = 0; j < field->fieldinfo->height; j++) {
+      for(int k = 0; k < field->fieldinfo->width; k++) {
+        if(field->FieldMap[j][k] & BIT_AGENT1) { 
+          agent1[cnt1].x = k;
+          agent1[cnt1].y = j;
+          cnt1++;
+          continue;
+        }
+        if(field->FieldMap[j][k] & BIT_AGENT2) {
+          agent2[cnt2].x = k;
+          agent2[cnt2].y = j;
+          cnt2++;
+        }
+      }
+    }
   }
 
   log = new Log*[TURN_NUM];
 
   current_turn = Player1;
-
-  agent = new Agent[field->fieldinfo->agent];
 
   turn = 0;
 }
@@ -37,8 +53,11 @@ void Game::getLegalAct(vector<Action> &action, uint8_t b_nomber)
   Action act;
 
   uint8_t x, y;
-  x = agent[b_nomber].x;
-  y = agent[b_nomber].y;
+
+  Agent *target_agent = (current_turn == Player1) ? agent1: agent2;
+
+  x = target_agent[b_nomber].x;
+  y = target_agent[b_nomber].y;
   // cout << "x: " << (int)x << " y: " << (int)y << endl;
 
   // 4方向(左右上下)を探索
@@ -95,13 +114,15 @@ int Game::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
 
   uint8_t x, y;
 
-  x = agent[backnumber].x;
-  y = agent[backnumber].y;
+  Agent *target_agent = (belong == Player1) ? agent1: agent2;
+
+  x = target_agent[backnumber].x;
+  y = target_agent[backnumber].y;
 
   uint8_t mx = x + round(cos(direc * PI/4));
   uint8_t my = y + round(sin(direc * PI/4));
 
-  uint8_t target_agent = (belong == Player1) ? BIT_AGENT1 : BIT_AGENT2;
+  uint8_t target_agent_bit = (belong == Player1) ? BIT_AGENT1 : BIT_AGENT2;
   uint8_t target_wall = (belong == Player1) ? BIT_WALL1 : BIT_WALL2;
 
   if(field->isIgnoreCoord(mx, my)) {
@@ -110,9 +131,9 @@ int Game::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
   }
 
   if(kind == ACT_MOVE && field->move_enable(mx, my, belong)) {
-    map[my][mx] |= (target_agent & map[y][x]); // Agentを移動
-    agent[backnumber].x = mx;
-    agent[backnumber].y = my; // Agent構造体のx, y座標も移動させて帳尻合わせ
+    map[my][mx] |= (target_agent_bit & map[y][x]); // Agentを移動
+    target_agent[backnumber].x = mx;
+    target_agent[backnumber].y = my; // Agent構造体のx, y座標も移動させて帳尻合わせ
 
     cout << "Player" << (int)belong << "'s agent" << (int)(backnumber - ((belong == Player1) ? FILD_AGENT11 : FILD_AGENT21)) << " move "
          << "( " << (int)mx << ", " << (int)my << " )\n";

@@ -43,16 +43,17 @@ int main(int argc, char *argv[])
     cout << "turn: " << turn << endl;
     cout << "current turn: " << (current_turn ? "player1" : "player2") << endl;
 
-    int offset = (current_turn == Player1) ? FILD_AGENT11 : FILD_AGENT21;
+    Agent *agent = (current_turn == Player1) ? game.agent1 : game.agent2;
     for(int i = 0; i < info->agent; i++) {
+      Agent target_agent = agent[i];
       vector<Action> legal_act;
-      game.getLegalAct(legal_act, (FieldKIND)(i+offset));
+      game.getLegalAct(legal_act, i);
 
       int rand_act = rand()%legal_act.size();
       act[i] = legal_act[rand_act];
 
       // cout << "select: " << (int)act[i].kind << ", " << (int)act[i].direc << endl;
-      game.ActionAnAgent(current_turn, (FieldKIND)(i+offset), act[i]);
+      game.ActionAnAgent(current_turn, i, act[i]);
 
       // 陣地ができたかどうかを確認し，更新する
       for(uint8_t i = 0; i < info->height; i++) {
@@ -63,7 +64,8 @@ int main(int argc, char *argv[])
       
       log[i].act = act+i;
       uint8_t x, y;
-      game.findAgent((FieldKIND)(i+offset), &x, &y);
+      x = target_agent.x;
+      y = target_agent.y;
       log[i].x = x;
       log[i].y = y;
     }
