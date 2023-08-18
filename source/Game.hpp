@@ -4,6 +4,8 @@
 #include "procon2023.hpp"
 #include "Field.hpp"
 
+#define STACK_MAX_NUM 625
+
 typedef enum {
   ACT_NONE,
   ACT_MOVE,
@@ -44,6 +46,10 @@ typedef struct {
   uint8_t backnumber;
 } Agent;
 
+typedef struct {
+  uint8_t x, y;
+} Cell;
+
 class Game {
 private:
   Log **log;
@@ -68,7 +74,9 @@ public:
   int ActionAnAgent(bool belong, uint8_t backnumber, Action act); // 一人のエージェントのアクション
   int ActionAgent(bool belong, Action *act); // playerのエージェントのアクション
 
-  int Encamp_Update();
+  void pushCell(Cell *stack, short &sp, uint8_t x, uint8_t y);
+  void popCell(Cell *stack, short &sp, uint8_t &x, uint8_t &y);
+  void Encamp_Update(uint8_t seed_x, uint8_t seed_y);
 
   void addLog(Log *act_log); // ターン毎のエージェントのログを配列に追加
   void printLog();
