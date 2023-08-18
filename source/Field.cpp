@@ -14,45 +14,33 @@ void Field::draw()
   for(Length_t i = 0; i < fieldinfo->height; i++) {
     for(Length_t j = 0; j < fieldinfo->width; j++) {
 
-      switch(FieldMap[i][j].encamp) {
+      switch(FieldMap[i][j] & (BIT_ENCAMP1 | BIT_ENCAMP2)) {
         case FILD_POSITION_RED : cout << "\x1b[41m"; break;
         case FILD_POSIITON_BLUE: cout << "\x1b[44m"; break;
         case FILD_POSITION_NONE: cout << "\x1b[49m"; break;
+        case FILD_POSITION_AND : cout << "\x1b[45m"; break;
       }
 
-      switch(FieldMap[i][j].kind) {
-        case FILD_NONE : cout << "--"; break;
-        case FILD_WALL1: cout << "#1"; break;
-        case FILD_WALL2: cout << "#2"; break;
-        case FILD_POND : cout << "PD"; break;
-        case FILD_CASL : cout << "@@"; break;
-
-        case FILD_AGENT11 : cout << "A1"; break;
-        case FILD_AGENT12 : cout << "A2"; break;
-        case FILD_AGENT13 : cout << "A3"; break;
-        case FILD_AGENT14 : cout << "A4"; break;
-        case FILD_AGENT15 : cout << "A5"; break;
-        case FILD_AGENT16 : cout << "A6"; break;
-
-        case FILD_AGENT21 : cout << "B1"; break;
-        case FILD_AGENT22 : cout << "B2"; break;
-        case FILD_AGENT23 : cout << "B3"; break;
-        case FILD_AGENT24 : cout << "B4"; break;
-        case FILD_AGENT25 : cout << "B5"; break;
-        case FILD_AGENT26 : cout << "B6"; break;
+      switch (FieldMap[i][j] & (BIT_AGENT1 | BIT_AGENT2 /*| BIT_POND*/))
+      {
+        case FILD_AGENT1 : cout << "1"; break;
+        case FILD_AGENT2 : cout << "2"; break;
+        //case FILD_POND   : cout << "P"; break;
+        
+        default          : cout << "-"; break;
+      }
+      switch (FieldMap[i][j] & (BIT_CASTLE | BIT_WALL1 | BIT_WALL2))
+      {
+        case FILD_CASL   : cout << "@"; break;
+        case FILD_WALL1  : cout << "A"; break;
+        case FILD_WALL2  : cout << "B"; break;
+        
+        default          : cout << (FieldMap[i][j] & BIT_POND)? "P" : "-"; break;
       }
     }
     cout << "\x1b[49m\n";
   }
   cout << "\n";
-}
-
-FieldKIND Field::getInfoAtCoord(uint8_t x, uint8_t y)
-{
-  if(isIgnoreCoord(x, y))
-    return FILD_OutOfRange; 
-  
-  return (FieldKIND)FieldMap[y][x].kind;
 }
 
 bool Field::isIgnoreCoord(uint8_t x, uint8_t y)

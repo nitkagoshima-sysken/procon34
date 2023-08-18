@@ -29,12 +29,20 @@ typedef unsigned char Length_t;
 
 #define TURN_NUM 50
 
+#define FILD_NONE   0
+#define FILD_WALL1   BIT_WALL1
+#define FILD_WALL2   BIT_WALL2
+#define FILD_POND    BIT_POND
+#define FILD_CASL    BIT_CASTLE
+#define FILD_AGENT1  BIT_AGENT1
+#define FILD_AGENT2  BIT_AGENT2
+
+#define FILD_POSITION_NONE 0
+#define FILD_POSITION_RED  BIT_ENCAMP1
+#define FILD_POSIITON_BLUE BIT_ENCAMP2
+#define FILD_POSITION_AND  BIT_ENCAMP1 | BIT_ENCAMP2
+
 typedef enum {
-  FILD_NONE,
-  FILD_WALL1,
-  FILD_WALL2,
-  FILD_POND,
-  FILD_CASL,
 
   FILD_OutOfRange,
 
@@ -50,10 +58,6 @@ typedef enum {
   FILD_AGENT24,
   FILD_AGENT25,
   FILD_AGENT26,
-
-  FILD_POSITION_NONE = 0,
-  FILD_POSITION_RED  = 1,
-  FILD_POSIITON_BLUE = 2,
 
 } FieldKIND;
 
