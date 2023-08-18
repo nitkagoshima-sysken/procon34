@@ -64,7 +64,7 @@ void Map::AnalyzeFile(FieldInfo **info, Field_t ***map)
 
   for(int i = 0; i < height; i++) {
     for(int j = 0; j < width;) {
-      FieldKIND cell = FILD_NONE;
+      uint8_t cell = FILD_NONE;
       if(isspace(*p)) {
         p++;
         continue;
@@ -86,15 +86,15 @@ void Map::AnalyzeFile(FieldInfo **info, Field_t ***map)
           castle++;
           break;
         case 'a' :
-          cell = (FieldKIND)(FILD_AGENT11 + agent1);
+          cell = BIT_AGENT1;
           agent1++;
           break;
         case 'b' :
-          cell = (FieldKIND)(FILD_AGENT21 + agent2);
+          cell = BIT_AGENT2;
           agent2++;
           break;
       }
-      (*map)[i][j].kind = cell;
+      (*map)[i][j] &= cell;
       cout << *p;
       p++; j++;
     }
