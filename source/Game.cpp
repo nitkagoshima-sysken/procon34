@@ -72,7 +72,7 @@ void Game::getLegalAct(vector<Action> &action, uint8_t b_nomber)
     uint8_t mx = x + round(cos(direc * PI/4));
     uint8_t my = y + round(sin(direc * PI/4));
 
-    if(field->isIgnoreCoord(mx, my) || !(field->move_enable(mx, my))) {
+    if(field->isIgnoreCoord(mx, my) || !(field->move_enable(mx, my, current_turn))) {
       continue;
     }
 
@@ -213,7 +213,7 @@ void Game::Encamp_Update(uint8_t seed_x, uint8_t seed_y)
   for(uint8_t i = 0; i < field->fieldinfo->height; i++) {
     for(uint8_t j = 0; j < field->fieldinfo->width; j++) {
       if(bitmap[i][j]) {
-        field->fieldinfo[i][j] |= target_wall;
+        field->FieldMap[i][j] |= target_wall;
       }
     }
   }
