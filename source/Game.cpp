@@ -46,13 +46,14 @@ int Game::findAgent(FieldKIND agent, uint8_t *x, uint8_t *y)
   return 1;
 }
 
-void Game::getLegalAct(vector<Action> &action, FieldKIND who)
+void Game::getLegalAct(vector<Action> &action, uint8_t b_nomber)
 {
   
   Action act;
 
   uint8_t x, y;
-  findAgent(who, &x, &y);
+  x = agent[b_nomber].x;
+  y = agent[b_nomber].y;
   // cout << "x: " << (int)x << " y: " << (int)y << endl;
 
   // 4方向(左右上下)を探索
@@ -66,20 +67,17 @@ void Game::getLegalAct(vector<Action> &action, FieldKIND who)
       continue;
     }
     act.direc = direc;
-    switch(field->getInfoAtCoord(mx, my)) {
-      case FILD_WALL1:
-      case FILD_WALL2:
-        // cout << "demolish" << endl;
-        act.kind  = ACT_DEMOLISH;
-        action.push_back(act);
-        break;
-      case FILD_NONE:
-        act.kind = ACT_MOVE;
-        action.push_back(act);
-        act.kind = ACT_BUILD;
-        action.push_back(act);
-        // cout << "move and build" << endl;
-        break;
+    if(field->FieldMap[my][mx] & (BIT_WALL1 | BIT_WALL2)){
+      act.kind = ACT_DEMOLISH;
+      action.push_back(act);
+    }
+    if(field->build_enable(mx,my)){
+      act.kind = ACT_BUILD;
+      action.push_back(act);
+    }
+    if(field->move_enable(mx,my)){
+      act.kind = ACT_MOVE;
+      action.push_back(act);
     }
   }
 
@@ -89,7 +87,7 @@ void Game::getLegalAct(vector<Action> &action, FieldKIND who)
     uint8_t mx = x + round(cos(direc * PI/4));
     uint8_t my = y + round(sin(direc * PI/4));
 
-    if(field->isIgnoreCoord(mx, my) || field->isObjAtCoord(mx, my)) {
+    if(field->isIgnoreCoord(mx, my) || !(field->move_enable(mx, my))) {
       continue;
     }
 
