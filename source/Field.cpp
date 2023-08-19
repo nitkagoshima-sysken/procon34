@@ -23,19 +23,19 @@ void Field::draw()
 
       switch (FieldMap[i][j] & (BIT_AGENT1 | BIT_AGENT2 /*| BIT_POND*/))
       {
-        case FILD_AGENT1 : cout << "1"; break;
-        case FILD_AGENT2 : cout << "2"; break;
+        case FILD_AGENT1 : cout << '1'; break;
+        case FILD_AGENT2 : cout << '2'; break;
         //case FILD_POND   : cout << "P"; break;
         
-        default          : cout << "-"; break;
+        default          : cout << '-'; break;
       }
       switch (FieldMap[i][j] & (BIT_CASTLE | BIT_WALL1 | BIT_WALL2))
       {
-        case FILD_CASL   : cout << "@"; break;
-        case FILD_WALL1  : cout << "A"; break;
-        case FILD_WALL2  : cout << "B"; break;
+        case FILD_CASL   : cout << '@'; break;
+        case FILD_WALL1  : cout << 'A'; break;
+        case FILD_WALL2  : cout << 'B'; break;
         
-        default          : cout << (FieldMap[i][j] & BIT_POND)? "P" : "-"; break;
+        default          : cout << (char)((FieldMap[i][j] & BIT_POND)? 'P' : '-'); break;
       }
     }
     cout << "\x1b[49m\n";

@@ -94,7 +94,7 @@ void Map::AnalyzeFile(FieldInfo **info, Field_t ***map)
           agent2++;
           break;
       }
-      (*map)[i][j] &= cell;
+      (*map)[i][j] = cell;
       cout << *p;
       p++; j++;
     }

@@ -215,10 +215,12 @@ void Game::Encamp_Update(uint8_t seed_x, uint8_t seed_y)
   pushCell(stack, sp, seed_x, seed_y);
 
   while(sp >= 0) {
+    uint8_t x, y;
+    popCell(stack, sp, x, y);
 
     for(int direc = 0; direc < 8; direc++) {
-      uint8_t mx = seed_x + round(cos(direc * PI/4));
-      uint8_t my = seed_y + round(sin(direc * PI/4));
+      uint8_t mx = x + round(cos(direc * PI/4));
+      uint8_t my = y + round(sin(direc * PI/4));
 
       if(field->isIgnoreCoord(mx, my)) { // 途中でフィールド範囲外に到達したということは陣地形成していない
         return;
