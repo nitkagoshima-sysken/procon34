@@ -4,7 +4,7 @@
 #include "procon2023.hpp"
 #include "Field.hpp"
 
-#define STACK_MAX_NUM 625
+#define STACK_MAX_NUM 1000
 
 typedef enum {
   ACT_NONE,
@@ -47,7 +47,8 @@ typedef struct {
 } Agent;
 
 typedef struct {
-  uint8_t x, y;
+  uint8_t x;
+  uint8_t y;
 } Cell;
 
 class Game {
@@ -62,8 +63,6 @@ public:
   Game(Field *field);
   ~Game();
 
-  void draw();
-
   FieldKIND getInfoAtCoord(uint8_t x, uint8_t y); // 座標のフィールド情報
   bool isObjAtCoord(uint8_t x, uint8_t y); // オブジェクトがあるかどうか
   bool isIgnoreCoord(uint8_t x, uint8_t y); // 違反座標かどうか
@@ -74,7 +73,7 @@ public:
   int ActionAgent(bool belong, Action *act); // playerのエージェントのアクション
 
   void pushCell(Cell *stack, short &sp, uint8_t x, uint8_t y);
-  void popCell(Cell *stack, short &sp, uint8_t &x, uint8_t &y);
+  int popCell(Cell *stack, short &sp, uint8_t &x, uint8_t &y);
   void Encamp_Update(uint8_t seed_x, uint8_t seed_y);
 
   void addLog(Log *act_log); // ターン毎のエージェントのログを配列に追加

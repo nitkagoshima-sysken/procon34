@@ -13,7 +13,6 @@ Game::Game(Field *field)
   agent2 = new Agent[field->fieldinfo->agent];
 
   for(int i = 0; i < field->fieldinfo->agent; i++) {
-    uint8_t x1, y1, x2, y2;
     int cnt1 = 0, cnt2 = 0;
     for(int j = 0; j < field->fieldinfo->height; j++) {
       for(int k = 0; k < field->fieldinfo->width; k++) {
@@ -181,16 +180,23 @@ int Game::ActionAgent(bool belong, Action *act)
 
 void Game::pushCell(Cell *stack, short &sp, uint8_t x, uint8_t y)
 {
+  cout << "push (" << +x << ", " << +y << ")\n";
   stack[sp].x = x;
   stack[sp].y = y;
   sp++;
 }
 
-void Game::popCell(Cell *stack, short &sp, uint8_t &x, uint8_t &y)
+int Game::popCell(Cell *stack, short &sp, uint8_t &x, uint8_t &y)
 {
+  sp--;
+  if(sp < 0)
+    return 1;
+
   x = stack[sp].x;
   y = stack[sp].y;
-  sp--;
+  cout << "pop (" << +x << ", " << +y << ")\n";
+
+  return 0;
 }
 
 void Game::Encamp_Update(uint8_t seed_x, uint8_t seed_y)
@@ -199,10 +205,11 @@ void Game::Encamp_Update(uint8_t seed_x, uint8_t seed_y)
     return;
 
   bool bitmap[field->fieldinfo->height][field->fieldinfo->width];
-  Cell stack[STACK_MAX_NUM];
+  Cell stack[STACK_MAX_NUM] = {0};
   short sp = 0;
 
-  uint8_t target_wall = (current_turn == Player1) ? BIT_WALL1 : BIT_WALL2;
+  uint8_t target_wall = (current_turn == Player1) ? BIT_WALL1 : BIT_WALL1;
+  uint8_t target_encamp = (current_turn == Player1) ? BIT_ENCAMP1 : BIT_ENCAMP2;
 
   for(uint8_t i = 0; i < field->fieldinfo->height; i++) {
     for(uint8_t j = 0; j < field->fieldinfo->width; j++) {
@@ -217,17 +224,22 @@ void Game::Encamp_Update(uint8_t seed_x, uint8_t seed_y)
 
   while(sp >= 0) {
     uint8_t x, y;
-    popCell(stack, sp, x, y);
+    if(popCell(stack, sp, x, y)) // popするデータがなくなった
+      break;
 
-    for(int direc = 0; direc < 8; direc++) {
+    for(int direc = 0; direc < Direction_Max; direc+=2) { // 上下左右を調べる
       uint8_t mx = x + round(cos(direc * PI/4));
       uint8_t my = y + round(sin(direc * PI/4));
 
-      if(field->isIgnoreCoord(mx, my)) { // 途中でフィールド範囲外に到達したということは陣地形成していない
+      if(field->isIgnoreCoord(mx, my)) { // 途中でフィールド外枠に到達したということは陣地形成していない
+        cout << "ignore coord: " << "(" << (int)mx << ", " << (int)my << ")\n";
         return;
       }
-
-      if(!(field->FieldMap[my][mx] & target_wall)) { // 城壁じゃなければ(陣地になる可能性があれば)
+      if(!(bool)(field->FieldMap[my][mx] & target_wall)) { // 城壁じゃなければ(陣地になる可能性があれば)
+        if(bitmap[my][mx]) { // 訪れたことがあればスキップ
+          cout << "it has done.\n";
+          continue;
+        }
         pushCell(stack, sp, mx, my);
         bitmap[my][mx] = true;
       }
@@ -237,7 +249,7 @@ void Game::Encamp_Update(uint8_t seed_x, uint8_t seed_y)
   for(uint8_t i = 0; i < field->fieldinfo->height; i++) {
     for(uint8_t j = 0; j < field->fieldinfo->width; j++) {
       if(bitmap[i][j]) {
-        field->FieldMap[i][j] |= target_wall;
+        field->FieldMap[i][j] |= target_encamp;
       }
     }
   }
