@@ -56,11 +56,11 @@ int main(int argc, char *argv[])
       game.ActionAnAgent(current_turn, i, act[i]);
 
       // 陣地ができたかどうかを確認し，更新する
-      for(uint8_t i = 0; i < info->height; i++) {
-        for(uint8_t j = 0; j < info->width; j++) {
-          game.Encamp_Update(i, j);
-        }
-      }
+      // for(uint8_t i = 0; i < info->height; i++) {
+      //   for(uint8_t j = 0; j < info->width; j++) {
+      //     game.Encamp_Update(i, j);
+      //   }
+      // }
       
       log[i].act = act+i;
       uint8_t x, y;
