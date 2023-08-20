@@ -132,6 +132,7 @@ int Game::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
 
   if(kind == ACT_MOVE && field->move_enable(mx, my, belong)) {
     map[my][mx] |= (target_agent_bit & map[y][x]); // Agentを移動
+    map[my][mx] &= !target_agent_bit;
     target_agent[backnumber].x = mx;
     target_agent[backnumber].y = my; // Agent構造体のx, y座標も移動させて帳尻合わせ
 
