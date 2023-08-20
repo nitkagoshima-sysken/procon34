@@ -29,9 +29,9 @@ int main(int argc, char *argv[])
   map.AnalyzeFile(&info, &fieldmap);
 
   Field field = Field(fieldmap, info);
-  Game game = Game(&field);
+  Board game = Board(fieldmap, info);
 
-  game.field->draw();
+  game.draw();
 
   bool current_turn = Player1;
 
@@ -71,12 +71,8 @@ int main(int argc, char *argv[])
     }
     current_turn = 1 - current_turn;
 
-    game.addLog(log);
-
-    game.field->draw();
+    game.draw();
   }
-
-  game.printLog();
 
   return 0;
 }
