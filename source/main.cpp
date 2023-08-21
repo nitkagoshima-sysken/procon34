@@ -2,76 +2,41 @@
 #include "Game.hpp"
 #include "FieldMap.hpp"
 #include "Field.hpp"
+#include "Game_Node.hpp"
 #include <vector>
 using namespace std;
 
 int main(int argc, char *argv[])
 {
-
-  srand((unsigned)time(NULL));
-
   if(argc < 2) {
-    cerr << "ファイルを指定してください" << endl;
+    cerr << "競技フィールドを指定してください．";
     return 1;
+  }
+
+  bool initiative = Player1;
+  if(argc == 3 && argv[2] == "init=player2") {
+    initiative = Player2;
   }
 
   char *path = argv[1];
-
-  //pathからフィールドマップを読み込む
   Map map(path);
-
-  FieldInfo *info;
+  
   Field_t **fieldmap;
+  FieldInfo *info;
 
-  if(map.readMapFile() < 0) {
-    return 1;
-  }
-  map.AnalyzeFile(&info, &fieldmap);
+  map.AnalyzeFile(&info, &fieldmap); // フィールド読み込み
 
-  Field field = Field(fieldmap, info);
-  Board game = Board(fieldmap, info);
+  Board init_board(fieldmap, info); // 初期フィールド
 
-  game.draw();
+  Game_Node root_node(&init_board); // ゲーム木の根
 
-  bool current_turn = Player1;
+  // 職人1のゲーム木構築
+  root_node.expandChildren(0);
 
-  for(int turn = 0; turn < TURN_NUM; turn++) {
-    Action *act;
-    Log *log;
-    act = new Action[info->agent];
-    log = new Log[info->agent];
-    cout << "turn: " << turn << endl;
-    cout << "current turn: " << (current_turn ? "player1" : "player2") << endl;
-
-    Agent *agent = (current_turn == Player1) ? game.agent1 : game.agent2;
-    for(int i = 0; i < info->agent; i++) {
-      Agent target_agent = agent[i];
-      vector<Action> legal_act;
-      game.getLegalAct(legal_act, i);
-
-      int rand_act = rand()%legal_act.size();
-      act[i] = legal_act[rand_act];
-
-      // cout << "select: " << (int)act[i].kind << ", " << (int)act[i].direc << endl;
-      game.ActionAnAgent(current_turn, i, act[i]);
-
-      // 陣地ができたかどうかを確認し，更新する
-      // for(uint8_t i = 0; i < info->height; i++) {
-      //   for(uint8_t j = 0; j < info->width; j++) {
-      //     game.Encamp_Update(i, j);
-      //   }
-      // }
-      
-      log[i].act = act+i;
-      uint8_t x, y;
-      x = target_agent.x;
-      y = target_agent.y;
-      log[i].x = x;
-      log[i].y = y;
-    }
-    current_turn = 1 - current_turn;
-
-    game.draw();
+  // 深度2
+  for(int i = 0; i < root_node.childrenNode.size(); i++) {
+    Game_Node *node = root_node.childrenNode[i];
+    node->expandChildren(0);
   }
 
   return 0;
