@@ -75,7 +75,7 @@ void Board::getLegalAct(vector<Action> &action, uint8_t b_nomber)
       act.kind = ACT_DEMOLISH;
       action.push_back(act);
     }
-    if(build_enable(mx,my)){
+    if(build_enable(mx,my, current_turn)){
       act.kind = ACT_BUILD;
       action.push_back(act);
     }
@@ -146,7 +146,7 @@ void Board::getLegalBoard(vector<Board> &legal_board, uint8_t backnumber)
     return ACT_SUCCESS;
   }
 
-  if(kind == ACT_BUILD && build_enable(mx, my)) {
+  if(kind == ACT_BUILD && build_enable(mx, my, current_turn)) {
       map[my][mx] |= target_wall;
 
     cout << "Player" << (int)belong << "'s agent" << (int)(backnumber - ((belong == Player1) ? FILD_AGENT11 : FILD_AGENT21)) << " build "
@@ -207,7 +207,7 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
     return ACT_SUCCESS;
   }
 
-  if(kind == ACT_BUILD && build_enable(mx, my)) {
+  if(kind == ACT_BUILD && build_enable(mx, my, current_turn)) {
       map[my][mx] |= target_wall;
 
     cout << "Player" << (int)belong << "'s agent" << (int)(backnumber - ((belong == Player1) ? FILD_AGENT11 : FILD_AGENT21)) << " build "
