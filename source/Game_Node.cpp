@@ -11,3 +11,37 @@ void Game_Node::expandChildren(int backnumber)
     childrenNode.push_back(child);
   }
 }
+
+// 普通の外部関数
+void expandChildren_by_num(Game_Node *root, int n, int backnumber)
+{
+  root->expandChildren(0);
+  
+  if(n == 1)
+    return;
+
+  for(int i = 0; i < root->childrenNode.size(); i++) {
+    Game_Node *node = root->childrenNode[i];
+    expandChildren_by_num(node, n - 1, backnumber);
+  }
+}
+
+void TreeSearch(Game_Node *root, int backnumber)
+{ 
+  if(root->childrenNode.size() == 0) { // 子供がいなければ
+    root->evaluation =  root->evaluate_current_board();
+    return;
+  }
+
+  for(int i = 0; i < root->childrenNode.size(); i++) {
+    Game_Node *node = root->childrenNode[i];
+    TreeSearch(node, backnumber);
+  }
+
+  // 子供の点数をくらべて，カレントノードの点数を決める
+  int max_score, min_score;
+
+  // root->board->current_turn == true : Player1 min
+  // root->board->current_turn == false: Player2 max
+  
+}

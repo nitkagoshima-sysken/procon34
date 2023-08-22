@@ -11,6 +11,7 @@ public:
   Game_Node *parentNode;
   Board *board;
   std::vector<Game_Node*> childrenNode;
+  bool seek; // 探索済みか?
 
   Game_Node(Board *board);
   ~Game_Node();
