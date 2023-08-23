@@ -47,7 +47,6 @@ void expandChildren_by_num(Game_Node *root, int n, int backnumber)
 
   cout << "子供の数: " << (int)root->childrenNode.size() << endl;
   for(int i = 0; i < root->childrenNode.size(); i++) {
-    Game_Node *node = root->childrenNode.size()
     Game_Node *node = root->childrenNode[i];
     cout << "i = " << i << endl;
     node->board->draw();
