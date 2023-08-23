@@ -43,13 +43,13 @@ void TreeSearch(Game_Node *root, int backnumber)
   
    max_score = root->childrenNode[0]->evaluation;
 
-  for(i = 0; i < root->childrenNode.size(); i++){
+  for(int i = 0; i < root->childrenNode.size(); i++){
    if(root->childrenNode[i]->evaluation > max_score){
    max_score = root->childrenNode[i]->evaluation;
   }
  }
 
- for(i = 0; i < root->childrenNode.size(); i++){
+ for(int i = 0; i < root->childrenNode.size(); i++){
    if(root->childrenNode[i]->evaluation < min_score){
    min_score = root->childrenNode[i]->evaluation;
   }
