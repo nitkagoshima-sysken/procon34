@@ -15,7 +15,7 @@ Game_Node::~Game_Node()
 void Game_Node::expandChildren(int backnumber)
 {
   std::vector<Board*> legal_board;
-  board->getLegalBoard(legal_board, backnumber);
+  board->getLegalBoard(board->next_turn, legal_board, backnumber);
   
   for(int i = 0; i < legal_board.size(); i++) {
     Game_Node *child = new Game_Node(legal_board[i]);
@@ -30,9 +30,24 @@ void Game_Node::deleteChildren()
   }
 }
 
+// 簡易評価関数
 int Game_Node::evaluate_current_board()
 {
-  return 0;
+  int ave1 = 0, ave2 = 0;
+  for(int i = 0; i < board->info->agent; i++) {
+    std::vector<Action> action1;
+    std::vector<Action> action2;
+    board->getLegalAct(Player1, action1, i);
+    board->getLegalAct(Player2, action2, i);
+
+    ave1 += action1.size();
+    ave2 += action2.size();
+  }
+
+  int a = ave1 - ave2;
+  // cout << "a:" << a << endl;
+
+  return a;
 }
 
 // 普通の外部関数
@@ -49,8 +64,8 @@ void expandChildren_by_num(Game_Node *root, int n, int backnumber)
     Game_Node *node = root->childrenNode[i];
     // cout << "i = " << i << endl;
     // node->board->draw();
+    node->board->next_turn = !root->board->next_turn;
     expandChildren_by_num(node, n - 1, backnumber);
-    node->board->current_turn = !root->board->current_turn;
   }
 }
 
@@ -71,24 +86,54 @@ void TreeSearch(Game_Node *root, int backnumber)
   
    max_score = root->childrenNode[0]->evaluation;
 
-  for(int i = 0; i < root->childrenNode.size(); i++){
-   if(root->childrenNode[i]->evaluation > max_score){
-   max_score = root->childrenNode[i]->evaluation;
+  for(int i = 0; i < root->childrenNode.size(); i++) {
+    if(root->childrenNode[i]->evaluation > max_score) {
+      max_score = root->childrenNode[i]->evaluation;
+    }
   }
- }
 
- for(int i = 0; i < root->childrenNode.size(); i++){
-   if(root->childrenNode[i]->evaluation < min_score){
-   min_score = root->childrenNode[i]->evaluation;
+  for(int i = 0; i < root->childrenNode.size(); i++) {
+      if(root->childrenNode[i]->evaluation < min_score) {
+        min_score = root->childrenNode[i]->evaluation;
+      }
   }
- }
-  // root->board->current_turn == true : Player1 min
-  // root->board->current_turn == false: Player2 max
 
-  if(root->board->current_turn == true){
-    root->evaluation = min_score;
+  if(root->board->next_turn == Player1){
+    root->evaluation = max_score;
   }
   else{
-    root->evaluation = max_score;
+    root->evaluation = min_score;
+  }
+
+  // cout << "evaluation: " << root->evaluation << endl;
+}
+
+void drawTree(Game_Node *root, int n)
+{
+  if(root->childrenNode.empty()) { // 子供がいなければ
+    for(int j = 0; j < n; j++)
+      cout << "| ";
+    cout << "|";
+    cout << "-- " << root->evaluation << endl;
+    return;
+  }
+
+  for(int j = 0; j < n; j++)
+    cout << "| ";
+  cout << "|";
+  cout << "-- " << root->evaluation << " next:" << root->board->next_turn << endl; 
+  for(int i = 0; i < root->childrenNode.size(); i++) {
+    Game_Node *node = root->childrenNode[i];
+    drawTree(node, n + 1);
+  }
+}
+
+void drawTree(Game_Node *root)
+{
+  cout << "root:" << root->evaluation << " next:" << root->board->next_turn << endl; 
+
+  for(int i = 0; i < root->childrenNode.size(); i++) {
+    Game_Node *node = root->childrenNode[i];
+    drawTree(node, 0);
   }
 }

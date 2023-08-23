@@ -22,5 +22,6 @@ public:
 
 void expandChildren_by_num(Game_Node *root, int n, int backnumber);
 void TreeSearch(Game_Node *root, int backnumber);
+void drawTree(Game_Node *root);
 
 #endif

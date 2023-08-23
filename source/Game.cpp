@@ -34,8 +34,6 @@ Board::Board(Field_t **fieldmap, FieldInfo *info)
 
   log = new Log*[TURN_NUM];
 
-  current_turn = Player1;
-
   turn = 0;
 }
 
@@ -46,8 +44,6 @@ Board::Board(Field_t **fieldmap, FieldInfo *info, Agent *agent1, Agent *agent2)
 
   this->agent1 = agent1;
   this->agent2 = agent2;
-
-  current_turn = Player1;
 
   turn = 0;
 }
@@ -63,14 +59,14 @@ Board::~Board()
   // delete info;
 }
 
-void Board::getLegalAct(vector<Action> &action, uint8_t b_nomber)
+void Board::getLegalAct(bool belong, vector<Action> &action, uint8_t b_nomber)
 {
   
   Action act;
 
   uint8_t x, y;
 
-  Agent *target_agent = (current_turn == Player1) ? agent1: agent2;
+  Agent *target_agent = (belong == Player1) ? agent1: agent2;
 
   x = target_agent[b_nomber].x;
   y = target_agent[b_nomber].y;
@@ -95,7 +91,7 @@ void Board::getLegalAct(vector<Action> &action, uint8_t b_nomber)
       act.kind = ACT_BUILD;
       action.push_back(act);
     }
-    if(move_enable(mx,my, current_turn)){
+    if(move_enable(mx,my, belong)){
       act.kind = ACT_MOVE;
       action.push_back(act);
     }
@@ -107,7 +103,7 @@ void Board::getLegalAct(vector<Action> &action, uint8_t b_nomber)
     uint8_t mx = x + round(cos(direc * PI/4));
     uint8_t my = y + round(sin(direc * PI/4));
 
-    if(isIgnoreCoord(mx, my) || !(move_enable(mx, my, current_turn))) {
+    if(isIgnoreCoord(mx, my) || !(move_enable(mx, my, belong))) {
       continue;
     }
 
@@ -120,10 +116,10 @@ void Board::getLegalAct(vector<Action> &action, uint8_t b_nomber)
 
 }
 
-void Board::getLegalBoard(vector<Board*> &legal_board, uint8_t backnumber)
+void Board::getLegalBoard(bool belong, vector<Board*> &legal_board, uint8_t backnumber)
 {
   vector<Action> action;
-  getLegalAct(action, backnumber);
+  getLegalAct(belong, action, backnumber);
 
   for(int i = 0; i < action.size(); i++) {
     Field_t **legal_map = new Field_t*[info->height]();
@@ -143,12 +139,12 @@ void Board::getLegalBoard(vector<Board*> &legal_board, uint8_t backnumber)
 
     // cout << "legal: " << i << (int)action[i].kind << (int)action[i].direc <<endl;
     Board *board = new Board(legal_map, info, age1, age2);
-    board->ActionAnAgent(backnumber, action[i]);
+    board->ActionAnAgent(belong, backnumber, action[i]);
     legal_board.push_back(board);
   }
 }
 
-int Board::ActionAnAgent(uint8_t backnumber, Action act)
+int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
 {
 
   ActionKind kind = (ActionKind)act.kind;
@@ -156,7 +152,7 @@ int Board::ActionAnAgent(uint8_t backnumber, Action act)
 
   uint8_t x, y;
 
-  Agent *target_agent = (current_turn == Player1) ? agent1: agent2;
+  Agent *target_agent = (belong == Player1) ? agent1: agent2;
 
   x = target_agent[backnumber].x;
   y = target_agent[backnumber].y;
@@ -164,8 +160,8 @@ int Board::ActionAnAgent(uint8_t backnumber, Action act)
   uint8_t mx = x + round(cos(direc * PI/4));
   uint8_t my = y + round(sin(direc * PI/4));
 
-  uint8_t target_agent_bit = (current_turn == Player1) ? BIT_AGENT1 : BIT_AGENT2;
-  uint8_t target_wall = (current_turn == Player1) ? BIT_WALL1 : BIT_WALL2;
+  uint8_t target_agent_bit = (belong == Player1) ? BIT_AGENT1 : BIT_AGENT2;
+  uint8_t target_wall = (belong == Player1) ? BIT_WALL1 : BIT_WALL2;
 
   // cout << "x:" << +x << ", y:" << +y << endl;
   if(isIgnoreCoord(mx, my)) {
@@ -175,13 +171,13 @@ int Board::ActionAnAgent(uint8_t backnumber, Action act)
     return ACT_FAILED;
   }
 
-  if(kind == ACT_MOVE && move_enable(mx, my, current_turn)) {
+  if(kind == ACT_MOVE && move_enable(mx, my, belong)) {
     map[my][mx] |= (target_agent_bit & map[y][x]); // Agentを移動
     map[y][x] &= !target_agent_bit;
     target_agent[backnumber].x = mx;
     target_agent[backnumber].y = my; // Agent構造体のx, y座標も移動させて帳尻合わせ
 
-    // cout << "Player" << (int)current_turn << "'s agent" << (int)(backnumber - ((current_turn == Player1) ? FILD_AGENT11 : FILD_AGENT21)) << " move "
+    // cout << "Player" << (int)belong << "'s agent" << (int)(backnumber - ((belong == Player1) ? FILD_AGENT11 : FILD_AGENT21)) << " move "
     //      << "( " << (int)mx << ", " << (int)my << " )\n";
 
     return ACT_SUCCESS;
@@ -190,7 +186,7 @@ int Board::ActionAnAgent(uint8_t backnumber, Action act)
   if(kind == ACT_BUILD && build_enable(mx, my)) {
       map[my][mx] |= target_wall;
 
-    // cout << "Player" << (int)current_turn << "'s agent" << (int)(backnumber - ((current_turn == Player1) ? FILD_AGENT11 : FILD_AGENT21)) << " build "
+    // cout << "Player" << (int)belong << "'s agent" << (int)(backnumber - ((belong == Player1) ? FILD_AGENT11 : FILD_AGENT21)) << " build "
     //      << "( " << (int)mx << ", " << (int)my << " )\n";
       
     return ACT_SUCCESS;
@@ -200,7 +196,7 @@ int Board::ActionAnAgent(uint8_t backnumber, Action act)
     if(map[my][mx] & (BIT_WALL1 | BIT_WALL2))
         map[my][mx] &= !(BIT_WALL1 | BIT_WALL2);
 
-      // cout << "Player" << (int)current_turn << "'s agent" << (int)(backnumber - ((current_turn == Player1) ? FILD_AGENT11 : FILD_AGENT21)) << " demolish "
+      // cout << "Player" << (int)belong << "'s agent" << (int)(backnumber - ((belong == Player1) ? FILD_AGENT11 : FILD_AGENT21)) << " demolish "
       //    << "( " << (int)mx << ", " << (int)my << " )\n";
 
       return ACT_SUCCESS;
@@ -256,8 +252,8 @@ void Board::Encamp_Update(uint8_t seed_x, uint8_t seed_y)
   Cell stack[STACK_MAX_NUM] = {0};
   short sp = 0;
 
-  uint8_t target_wall = (current_turn == Player1) ? BIT_WALL1 : BIT_WALL1;
-  uint8_t target_encamp = (current_turn == Player1) ? BIT_ENCAMP1 : BIT_ENCAMP2;
+  uint8_t target_wall = (next_turn == Player1) ? BIT_WALL1 : BIT_WALL1;
+  uint8_t target_encamp = (next_turn == Player1) ? BIT_ENCAMP1 : BIT_ENCAMP2;
 
   for(uint8_t i = 0; i < info->height; i++) {
     for(uint8_t j = 0; j < info->width; j++) {

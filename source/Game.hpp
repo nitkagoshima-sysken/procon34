@@ -61,7 +61,7 @@ public:
   FieldInfo *info;
   Agent *agent1;
   Agent *agent2;
-  bool current_turn;
+  bool next_turn;
   Board(Field_t **fieldmap, FieldInfo *info);
   ~Board();
 
@@ -77,11 +77,11 @@ public:
   bool isObjAtCoord(uint8_t x, uint8_t y); // オブジェクトがあるかどうか
   bool isIgnoreCoord(uint8_t x, uint8_t y); // 違反座標かどうか
 
-  void getLegalAct(std::vector<Action> &action, uint8_t b_nomber); // 合法手を取得
+  void getLegalAct(bool belong, std::vector<Action> &action, uint8_t b_nomber); // 合法手を取得
 
-  void getLegalBoard(std::vector<Board*> &legal_board, uint8_t backnumber);
+  void getLegalBoard(bool belong, std::vector<Board*> &legal_board, uint8_t backnumber);
 
-  int ActionAnAgent(uint8_t backnumber, Action act); // 一人のエージェントのアクション
+  int ActionAnAgent(bool belong, uint8_t backnumber, Action act); // 一人のエージェントのアクション
   int ActionAgent(bool belong, Action *act); // playerのエージェントのアクション
 
   void pushCell(Cell *stack, short &sp, uint8_t x, uint8_t y);

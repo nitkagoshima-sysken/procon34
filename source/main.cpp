@@ -29,6 +29,35 @@ int main(int argc, char *argv[])
   }
   map.AnalyzeFile(&info, &fieldmap); // フィールド読み込み
 
+  Board match(fieldmap, info);
+
+  // メインループ
+  // for(int count = 0; count < TURN_NUM; count++) {
+
+  //   Game_Node *root_node[info->agent]; // ゲーム木の根
+
+  //   for(int i = 0; i < info->agent; i++) {
+  //     Field_t **tmp = new Field_t*[info->height]();
+  //     for(int j = 0; j < info->height; j++) {
+  //       tmp[j] = new Field_t[info->height]();
+  //       memcpy(tmp[j], fieldmap[j], info->height);
+  //     }
+  //     Board *init_board = new Board(tmp, info);
+  //     root_node[i] = new Game_Node(init_board);
+  //   }
+
+  //   // 職人のゲーム木構築
+  //   for(int i = 0; i < info->agent; i++) {
+  //     cout << "職人" << i << "(" << +root_node[i]->board->agent1[i].x << ", " << +root_node[i]->board->agent1[i].y << ")" << "のゲーム木構築中..." << endl;
+  //     expandChildren_by_num(root_node[i], 3, i);
+  //     cout << "職人" << i << "の盤面評価中..." << endl;
+  //     TreeSearch(root_node[i], i);
+  //   }
+
+    
+
+  // }
+
   Game_Node *root_node[info->agent]; // ゲーム木の根
 
   for(int i = 0; i < info->agent; i++) {
@@ -38,20 +67,23 @@ int main(int argc, char *argv[])
       memcpy(tmp[j], fieldmap[j], info->height);
     }
     Board *init_board = new Board(tmp, info);
+    init_board->next_turn = initiative;
     root_node[i] = new Game_Node(init_board);
   }
 
   // 職人のゲーム木構築
   for(int i = 0; i < info->agent; i++) {
     cout << "職人" << i << "(" << +root_node[i]->board->agent1[i].x << ", " << +root_node[i]->board->agent1[i].y << ")" << "のゲーム木構築中..." << endl;
-    expandChildren_by_num(root_node[i], 3, i);
+    expandChildren_by_num(root_node[i], 5, i);
     cout << "職人" << i << "の盤面評価中..." << endl;
     TreeSearch(root_node[i], i);
   }
 
   for(int i = 0; i < info->agent; i++) {
-    cout << "職人" << i << "の次の手は" << root_node[i]->evaluation << endl;
+    cout << "職人" << i << "のスコア: " << root_node[i]->evaluation << endl;
   }
+
+  // drawTree(root_node[0]);
 
   return 0;
 }
