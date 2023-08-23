@@ -54,8 +54,8 @@ typedef struct {
 class Board {
 private:
   Log **log;
-  uint8_t turn;
 public:
+  uint8_t turn;
   uint8_t board_type; // A:0, B:1, C:2
   Field_t **map;
   FieldInfo *info;
@@ -71,7 +71,7 @@ public:
 
 
   bool move_enable(uint8_t x, uint8_t y, bool belong); //移動できるかどうか
-  bool build_enable(uint8_t x, uint8_t y); //建築できるかどうか
+  bool build_enable(uint8_t x, uint8_t y, bool belong); //建築できるかどうか
 
   FieldKIND getInfoAtCoord(uint8_t x, uint8_t y); // 座標のフィールド情報
   bool isObjAtCoord(uint8_t x, uint8_t y); // オブジェクトがあるかどうか

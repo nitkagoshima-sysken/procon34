@@ -67,9 +67,10 @@ bool Field::move_enable(uint8_t x, uint8_t y, bool belong)
   return true;
 }
 
-bool Field::build_enable(uint8_t x, uint8_t y)
+bool Field::build_enable(uint8_t x, uint8_t y, bool belong)
 {
-  if(FieldMap[y][x] & (BIT_AGENT1 | BIT_AGENT2 | BIT_CASTLE | BIT_WALL2 | BIT_WALL1))
+  bool target_agent = (belong == Player1) ? BIT_AGENT2 : BIT_AGENT1;
+  if(FieldMap[y][x] & (target_agent | BIT_CASTLE | BIT_WALL2 | BIT_WALL1))
     return false;
   return true;
 }

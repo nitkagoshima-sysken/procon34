@@ -87,7 +87,7 @@ void Board::getLegalAct(bool belong, vector<Action> &action, uint8_t b_nomber)
       act.kind = ACT_DEMOLISH;
       action.push_back(act);
     }
-    if(build_enable(mx,my)){
+    if(build_enable(mx,my, belong)){
       act.kind = ACT_BUILD;
       action.push_back(act);
     }
@@ -183,7 +183,7 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
     return ACT_SUCCESS;
   }
 
-  if(kind == ACT_BUILD && build_enable(mx, my)) {
+  if(kind == ACT_BUILD && build_enable(mx, my, belong)) {
       map[my][mx] |= target_wall;
 
     // cout << "Player" << (int)belong << "'s agent" << (int)(backnumber - ((belong == Player1) ? FILD_AGENT11 : FILD_AGENT21)) << " build "
@@ -365,15 +365,15 @@ bool Board::move_enable(uint8_t x, uint8_t y, bool belong)
   return true;
 }
 
-bool Board::build_enable(uint8_t x, uint8_t y)
+bool Board::build_enable(uint8_t x, uint8_t y, bool belong)
 {
-  if(map[y][x] & (BIT_AGENT1 | BIT_AGENT2 | BIT_CASTLE | BIT_WALL2 | BIT_WALL1))
+  bool target_agent = (belong == Player1) ? BIT_AGENT2 : BIT_AGENT1;
+  if(map[y][x] & (target_agent | BIT_CASTLE | BIT_WALL2 | BIT_WALL1))
     return false;
   return true;
 }
 
 void Board::draw()
-//TODO
 {
   for(Length_t i = 0; i < info->height; i++) {
     for(Length_t j = 0; j < info->width; j++) {

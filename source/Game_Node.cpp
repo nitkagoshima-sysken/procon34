@@ -2,6 +2,7 @@
 #include "Game_Node.hpp"
 using namespace std;
 
+
 Game_Node::Game_Node(Board *board)
 {
   this->board = board;
@@ -30,24 +31,29 @@ void Game_Node::deleteChildren()
   }
 }
 
-// 簡易評価関数
-int Game_Node::evaluate_current_board()
+// // 簡易評価関数
+// int Game_Node::evaluate_current_board()
+// {
+//   int ave1 = 0, ave2 = 0;
+//   for(int i = 0; i < board->info->agent; i++) {
+//     std::vector<Action> action1;
+//     std::vector<Action> action2;
+//     board->getLegalAct(Player1, action1, i);
+//     board->getLegalAct(Player2, action2, i);
+
+//     ave1 += action1.size();
+//     ave2 += action2.size();
+//   }
+
+//   int a = ave1 - ave2;
+//   // cout << "a:" << a << endl;
+
+//   return a;
+// }
+
+int Game_Node::evaluate_current_board(bool belong, uint8_t b_nunber)
 {
-  int ave1 = 0, ave2 = 0;
-  for(int i = 0; i < board->info->agent; i++) {
-    std::vector<Action> action1;
-    std::vector<Action> action2;
-    board->getLegalAct(Player1, action1, i);
-    board->getLegalAct(Player2, action2, i);
-
-    ave1 += action1.size();
-    ave2 += action2.size();
-  }
-
-  int a = ave1 - ave2;
-  // cout << "a:" << a << endl;
-
-  return a;
+  return 0;
 }
 
 // 普通の外部関数
@@ -72,7 +78,7 @@ void expandChildren_by_num(Game_Node *root, int n, int backnumber)
 void TreeSearch(Game_Node *root, int backnumber)
 { 
   if(root->childrenNode.empty()) { // 子供がいなければ
-    root->evaluation =  root->evaluate_current_board();
+    root->evaluation =  root->evaluate_current_board(root->board->next_turn, backnumber);
     return;
   }
 
@@ -137,3 +143,4 @@ void drawTree(Game_Node *root)
     drawTree(node, 0);
   }
 }
+  
