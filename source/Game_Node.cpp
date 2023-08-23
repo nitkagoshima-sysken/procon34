@@ -38,18 +38,17 @@ int Game_Node::evaluate_current_board()
 // 普通の外部関数
 void expandChildren_by_num(Game_Node *root, int n, int backnumber)
 {
-  cout << "expand Child: " << n << endl;
   if(root->childrenNode.empty()) // 子供がいないときは生成
-    root->expandChildren(0);
+    root->expandChildren(backnumber);
   
   if(n == 1)
     return;
 
-  cout << "子供の数: " << (int)root->childrenNode.size() << endl;
+  // cout << "子供の数: " << (int)root->childrenNode.size() << endl;
   for(int i = 0; i < root->childrenNode.size(); i++) {
     Game_Node *node = root->childrenNode[i];
-    cout << "i = " << i << endl;
-    node->board->draw();
+    // cout << "i = " << i << endl;
+    // node->board->draw();
     expandChildren_by_num(node, n - 1, backnumber);
     node->board->current_turn = !root->board->current_turn;
   }
