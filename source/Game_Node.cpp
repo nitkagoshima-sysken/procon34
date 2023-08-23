@@ -72,11 +72,20 @@ void expandChildren_by_num(Game_Node *root, int n, int backnumber)
     // node->board->draw();
     node->board->next_turn = !root->board->next_turn;
     expandChildren_by_num(node, n - 1, backnumber);
+    if(node->board->map == nullptr)
+      continue;
+    for(int j = 0; j < node->board->info->height; j++) {
+      if(node->board->map[j])
+        delete node->board->map[j];
+    }
+    delete node->board->map;
+    if(node->board->info)
+      delete node->board->info;
   }
 }
 
 void TreeSearch(Game_Node *root, int backnumber)
-{ 
+{
   if(root->childrenNode.empty()) { // 子供がいなければ
     root->evaluation =  root->evaluate_current_board(root->board->next_turn, backnumber);
     return;
