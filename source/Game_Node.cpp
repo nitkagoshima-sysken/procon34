@@ -39,7 +39,7 @@ int Game_Node::evaluate_current_board()
 void expandChildren_by_num(Game_Node *root, int n, int backnumber)
 {
   cout << "expand Child: " << n << endl;
-  if(!root->childrenNode.empty()) //既に子供がいる場合は飛ばす
+  if(root->childrenNode.empty()) // 子供がいないときは生成
     root->expandChildren(0);
   
   if(n == 1)
