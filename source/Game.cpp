@@ -120,7 +120,7 @@ void Board::getLegalAct(vector<Action> &action, uint8_t b_nomber)
 
 }
 
-void Board::getLegalBoard(vector<Board> &legal_board, uint8_t backnumber)
+void Board::getLegalBoard(vector<Board*> &legal_board, uint8_t backnumber)
 {
   vector<Action> action;
   getLegalAct(action, backnumber);
@@ -142,9 +142,8 @@ void Board::getLegalBoard(vector<Board> &legal_board, uint8_t backnumber)
     memcpy(age2, agent2, info->agent);
 
     cout << "legal: " << i << (int)action[i].kind << (int)action[i].direc <<endl;
-    Board board(legal_map, info, age1, age2);
-    board.ActionAnAgent(backnumber, action[i]);
-    // board.draw();
+    Board *board = new Board(legal_map, info, age1, age2);
+    board->ActionAnAgent(backnumber, action[i]);
     legal_board.push_back(board);
   }
 }

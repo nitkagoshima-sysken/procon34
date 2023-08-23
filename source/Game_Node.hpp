@@ -1,5 +1,5 @@
-#ifndef GAME_TREE_HPP_
-#define GAME_TREE_HPP_
+#ifndef GAME_NODE_HPP_
+#define GAME_NODE_HPP_
 
 #include "procon2023.hpp"
 #include "Game.hpp"

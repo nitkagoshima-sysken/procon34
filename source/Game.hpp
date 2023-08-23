@@ -79,7 +79,7 @@ public:
 
   void getLegalAct(std::vector<Action> &action, uint8_t b_nomber); // 合法手を取得
 
-  void getLegalBoard(std::vector<Board> &legal_board, uint8_t backnumber);
+  void getLegalBoard(std::vector<Board*> &legal_board, uint8_t backnumber);
 
   int ActionAnAgent(uint8_t backnumber, Action act); // 一人のエージェントのアクション
   int ActionAgent(bool belong, Action *act); // playerのエージェントのアクション

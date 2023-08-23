@@ -14,11 +14,11 @@ Game_Node::~Game_Node()
 
 void Game_Node::expandChildren(int backnumber)
 {
-  std::vector<Board> legal_board;
+  std::vector<Board*> legal_board;
   board->getLegalBoard(legal_board, backnumber);
-
+  
   for(int i = 0; i < legal_board.size(); i++) {
-    Game_Node *child = new Game_Node(&legal_board[i]);
+    Game_Node *child = new Game_Node(legal_board[i]);
     childrenNode.push_back(child);
   }
 }
@@ -39,7 +39,8 @@ int Game_Node::evaluate_current_board()
 void expandChildren_by_num(Game_Node *root, int n, int backnumber)
 {
   cout << "expand Child: " << n << endl;
-  root->expandChildren(0);
+  if(!root->childrenNode.empty()) //既に子供がいる場合は飛ばす
+    root->expandChildren(0);
   
   if(n == 1)
     return;
@@ -56,7 +57,7 @@ void expandChildren_by_num(Game_Node *root, int n, int backnumber)
 
 void TreeSearch(Game_Node *root, int backnumber)
 { 
-  if(root->childrenNode.size() == 0) { // 子供がいなければ
+  if(root->childrenNode.empty()) { // 子供がいなければ
     root->evaluation =  root->evaluate_current_board();
     return;
   }
