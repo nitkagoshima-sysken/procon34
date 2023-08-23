@@ -95,10 +95,8 @@ void Map::AnalyzeFile(FieldInfo **info, Field_t ***map)
           break;
       }
       (*map)[i][j] = cell;
-      cout << *p;
       p++; j++;
     }
-    cout << endl;
   }
 
   *info = new FieldInfo;

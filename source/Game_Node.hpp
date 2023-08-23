@@ -21,4 +21,7 @@ public:
   int evaluate_current_board();
 };
 
+void expandChildren_by_num(Game_Node *root, int n, int backnumber);
+void TreeSearch(Game_Node *root, int backnumber);
+
 #endif

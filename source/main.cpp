@@ -24,6 +24,9 @@ int main(int argc, char *argv[])
   Field_t **fieldmap;
   FieldInfo *info;
 
+  if(map.readMapFile() < 0) {
+    return 1;
+  }
   map.AnalyzeFile(&info, &fieldmap); // フィールド読み込み
 
   Board init_board(fieldmap, info); // 初期フィールド
@@ -31,13 +34,9 @@ int main(int argc, char *argv[])
   Game_Node root_node(&init_board); // ゲーム木の根
 
   // 職人1のゲーム木構築
-  root_node.expandChildren(0);
-
-  // 深度2
-  for(int i = 0; i < root_node.childrenNode.size(); i++) {
-    Game_Node *node = root_node.childrenNode[i];
-    node->expandChildren(0);
-  }
+  cout << "職人1のゲーム木構築" << endl;
+  expandChildren_by_num(&root_node, 2, 0);
+  TreeSearch(&root_node, 0);
 
   return 0;
 }
