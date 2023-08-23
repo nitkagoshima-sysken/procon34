@@ -10,6 +10,8 @@ public:
   int evaluation;
   Game_Node *parentNode;
   Board *board;
+  Agent *agent1;
+  Agent *agent2;
   std::vector<Board> childrenNode;
 
   Game_Node(Board *board);
@@ -17,7 +19,8 @@ public:
 
   void expandChildren();
   void deleteChildren();
-  int evaluate_current_board();
+  void field_pointing();
+  int evaluate_current_board(bool belong, uint8_t b_nunber);
 };
 
 #endif

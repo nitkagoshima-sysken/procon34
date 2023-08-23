@@ -54,8 +54,8 @@ typedef struct {
 class Board {
 private:
   Log **log;
-  uint8_t turn;
 public:
+  uint8_t turn;
   uint8_t board_type; // A:0, B:1, C:2
   Field_t **map;
   FieldInfo *info;
