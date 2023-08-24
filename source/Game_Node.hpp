@@ -19,7 +19,6 @@ public:
 
   void expandChildren();
   void deleteChildren();
-  void field_pointing();
   int evaluate_current_board(bool belong, uint8_t b_nunber);
 };
 
