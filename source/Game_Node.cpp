@@ -1,5 +1,6 @@
 #include "procon2023.hpp"
 #include "Game_Node.hpp"
+#include <math.h>
 using namespace std;
 
 
@@ -50,8 +51,34 @@ void Game_Node::deleteChildren()
 
 //   return a;
 // }
+int Game_Node::playerpoint(bool belong, uint8_t b_number)
+{
+    uint8_t x, y;
 
-int Game_Node::evaluate_current_board(bool belong, uint8_t b_nunber)
+    Agent *target_agent = (belong == Player1) ? board->agent1: board->agent2;
+    bool target_wall    = (belong == Player1) ? BIT_WALL2 : BIT_WALL1;
+    bool ally_wall      = (belong == Player1) ? BIT_WALL1 : BIT_WALL2;
+    bool target_player  = (belong == Player1) ? BIT_AGENT2 : BIT_AGENT1;
+
+    x = target_agent[b_number].x;
+    y = target_agent[b_number].y;
+
+    int p = 0;
+    for(int i=1;i<=4;i++){
+        for(int direc = 0; direc < Direction_Max; direc++) {
+    
+        uint8_t mx = x + i * round(cos(direc * PI/4));
+        uint8_t my = y + i * round(sin(direc * PI/4));
+        
+        if(board->map[my][mx] & BIT_CASTLE)    p += fanc1(i);
+        if(board->map[my][mx] & target_player) p += fanc2(i);
+        if(board->map[my][mx] & target_wall)   p += fanc3(i);
+        if(board->map[my][mx] & ally_wall)     p += fanc4(i);
+        }
+    }
+    return p;
+}
+int Game_Node::evaluate_current_board()
 {
   return 0;
 }

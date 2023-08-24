@@ -17,7 +17,8 @@ public:
 
   void expandChildren(int backnumber);
   void deleteChildren();
-  int evaluate_current_board(bool belong, uint8_t b_nunber);
+  int playerpoint(bool belong, uint8_t b_number);
+  int evaluate_current_board();
 };
 
 void expandChildren_by_num(Game_Node *root, int n, int backnumber);
