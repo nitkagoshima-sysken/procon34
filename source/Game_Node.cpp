@@ -64,23 +64,45 @@ int Game_Node::playerpoint(bool belong, uint8_t b_number)
     y = target_agent[b_number].y;
 
     int p = 0;
-    for(int i=1;i<=4;i++){
+
+    int a=2,b=4,c=1,d=2;
+
+    for(int i=0;i<4;i++){
         for(int direc = 0; direc < Direction_Max; direc++) {
     
-        uint8_t mx = x + i * round(cos(direc * PI/4));
-        uint8_t my = y + i * round(sin(direc * PI/4));
+        uint8_t mx = x + (i+1) * round(cos(direc * PI/4));
+        uint8_t my = y + (i+1) * round(sin(direc * PI/4));
         
-        if(board->map[my][mx] & BIT_CASTLE)    p += fanc1(i);
-        if(board->map[my][mx] & target_player) p += fanc2(i);
-        if(board->map[my][mx] & target_wall)   p += fanc3(i);
-        if(board->map[my][mx] & ally_wall)     p += fanc4(i);
+        if(board->map[my][mx] & BIT_CASTLE)    p +=  a *(10- i*i);
+        if(board->map[my][mx] & target_player) p += -b *(10- i*i);
+        if(board->map[my][mx] & target_wall)   p += -c *(10- i*i);
+        if(board->map[my][mx] & ally_wall)     p +=  d *(10- i*i);
         }
     }
     return p;
 }
 int Game_Node::evaluate_current_board()
 {
-  return 0;
+  int p = 0;
+  int e=5;
+  bool belong;
+
+  p += a_score - b_score ;
+  p += e *(a_act - b_act);
+
+  belong = Player1;
+  for(uint8_t i=0; i<AGENT_MAX ; i++){
+
+    p += playerpoint(belong, i);
+  }
+
+  belong = Player2;
+  for(uint8_t i=0; i<AGENT_MAX ; i++){
+
+    p -= playerpoint(belong, i);
+  }
+
+  return p;
 }
 
 // 普通の外部関数
