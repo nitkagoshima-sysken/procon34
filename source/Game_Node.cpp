@@ -110,7 +110,7 @@ int Game_Node::evaluate_current_board()
     p -= playerpoint(belong, i);
   }
 
-  cout << "ポイント：" << p ;
+  cout << "ポイント：" << p << a_score;
 
   return p;
 }
