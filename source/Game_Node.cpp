@@ -134,7 +134,7 @@ void expandChildren_by_num(Game_Node *root, int n, int backnumber)
 void TreeSearch(Game_Node *root, int backnumber)
 { 
   if(root->childrenNode.empty()) { // 子供がいなければ
-    root->evaluation =  root->evaluate_current_board(root->board->next_turn, backnumber);
+    root->evaluation =  root->evaluate_current_board();
     return;
   }
 
