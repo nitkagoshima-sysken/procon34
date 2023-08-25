@@ -222,23 +222,25 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
 //   return ACT_SUCCESS;
 // }
 
-void Board::pushCell(Cell *stack, short &sp, uint8_t x, uint8_t y)
+void Board::pushSegment(Segment *stack, short &sp, uint8_t y, uint8_t xl, uint8_t xr)
 {
-  cout << "push (" << +x << ", " << +y << ")\n";
-  stack[sp].x = x;
+  cout << "push:" << +y << endl;
   stack[sp].y = y;
+  stack[sp].xl = xl;
+  stack[sp].xr = xr;
   sp++;
 }
 
-int Board::popCell(Cell *stack, short &sp, uint8_t &x, uint8_t &y)
+int Board::popSegment(Segment *stack, short &sp, uint8_t &y, uint8_t &xl, uint8_t &xr)
 {
   sp--;
   if(sp < 0)
     return 1;
 
-  x = stack[sp].x;
   y = stack[sp].y;
-  cout << "pop (" << +x << ", " << +y << ")\n";
+  xl = stack[sp].xl;
+  xr = stack[sp].xr;
+  cout << "pop:" << +y << endl;
 
   return 0;
 }
@@ -249,7 +251,8 @@ void Board::Encamp_Update(uint8_t seed_x, uint8_t seed_y)
     return;
 
   bool bitmap[info->height][info->width];
-  Cell stack[STACK_MAX_NUM] = {0};
+  bool seek[info->height];
+  Segment stack[STACK_MAX_NUM] = {0};
   short sp = 0;
 
   uint8_t target_wall = (next_turn == Player1) ? BIT_WALL1 : BIT_WALL1;
@@ -259,35 +262,55 @@ void Board::Encamp_Update(uint8_t seed_x, uint8_t seed_y)
     for(uint8_t j = 0; j < info->width; j++) {
       bitmap[i][j] = false;
     }
+    seek[i] = false;
   }
 
   if(map[seed_y][seed_x] & target_wall) { // シード座標が城壁ならストップ
     return;
   }
-  pushCell(stack, sp, seed_x, seed_y);
+  pushSegment(stack, sp, seed_y, seed_x, seed_x);
 
   while(sp >= 0) {
-    uint8_t x, y;
-    if(popCell(stack, sp, x, y)) // popするデータがなくなった
+    uint8_t y, xl, xr;
+    if(popSegment(stack, sp, y, xl, xr)) // popするデータがなくなった
       break;
+    if(seek[y]) {
+      cout << "it has done." << endl;
+      continue;
+    }
+    seek[y] = true;
 
-    for(int direc = 0; direc < Direction_Max; direc+=2) { // 上下左右を調べる
-      uint8_t mx = x + round(cos(direc * PI/4));
-      uint8_t my = y + round(sin(direc * PI/4));
+    if(map[y][xl] & target_wall || map[y][xr] & target_wall)
+      continue;
 
-      if(isIgnoreCoord(mx, my)) { // 途中でフィールド外枠に到達したということは陣地形成していない
-        cout << "ignore coord: " << "(" << (int)mx << ", " << (int)my << ")\n";
+    uint8_t x = xl;
+    for(; x > 0; x--) {
+      if(x == 0 || x == info->width - 1 || y == 0 || y == info->height - 1) { // 途中でフィールド外枠に到達したということは陣地形成していない
+        cout << "陣地形成なし: " << "(" << +x << ", " << +y << ")\n";
         return;
       }
-      if(!(bool)(map[my][mx] & target_wall)) { // 城壁じゃなければ(陣地になる可能性があれば)
-        if(bitmap[my][mx]) { // 訪れたことがあればスキップ
-          cout << "it has done.\n";
-          continue;
-        }
-        pushCell(stack, sp, mx, my);
-        bitmap[my][mx] = true;
-      }
+      if((map[y][x] & target_wall)) // 城壁なら
+        break;
+      bitmap[y][x] = true;
     }
+
+    uint8_t x_tmp = x;
+
+    x = xr;
+    for(; x < info->width; x++) {
+      if(x == 0 || x == info->width - 1 || y == 0 || y == info->height - 1) { // 途中でフィールド外枠に到達したということは陣地形成していない
+        cout << "陣地形成なし: " << "(" << +x << ", " << +y << ")\n";
+        return;
+      }
+      if((map[y][x] & target_wall)) // 城壁なら
+        break;
+      bitmap[y][x] = true;
+    }
+
+    if(y + 1 > 0 && y + 1 < info->height)
+      pushSegment(stack, sp, y + 1, x_tmp + 1, x - 1);
+    if(y - 1 > 0 && y - 1 < info->height)
+      pushSegment(stack, sp, y - 1, x_tmp + 1, x - 1);
   }
   // ここまで来たということは陣地形成されている
   for(uint8_t i = 0; i < info->height; i++) {
@@ -297,7 +320,6 @@ void Board::Encamp_Update(uint8_t seed_x, uint8_t seed_y)
       }
     }
   }
-
 }
 
 // void Board::addLog(Log *act_log)
