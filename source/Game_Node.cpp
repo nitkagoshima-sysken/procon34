@@ -67,16 +67,21 @@ int Game_Node::playerpoint(bool belong, uint8_t b_number)
 
     int a=2,b=4,c=1,d=2;
 
+    vector<Action> action;
+    board->getLegalAct(belong, action, b_number);
+
+    p += action.size();
+
     for(int i=0;i<4;i++){
         for(int direc = 0; direc < Direction_Max; direc++) {
     
         uint8_t mx = x + (i+1) * round(cos(direc * PI/4));
         uint8_t my = y + (i+1) * round(sin(direc * PI/4));
         
-        if(board->map[my][mx] & BIT_CASTLE)    p +=  a *(10- i*i);
-        if(board->map[my][mx] & target_player) p += -b *(10- i*i);
-        if(board->map[my][mx] & target_wall)   p += -c *(10- i*i);
-        if(board->map[my][mx] & ally_wall)     p +=  d *(10- i*i);
+        if(board->map[my][mx] & BIT_CASTLE)    p += a *(10- i*i);
+        if(board->map[my][mx] & target_player) p -= b *(10- i*i);
+        if(board->map[my][mx] & target_wall)   p -= c *(10- i*i);
+        if(board->map[my][mx] & ally_wall)     p += d *(10- i*i);
         }
     }
     return p;
@@ -84,20 +89,22 @@ int Game_Node::playerpoint(bool belong, uint8_t b_number)
 int Game_Node::evaluate_current_board()
 {
   int p = 0;
+  int a_score,b_score;
   int e=5;
   bool belong;
 
+  board->score(a_score,b_score);
+
   p += a_score - b_score ;
-  p += e *(a_act - b_act);
 
   belong = Player1;
-  for(uint8_t i=0; i<AGENT_MAX ; i++){
+  for(uint8_t i=0; i< board->info->agent ; i++){
 
     p += playerpoint(belong, i);
   }
 
   belong = Player2;
-  for(uint8_t i=0; i<AGENT_MAX ; i++){
+  for(uint8_t i=0; i< board->info->agent ; i++){
 
     p -= playerpoint(belong, i);
   }
