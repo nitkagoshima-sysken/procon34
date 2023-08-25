@@ -189,6 +189,12 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
     // cout << "Player" << (int)belong << "'s agent" << (int)(backnumber - ((belong == Player1) ? FILD_AGENT11 : FILD_AGENT21)) << " build "
     //      << "( " << (int)mx << ", " << (int)my << " )\n";
       
+    for(int i = 1; i < info->height - 1; i++) {
+      for(int j = 1; j < info->width - 1; j++) {
+        Encamp_Update(belong, i, j);
+      }
+    }
+
     return ACT_SUCCESS;
   }
 
