@@ -87,7 +87,7 @@ public:
 
   void pushSegment(Segment *stack, short &sp, uint8_t y, uint8_t xl, uint8_t xr);
   int popSegment(Segment *stack, short &sp, uint8_t &y, uint8_t &xl, uint8_t &xr);
-  void Encamp_Update(uint8_t seed_x, uint8_t seed_y);
+  void Encamp_Update(bool belong, uint8_t seed_x, uint8_t seed_y);
 
   // void addLog(Log *act_log); // ターン毎のエージェントのログを配列に追加
   // void printLog();

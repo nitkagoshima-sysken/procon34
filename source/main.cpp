@@ -42,7 +42,6 @@ int main(int argc, char *argv[])
   fieldmap[1][3] |= BIT_WALL1;
   fieldmap[1][2] |= BIT_WALL1;
 
-
   // if(map.readMapFile() < 0) {
   //   return 1;
   // }
@@ -53,7 +52,9 @@ int main(int argc, char *argv[])
   match.draw();
   for(int i = 1; i < info->height - 1; i++) {
     for(int j = 1; j < info->width - 1; j++) {
-      match.Encamp_Update(i, j);
+      // if(match.map[i][j] | BIT_ENCAMP1)
+      //   continue;
+      match.Encamp_Update(Player1, i, j);
     }
   }
   match.draw();

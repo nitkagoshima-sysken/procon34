@@ -245,7 +245,7 @@ int Board::popSegment(Segment *stack, short &sp, uint8_t &y, uint8_t &xl, uint8_
   return 0;
 }
 
-void Board::Encamp_Update(uint8_t seed_x, uint8_t seed_y)
+void Board::Encamp_Update(bool belong, uint8_t seed_x, uint8_t seed_y)
 {
   if(isIgnoreCoord(seed_x, seed_y))
     return;
@@ -255,8 +255,8 @@ void Board::Encamp_Update(uint8_t seed_x, uint8_t seed_y)
   Segment stack[STACK_MAX_NUM] = {0};
   short sp = 0;
 
-  uint8_t target_wall = (next_turn == Player1) ? BIT_WALL1 : BIT_WALL1;
-  uint8_t target_encamp = (next_turn == Player1) ? BIT_ENCAMP1 : BIT_ENCAMP2;
+  uint8_t target_wall = (belong == Player1) ? BIT_WALL1 : BIT_WALL2;
+  uint8_t target_encamp = (belong == Player1) ? BIT_ENCAMP1 : BIT_ENCAMP2;
 
   for(uint8_t i = 0; i < info->height; i++) {
     for(uint8_t j = 0; j < info->width; j++) {
