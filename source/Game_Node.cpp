@@ -78,6 +78,7 @@ int Game_Node::playerpoint(bool belong, uint8_t b_number)
         uint8_t mx = x + (i+1) * round(cos(direc * PI/4));
         uint8_t my = y + (i+1) * round(sin(direc * PI/4));
         
+        if(board->isIgnoreCoord(mx, my)) continue;
         if(board->map[my][mx] & BIT_CASTLE)    p += a *(10- i*i);
         if(board->map[my][mx] & target_player) p -= b *(10- i*i);
         if(board->map[my][mx] & target_wall)   p -= c *(10- i*i);
