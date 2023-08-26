@@ -319,6 +319,8 @@ void Board::Encamp_Update(uint8_t seed_x, uint8_t seed_y)
 
 void Board::score(int &score1, int &score2)
 {
+  score1 = 0;
+  score2 = 0; 
   for(int i=0 ; i < info->height ; i++){
     for(int j=0 ; j < info->width ; j++){
       if(map[i][j] & BIT_WALL1){
