@@ -56,9 +56,9 @@ int Game_Node::playerpoint(bool belong, uint8_t b_number)
     uint8_t x, y;
 
     Agent *target_agent = (belong == Player1) ? board->agent1: board->agent2;
-    bool target_wall    = (belong == Player1) ? BIT_WALL2 : BIT_WALL1;
-    bool ally_wall      = (belong == Player1) ? BIT_WALL1 : BIT_WALL2;
-    bool target_player  = (belong == Player1) ? BIT_AGENT2 : BIT_AGENT1;
+    bool target_wall    = (belong == Player1) ? BIT_WALL2    : BIT_WALL1;
+    bool ally_wall      = (belong == Player1) ? BIT_WALL1    : BIT_WALL2;
+    bool target_player  = (belong == Player1) ? BIT_AGENT2   : BIT_AGENT1;
 
     x = target_agent[b_number].x;
     y = target_agent[b_number].y;
@@ -109,7 +109,7 @@ int Game_Node::evaluate_current_board()
     p -= playerpoint(belong, i);
   }
 
-  cout << "ポイント：" << p <<"  "<< b_score<<"  "<< a_score;
+  //cout << "ポイント：" << p <<"  "<< b_score<<"  "<< a_score<<"\n";
 
   return p;
 }
