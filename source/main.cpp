@@ -98,32 +98,15 @@ int main(int argc, char *argv[])
 
   }
 
-  // Game_Node *root_node[info->agent]; // ゲーム木の根
+  cout << "ゲーム終了時の盤面" << endl;
+  match.draw();
 
-  // for(int i = 0; i < info->agent; i++) {
-  //   Field_t **tmp = new Field_t*[info->height]();
-  //   for(int j = 0; j < info->height; j++) {
-  //     tmp[j] = new Field_t[info->height]();
-  //     memcpy(tmp[j], fieldmap[j], info->height);
-  //   }
-  //   Board *init_board = new Board(tmp, info);
-  //   init_board->next_turn = initiative;
-  //   root_node[i] = new Game_Node(init_board);
-  // }
+  int score1 = 0, score2 = 0;
+  match.score(score1, score2);
 
-  // // 職人のゲーム木構築
-  // for(int i = 0; i < info->agent; i++) {
-  //   cout << "職人" << i << "(" << +root_node[i]->board->agent1[i].x << ", " << +root_node[i]->board->agent1[i].y << ")" << "のゲーム木構築中..." << endl;
-  //   expandChildren_by_num(root_node[i], 5, i);
-  //   cout << "職人" << i << "の盤面評価中..." << endl;
-  //   TreeSearch(root_node[i], i);
-  // }
+  cout << "プレイヤー1の点数: " << score1 << endl;
+  cout << "プレイヤー2の点数: " << score2 << endl;
 
-  // for(int i = 0; i < info->agent; i++) {
-  //   cout << "職人" << i << "のスコア: " << root_node[i]->evaluation << endl;
-  // }
-
-  // drawTree(root_node[0]);
-
+  cout << "勝利: " << ((score1 > score2) ? "プレイヤー1" : "プレイヤー2") << endl;
   return 0;
 }
