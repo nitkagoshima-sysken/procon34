@@ -1,0 +1,117 @@
+[?1h=[?25l[H[2J(B[mtop - 07:41:46 up 18:36,  1 user,  load average: 0.65, 0.79, 0.44(B[m[39;49m(B[m[39;49m[K
+Tasks:(B[m[39;49m[1m  76 (B[m[39;49mtotal,(B[m[39;49m[1m   1 (B[m[39;49mrunning,(B[m[39;49m[1m  73 (B[m[39;49msleeping,(B[m[39;49m[1m   2 (B[m[39;49mstopped,(B[m[39;49m[1m   0 (B[m[39;49mzombie(B[m[39;49m(B[m[39;49m[K
+%Cpu(s):(B[m[39;49m[1m  0.0 (B[m[39;49mus,(B[m[39;49m[1m  1.0 (B[m[39;49msy,(B[m[39;49m[1m  0.0 (B[m[39;49mni,(B[m[39;49m[1m 99.0 (B[m[39;49mid,(B[m[39;49m[1m  0.0 (B[m[39;49mwa,(B[m[39;49m[1m  0.0 (B[m[39;49mhi,(B[m[39;49m[1m  0.0 (B[m[39;49msi,(B[m[39;49m[1m  0.0 (B[m[39;49mst(B[m[39;49m(B[m[39;49m[K
+MiB Mem :(B[m[39;49m[1m   3591.1 (B[m[39;49mtotal,(B[m[39;49m[1m   2866.2 (B[m[39;49mfree,(B[m[39;49m[1m    511.4 (B[m[39;49mused,(B[m[39;49m[1m    213.5 (B[m[39;49mbuff/cache(B[m[39;49m(B[m[39;49m[K
+MiB Swap:(B[m[39;49m[1m   1024.0 (B[m[39;49mtotal,(B[m[39;49m[1m     44.0 (B[m[39;49mfree,(B[m[39;49m[1m    980.0 (B[m[39;49mused.(B[m[39;49m[1m   2926.5 (B[m[39;49mavail Mem (B[m[39;49m(B[m[39;49m[K
+[K
+[7m    PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND                                          (B[m[39;49m[K
+(B[m      1 root      20   0  170260   3512   1872 S   0.0   0.1   0:13.80 systemd                                          (B[m[39;49m[K
+(B[m      2 root      20   0    2324    148    144 S   0.0   0.0   0:02.43 init-systemd(Ub                                  (B[m[39;49m[K
+(B[m      5 root      20   0    2628      4      4 S   0.0   0.0   0:01.43 init                                             (B[m[39;49m[K
+(B[m     58 root      19  -1   52148   7600   7224 S   0.0   0.2   0:06.01 systemd-journal                                  (B[m[39;49m[K
+(B[m     84 root      20   0   22348   1796   1520 S   0.0   0.0   0:06.23 systemd-udevd                                    (B[m[39;49m[K
+(B[m     96 systemd+  20   0   19084     72      0 S   0.0   0.0   0:00.92 systemd-network                                  (B[m[39;49m[K
+(B[m    254 root      20   0    3516      4      0 S   0.0   0.0   0:00.04 snapfuse                                         (B[m[39;49m[K
+(B[m    255 root      20   0    3516      0      0 S   0.0   0.0   0:00.00 snapfuse                                         (B[m[39;49m[K
+(B[m    257 root      20   0    3516      0      0 S   0.0   0.0   0:00.00 snapfuse                                         (B[m[39;49m[K
+(B[m    260 root      20   0    3516      0      0 S   0.0   0.0   0:00.04 snapfuse                                         (B[m[39;49m[K
+(B[m    266 root      20   0    3516      0      0 S   0.0   0.0   0:00.00 snapfuse                                         (B[m[39;49m[K
+(B[m    270 root      20   0    3748      0      0 S   0.0   0.0   0:00.52 snapfuse                                         (B[m[39;49m[K
+(B[m    275 root      20   0    3516      0      0 S   0.0   0.0   0:00.00 snapfuse                                         (B[m[39;49m[K
+(B[m    279 root      20   0    3724      8      4 S   0.0   0.0   0:00.07 snapfuse                                         (B[m[39;49m[K
+(B[m    282 root      20   0    3516      0      0 S   0.0   0.0   0:00.00 snapfuse                                         (B[m[39;49m[K
+(B[m    283 root      20   0    3920   1004    600 S   0.0   0.0   0:19.09 snapfuse                                         (B[m[39;49m[K
+(B[m    301 systemd+  20   0   24764     80      0 S   0.0   0.0   0:00.72 systemd-resolve                                  (B[m[39;49m[K
+(B[m    304 root      20   0  237588    252    252 S   0.0   0.0   0:02.25 accounts-daemon                                  (B[m[39;49m[K
+(B[m    305 message+  20   0    7568   1236    856 S   0.0   0.0   0:03.30 dbus-daemon                                      (B[m[39;49m[K
+(B[m    310 root      20   0   29916      4      4 S   0.0   0.0   0:00.35 networkd-dispat                                  (B[m[39;49m[K
+(B[m    312 root      20   0  234376      0      0 S   0.0   0.0   0:00.31 polkitd                                          (B[m[39;49m[K
+(B[m    313 syslog    20   0  224352    656    560 S   0.0   0.0   0:01.76 rsyslogd                                         (B[m[39;49m[K
+(B[m    315 root      20   0 1984672  14836   7508 S   0.0   0.4   0:27.23 snapd                                            (B[m[39;49m[K[H(B[mtop - 07:41:49 up 18:36,  1 user,  load average: 0.65, 0.79, 0.44(B[m[39;49m(B[m[39;49m[K
+Tasks:(B[m[39;49m[1m  76 (B[m[39;49mtotal,(B[m[39;49m[1m   2 (B[m[39;49mrunning,(B[m[39;49m[1m  72 (B[m[39;49msleeping,(B[m[39;49m[1m   2 (B[m[39;49mstopped,(B[m[39;49m[1m   0 (B[m[39;49mzombie(B[m[39;49m(B[m[39;49m[K
+%Cpu(s):(B[m[39;49m[1m  0.2 (B[m[39;49mus,(B[m[39;49m[1m  0.3 (B[m[39;49msy,(B[m[39;49m[1m  0.0 (B[m[39;49mni,(B[m[39;49m[1m 99.0 (B[m[39;49mid,(B[m[39;49m[1m  0.5 (B[m[39;49mwa,(B[m[39;49m[1m  0.0 (B[m[39;49mhi,(B[m[39;49m[1m  0.0 (B[m[39;49msi,(B[m[39;49m[1m  0.0 (B[m[39;49mst(B[m[39;49m(B[m[39;49m[K
+MiB Mem :(B[m[39;49m[1m   3591.1 (B[m[39;49mtotal,(B[m[39;49m[1m   2862.5 (B[m[39;49mfree,(B[m[39;49m[1m    515.0 (B[m[39;49mused,(B[m[39;49m[1m    213.5 (B[m[39;49mbuff/cache(B[m[39;49m(B[m[39;49m[K
+MiB Swap:(B[m[39;49m[1m   1024.0 (B[m[39;49mtotal,(B[m[39;49m[1m     44.0 (B[m[39;49mfree,(B[m[39;49m[1m    980.0 (B[m[39;49mused.(B[m[39;49m[1m   2922.9 (B[m[39;49mavail Mem (B[m[39;49m(B[m[39;49m[K
+[K
+
+(B[m[1m  94954 nanameki  20   0 1022556  98608  20696 R   5.0   2.7   2:29.98 node                                             (B[m[39;49m[K
+(B[m    550 mysql     20   0 2448148   4140      0 S   0.7   0.1  12:20.56 mysqld                                           (B[m[39;49m[K
+(B[m  94912 root      20   0    2348      8      0 S   0.3   0.0   0:00.45 Relay(94913)                                     (B[m[39;49m[K
+(B[m  94913 nanameki  20   0  586776   7704   4444 S   0.3   0.2   0:02.72 node                                             (B[m[39;49m[K
+(B[m      1 root      20   0  170260   3512   1872 S   0.0   0.1   0:13.80 systemd                                          (B[m[39;49m[K
+(B[m      2 root      20   0    2324    148    144 S   0.0   0.0   0:02.43 init-systemd(Ub                                  (B[m[39;49m[K
+(B[m      5 root      20   0    2628      4      4 S   0.0   0.0   0:01.43 init                                             (B[m[39;49m[K
+(B[m     58 root      19  -1   52148   7600   7224 S   0.0   0.2   0:06.01 systemd-journal                                  (B[m[39;49m[K
+(B[m     84 root      20   0   22348   1796   1520 S   0.0   0.0   0:06.23 systemd-udevd                                    (B[m[39;49m[K
+(B[m     96 systemd+  20   0   19084     72      0 S   0.0   0.0   0:00.92 systemd-network                                  (B[m[39;49m[K
+(B[m    254 root      20   0    3516      4      0 S   0.0   0.0   0:00.04 snapfuse                                         (B[m[39;49m[K
+(B[m    255 root      20   0    3516      0      0 S   0.0   0.0   0:00.00 snapfuse                                         (B[m[39;49m[K
+(B[m    257 root      20   0    3516      0      0 S   0.0   0.0   0:00.00 snapfuse                                         (B[m[39;49m[K
+(B[m    260 root      20   0    3516      0      0 S   0.0   0.0   0:00.04 snapfuse                                         (B[m[39;49m[K
+(B[m    266 root      20   0    3516      0      0 S   0.0   0.0   0:00.00 snapfuse                                         (B[m[39;49m[K
+(B[m    270 root      20   0    3748      0      0 S   0.0   0.0   0:00.52 snapfuse                                         (B[m[39;49m[K
+(B[m    275 root      20   0    3516      0      0 S   0.0   0.0   0:00.00 snapfuse                                         (B[m[39;49m[K
+(B[m    279 root      20   0    3724      8      4 S   0.0   0.0   0:00.07 snapfuse                                         (B[m[39;49m[K
+(B[m    282 root      20   0    3516      0      0 S   0.0   0.0   0:00.00 snapfuse                                         (B[m[39;49m[K
+(B[m    283 root      20   0    3920   1004    600 S   0.0   0.0   0:19.09 snapfuse                                         (B[m[39;49m[K
+(B[m    301 systemd+  20   0   24764     80      0 S   0.0   0.0   0:00.72 systemd-resolve                                  (B[m[39;49m[K
+(B[m    304 root      20   0  237588    252    252 S   0.0   0.0   0:02.25 accounts-daemon                                  (B[m[39;49m[K
+(B[m    305 message+  20   0    7568   1236    856 S   0.0   0.0   0:03.30 dbus-daemon                                      (B[m[39;49m[K[H(B[mtop - 07:41:52 up 18:36,  1 user,  load average: 0.68, 0.79, 0.44(B[m[39;49m(B[m[39;49m[K
+Tasks:(B[m[39;49m[1m  77 (B[m[39;49mtotal,(B[m[39;49m[1m   2 (B[m[39;49mrunning,(B[m[39;49m[1m  73 (B[m[39;49msleeping,(B[m[39;49m[1m   2 (B[m[39;49mstopped,(B[m[39;49m[1m   0 (B[m[39;49mzombie(B[m[39;49m(B[m[39;49m[K
+%Cpu(s):(B[m[39;49m[1m  0.3 (B[m[39;49mus,(B[m[39;49m[1m  2.9 (B[m[39;49msy,(B[m[39;49m[1m  0.0 (B[m[39;49mni,(B[m[39;49m[1m 96.7 (B[m[39;49mid,(B[m[39;49m[1m  0.0 (B[m[39;49mwa,(B[m[39;49m[1m  0.0 (B[m[39;49mhi,(B[m[39;49m[1m  0.0 (B[m[39;49msi,(B[m[39;49m[1m  0.0 (B[m[39;49mst(B[m[39;49m(B[m[39;49m[K
+MiB Mem :(B[m[39;49m[1m   3591.1 (B[m[39;49mtotal,(B[m[39;49m[1m   2862.2 (B[m[39;49mfree,(B[m[39;49m[1m    515.3 (B[m[39;49mused,(B[m[39;49m[1m    213.6 (B[m[39;49mbuff/cache(B[m[39;49m(B[m[39;49m[K
+MiB Swap:(B[m[39;49m[1m   1024.0 (B[m[39;49mtotal,(B[m[39;49m[1m     44.0 (B[m[39;49mfree,(B[m[39;49m[1m    980.0 (B[m[39;49mused.(B[m[39;49m[1m   2922.6 (B[m[39;49mavail Mem (B[m[39;49m(B[m[39;49m[K
+[K
+
+(B[m  94954 nanameki  20   0 1022348  98016  20696 S   7.0   2.7   2:30.19 node                                             (B[m[39;49m[K
+(B[m     96 systemd+  20   0   19084   1108   1020 S   1.3   0.0   0:00.96 systemd-network                                  (B[m[39;49m[K
+(B[m    550 mysql     20   0 2448148   4140      0 S   1.0   0.1  12:20.59 mysqld                                           (B[m[39;49m[K
+(B[m[1m 101417 nanameki  20   0   10876   3640   3120 R   0.3   0.1   0:00.01 top                                              (B[m[39;49m[K
+
+
+
+
+
+(B[m    254 root      20   0    3516      4      0 S   0.0   0.0   0:00.04 snapfuse                                         (B[m[39;49m[K
+(B[m    255 root      20   0    3516      0      0 S   0.0   0.0   0:00.00 snapfuse                                         (B[m[39;49m[K
+(B[m    257 root      20   0    3516      0      0 S   0.0   0.0   0:00.00 snapfuse                                         (B[m[39;49m[K
+(B[m    260 root      20   0    3516      0      0 S   0.0   0.0   0:00.04 snapfuse                                         (B[m[39;49m[K
+(B[m    266 root      20   0    3516      0      0 S   0.0   0.0   0:00.00 snapfuse                                         (B[m[39;49m[K
+(B[m    270 root      20   0    3748      0      0 S   0.0   0.0   0:00.52 snapfuse                                         (B[m[39;49m[K
+(B[m    275 root      20   0    3516      0      0 S   0.0   0.0   0:00.00 snapfuse                                         (B[m[39;49m[K
+(B[m    279 root      20   0    3724      8      4 S   0.0   0.0   0:00.07 snapfuse                                         (B[m[39;49m[K
+(B[m    282 root      20   0    3516      0      0 S   0.0   0.0   0:00.00 snapfuse                                         (B[m[39;49m[K
+(B[m    283 root      20   0    3920   1004    600 S   0.0   0.0   0:19.09 snapfuse                                         (B[m[39;49m[K
+(B[m    301 systemd+  20   0   24764     80      0 S   0.0   0.0   0:00.72 systemd-resolve                                  (B[m[39;49m[K
+(B[m    304 root      20   0  237588    252    252 S   0.0   0.0   0:02.25 accounts-daemon                                  (B[m[39;49m[K
+(B[m    305 message+  20   0    7568   1236    856 S   0.0   0.0   0:03.30 dbus-daemon                                      (B[m[39;49m[K
+(B[m    310 root      20   0   29916      4      4 S   0.0   0.0   0:00.35 networkd-dispat                                  (B[m[39;49m[K[H(B[mtop - 07:41:55 up 18:36,  1 user,  load average: 0.68, 0.79, 0.44(B[m[39;49m(B[m[39;49m[K
+Tasks:(B[m[39;49m[1m  76 (B[m[39;49mtotal,(B[m[39;49m[1m   1 (B[m[39;49mrunning,(B[m[39;49m[1m  73 (B[m[39;49msleeping,(B[m[39;49m[1m   2 (B[m[39;49mstopped,(B[m[39;49m[1m   0 (B[m[39;49mzombie(B[m[39;49m(B[m[39;49m[K
+%Cpu(s):(B[m[39;49m[1m  1.1 (B[m[39;49mus,(B[m[39;49m[1m  0.2 (B[m[39;49msy,(B[m[39;49m[1m  0.0 (B[m[39;49mni,(B[m[39;49m[1m 98.4 (B[m[39;49mid,(B[m[39;49m[1m  0.2 (B[m[39;49mwa,(B[m[39;49m[1m  0.0 (B[m[39;49mhi,(B[m[39;49m[1m  0.0 (B[m[39;49msi,(B[m[39;49m[1m  0.0 (B[m[39;49mst(B[m[39;49m(B[m[39;49m[K
+MiB Mem :(B[m[39;49m[1m   3591.1 (B[m[39;49mtotal,(B[m[39;49m[1m   2865.2 (B[m[39;49mfree,(B[m[39;49m[1m    512.3 (B[m[39;49mused,(B[m[39;49m[1m    213.6 (B[m[39;49mbuff/cache(B[m[39;49m(B[m[39;49m[K
+MiB Swap:(B[m[39;49m[1m   1024.0 (B[m[39;49mtotal,(B[m[39;49m[1m     44.1 (B[m[39;49mfree,(B[m[39;49m[1m    979.9 (B[m[39;49mused.(B[m[39;49m[1m   2925.6 (B[m[39;49mavail Mem (B[m[39;49m(B[m[39;49m[K
+[K
+
+(B[m  94954 nanameki  20   0 1022348  97924  20760 S  13.0   2.7   2:30.58 node                                             (B[m[39;49m[K
+(B[m    550 mysql     20   0 2448148   4140      0 S   0.7   0.1  12:20.61 mysqld                                           (B[m[39;49m[K
+(B[m      1 root      20   0  170260   3512   1872 S   0.0   0.1   0:13.80 systemd                                          (B[m[39;49m[K
+(B[m      2 root      20   0    2324    148    144 S   0.0   0.0   0:02.43 init-systemd(Ub                                  (B[m[39;49m[K
+(B[m      5 root      20   0    2628      4      4 S   0.0   0.0   0:01.43 init                                             (B[m[39;49m[K
+(B[m     58 root      19  -1   52148   7600   7224 S   0.0   0.2   0:06.01 systemd-journal                                  (B[m[39;49m[K
+(B[m     84 root      20   0   22348   1796   1520 S   0.0   0.0   0:06.23 systemd-udevd                                    (B[m[39;49m[K
+(B[m     96 systemd+  20   0   19084   1108   1020 S   0.0   0.0   0:00.96 systemd-network                                  (B[m[39;49m[K
+(B[m    254 root      20   0    3516      4      0 S   0.0   0.0   0:00.04 snapfuse                                         (B[m[39;49m[K
+(B[m    255 root      20   0    3516      0      0 S   0.0   0.0   0:00.00 snapfuse                                         (B[m[39;49m[K
+(B[m    257 root      20   0    3516      0      0 S   0.0   0.0   0:00.00 snapfuse                                         (B[m[39;49m[K
+(B[m    260 root      20   0    3516      0      0 S   0.0   0.0   0:00.04 snapfuse                                         (B[m[39;49m[K
+(B[m    266 root      20   0    3516      0      0 S   0.0   0.0   0:00.00 snapfuse                                         (B[m[39;49m[K
+(B[m    270 root      20   0    3748      0      0 S   0.0   0.0   0:00.52 snapfuse                                         (B[m[39;49m[K
+(B[m    275 root      20   0    3516      0      0 S   0.0   0.0   0:00.00 snapfuse                                         (B[m[39;49m[K
+(B[m    279 root      20   0    3724      8      4 S   0.0   0.0   0:00.07 snapfuse                                         (B[m[39;49m[K
+(B[m    282 root      20   0    3516      0      0 S   0.0   0.0   0:00.00 snapfuse                                         (B[m[39;49m[K
+(B[m    283 root      20   0    3920   1004    600 S   0.0   0.0   0:19.09 snapfuse                                         (B[m[39;49m[K
+(B[m    301 systemd+  20   0   24764     80      0 S   0.0   0.0   0:00.72 systemd-resolve                                  (B[m[39;49m[K
+(B[m    304 root      20   0  237588    252    252 S   0.0   0.0   0:02.25 accounts-daemon                                  (B[m[39;49m[K
+(B[m    305 message+  20   0    7568   1236    856 S   0.0   0.0   0:03.30 dbus-daemon                                      (B[m[39;49m[K
+(B[m    310 root      20   0   29916      4      4 S   0.0   0.0   0:00.35 networkd-dispat                                  (B[m[39;49m[K
+(B[m    312 root      20   0  234376      0      0 S   0.0   0.0   0:00.31 polkitd                                          (B[m[39;49m[K[?1l>[31;1H[?12l[?25h

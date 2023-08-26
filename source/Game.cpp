@@ -50,13 +50,13 @@ Board::Board(Field_t **fieldmap, FieldInfo *info, Agent *agent1, Agent *agent2)
 
 Board::~Board()
 {
-  // for(int i = 0; i < info->height; i++)
-  //   delete map[i];
-  // delete map;
+  for(int i = 0; i < info->height; i++)
+    delete map[i];
+  delete map;
   
-  // delete agent1;
-  // delete agent2;
-  // delete info;
+  delete agent1;
+  delete agent2;
+  delete info;
 }
 
 void Board::getLegalAct(bool belong, vector<Action> &action, uint8_t b_nomber)

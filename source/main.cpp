@@ -51,13 +51,13 @@ int main(int argc, char *argv[])
         init_board->next_turn = match.next_turn;
         root_node[i] = new Game_Node(init_board);
         cout << "職人" << i << "(" << +root_node[i]->board->agent1[i].x << ", " << +root_node[i]->board->agent1[i].y << ")" << "のゲーム木構築中..." << endl;
-        expandChildren_by_num(root_node[i], 2, i);
+        expandChildren_by_num(root_node[i], 5, i);
         cout << "職人" << i << "の盤面評価中..." << endl;
         TreeSearch(root_node[i], i);
-        for(int j = 0; j < info->height; j++) {
-          delete tmp[j];
-        }
-        delete tmp;
+        // for(int j = 0; j < info->height; j++) {
+        //   delete tmp[j];
+        // }
+        // delete tmp;
       }
 
       for(int i = 0; i < info->agent; i++) {
@@ -77,6 +77,9 @@ int main(int argc, char *argv[])
         }
         match.ActionAnAgent(match.next_turn, i, root_node[i]->pre_act);
       }
+      for(int i = 0; i < info->agent; i++) {
+        deleteTree(root_node[i]);
+      }
     } else {
       Action *act;
       act = new Action[info->agent];
@@ -93,9 +96,9 @@ int main(int argc, char *argv[])
 
       uint8_t x, y;
       }
+      delete act;
     }
     match.next_turn = !match.next_turn;
-
   }
 
   cout << "ゲーム終了時の盤面" << endl;

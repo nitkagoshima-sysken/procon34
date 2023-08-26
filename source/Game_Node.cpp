@@ -27,37 +27,30 @@ void Game_Node::expandChildren(int backnumber)
   }
 }
 
-void Game_Node::deleteChildren()
+// 簡易評価関数
+int Game_Node::evaluate_current_board(bool belong, uint8_t b_number)
 {
-  for(int i = 0; i < childrenNode.size(); i++) {
-    delete childrenNode[i];
+  int ave1 = 0, ave2 = 0;
+  for(int i = 0; i < board->info->agent; i++) {
+    std::vector<Action> action1;
+    std::vector<Action> action2;
+    board->getLegalAct(Player1, action1, i);
+    board->getLegalAct(Player2, action2, i);
+
+    ave1 += action1.size();
+    ave2 += action2.size();
   }
+
+  int a = ave1 - ave2;
+  // cout << "a:" << a << endl;
+
+  return a;
 }
 
-// // 簡易評価関数
-// int Game_Node::evaluate_current_board()
+// int Game_Node::evaluate_current_board(bool belong, uint8_t b_nunber)
 // {
-//   int ave1 = 0, ave2 = 0;
-//   for(int i = 0; i < board->info->agent; i++) {
-//     std::vector<Action> action1;
-//     std::vector<Action> action2;
-//     board->getLegalAct(Player1, action1, i);
-//     board->getLegalAct(Player2, action2, i);
-
-//     ave1 += action1.size();
-//     ave2 += action2.size();
-//   }
-
-//   int a = ave1 - ave2;
-//   // cout << "a:" << a << endl;
-
-//   return a;
+//   return 0;
 // }
-
-int Game_Node::evaluate_current_board(bool belong, uint8_t b_nunber)
-{
-  return 0;
-}
 
 // 普通の外部関数
 void expandChildren_by_num(Game_Node *root, int n, int backnumber)
@@ -144,5 +137,17 @@ void drawTree(Game_Node *root)
   for(int i = 0; i < root->childrenNode.size(); i++) {
     Game_Node *node = root->childrenNode[i];
     drawTree(node, 0);
+  }
+}
+
+void deleteTree(Game_Node *root)
+{
+  if(root->childrenNode.empty())
+    delete root;
+
+  for(int i = root->childrenNode.size(); i > 0; i--) {
+    Game_Node *node = root->childrenNode[i];
+    deleteTree(node);
+    root->childrenNode.pop_back();
   }
 }
