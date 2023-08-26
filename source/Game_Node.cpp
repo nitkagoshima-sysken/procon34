@@ -2,7 +2,6 @@
 #include "Game_Node.hpp"
 using namespace std;
 
-
 Game_Node::Game_Node(Board *board)
 {
   this->board = board;
@@ -16,10 +15,14 @@ Game_Node::~Game_Node()
 void Game_Node::expandChildren(int backnumber)
 {
   std::vector<Board*> legal_board;
+  std::vector<Action> action;
+  board->getLegalAct(board->next_turn, action, backnumber);
   board->getLegalBoard(board->next_turn, legal_board, backnumber);
   
   for(int i = 0; i < legal_board.size(); i++) {
     Game_Node *child = new Game_Node(legal_board[i]);
+    child->pre_act = action[i];
+
     childrenNode.push_back(child);
   }
 }
@@ -90,7 +93,7 @@ void TreeSearch(Game_Node *root, int backnumber)
   // 子供の点数をくらべて，カレントノードの点数を決める
   int max_score, min_score;
   
-   max_score = root->childrenNode[0]->evaluation;
+  max_score = root->childrenNode[0]->evaluation;
 
   for(int i = 0; i < root->childrenNode.size(); i++) {
     if(root->childrenNode[i]->evaluation > max_score) {
@@ -143,4 +146,3 @@ void drawTree(Game_Node *root)
     drawTree(node, 0);
   }
 }
-  
