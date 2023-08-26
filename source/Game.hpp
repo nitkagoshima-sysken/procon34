@@ -51,6 +51,23 @@ typedef struct {
   uint8_t y;
 } Cell;
 
+/**
+ * bool belong;メンバを追加したかったが，
+ * 構造体のアラインメントが崩れるので
+ * どちらの陣営の城壁なのかはBoardクラスの
+ * mapメンバを参照してください
+*/
+typedef struct _Wall {
+  struct _Wall *next;
+  uint8_t x;
+  uint8_t y;
+} Wall;
+
+typedef struct {
+  Wall *head;
+  Wall *tail;
+} Walls;
+
 class Board {
 private:
   Log **log;
@@ -61,15 +78,16 @@ public:
   FieldInfo *info;
   Agent *agent1;
   Agent *agent2;
+
+  std::vector<Walls> walls[2];
+
   bool next_turn;
+
   Board(Field_t **fieldmap, FieldInfo *info);
+  Board(Field_t **fieldmap, FieldInfo *info, Agent *agent1, Agent *agent2);
   ~Board();
 
-  Board(Field_t **fieldmap, FieldInfo *info, Agent *agent1, Agent *agent2);
-
   void draw();
-
-
   bool move_enable(uint8_t x, uint8_t y, bool belong); //移動できるかどうか
   bool build_enable(uint8_t x, uint8_t y, bool belong); //建築できるかどうか
 
@@ -78,7 +96,6 @@ public:
   bool isIgnoreCoord(uint8_t x, uint8_t y); // 違反座標かどうか
 
   void getLegalAct(bool belong, std::vector<Action> &action, uint8_t b_nomber); // 合法手を取得
-
   void getLegalBoard(bool belong, std::vector<Board*> &legal_board, uint8_t backnumber);
 
   int ActionAnAgent(bool belong, uint8_t backnumber, Action act); // 一人のエージェントのアクション
@@ -87,6 +104,9 @@ public:
   void pushCell(Cell *stack, short &sp, uint8_t x, uint8_t y);
   int popCell(Cell *stack, short &sp, uint8_t &x, uint8_t &y);
   void Encamp_Update(uint8_t seed_x, uint8_t seed_y);
+
+  int putwall(bool belong, Wall *wall);
+  int getwall(bool belong);
 
   // void addLog(Log *act_log); // ターン毎のエージェントのログを配列に追加
   // void printLog();

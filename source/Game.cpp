@@ -406,3 +406,54 @@ void Board::draw()
   }
   cout << "\n";
 }
+
+int Board::putwall(bool belong, Wall *wall)
+{
+  if(wall == nullptr)
+    return 1;
+
+  uint8_t wall_x = wall->x;
+  uint8_t wall_y = wall->y;
+
+  uint8_t target_wall = (next_turn == Player1) ? BIT_WALL1 : BIT_WALL1;
+  uint8_t target_encamp = (next_turn == Player1) ? BIT_ENCAMP1 : BIT_ENCAMP2;
+
+  // 城壁の周り8方向を探査して，自陣の城壁があれば連結する
+  uint8_t direc = 0;
+  uint8_t x[2], y[2];
+  uint8_t cnt = 0;
+  for(; direc < Direction_Max; direc++) {
+    uint8_t mx = wall_x + round(cos(direc * PI/4));
+    uint8_t my = wall_y + round(sin(direc * PI/4));
+    if(map[my][mx] | target_wall) {
+      x[cnt] = mx;
+      y[cnt] = my;
+      cnt++;
+    }
+  }
+  switch(cnt) {
+    case 0:
+      Walls wal;
+      wal.head = wal.tail = wall;
+      walls[belong].push_back(wal);
+      break;
+    case 1:
+      // つながった城壁の先頭または末尾であるから探索する
+      for(int i = 0; i < walls[belong].size(); i++) {
+        if(walls[belong][i].tail->x == x[0] && 
+           walls[belong][i].tail->y == y[0]) {
+          walls[belong][i].tail->next = wall;
+          walls[belong][i].tail = wall;
+          break;
+        }
+        if(walls[belong][i].head->x == x[0] && 
+           walls[belong][i].head->y == y[0]) {
+          wall->next = walls[belong][i].head->next;
+          walls[belong][i].head = wall;
+          break;
+        }
+      }
+      break;
+    case 2:     
+  }
+}
