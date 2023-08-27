@@ -9,7 +9,10 @@ Game_Node::Game_Node(Board *board)
 
 Game_Node::~Game_Node()
 {
-  delete board;
+  if(board)
+    delete board;
+  if(!childrenNode.empty())
+    childrenNode.clear();
 }
 
 void Game_Node::expandChildren(int backnumber)
@@ -143,11 +146,11 @@ void drawTree(Game_Node *root)
 void deleteTree(Game_Node *root)
 {
   if(root->childrenNode.empty())
-    delete root;
+    return;
 
-  for(int i = root->childrenNode.size(); i > 0; i--) {
+  for(int i = 0; i < root->childrenNode.size(); i++) {
     Game_Node *node = root->childrenNode[i];
     deleteTree(node);
-    root->childrenNode.pop_back();
+    delete node;
   }
 }

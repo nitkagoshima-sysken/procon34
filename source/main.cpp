@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
     cout << "current_:" << ((match.next_turn == Player1) ? "Player1" : "Player2") << endl;
 
     if(match.next_turn == Player1) {
-      Game_Node *root_node[info->agent]; // ゲーム木の根
+      Game_Node **root_node = new Game_Node*[info->agent]();
 
       for(int i = 0; i < info->agent; i++) {
         Field_t **tmp = new Field_t*[info->height]();
@@ -80,6 +80,7 @@ int main(int argc, char *argv[])
       for(int i = 0; i < info->agent; i++) {
         deleteTree(root_node[i]);
       }
+      delete root_node;
     } else {
       Action *act;
       act = new Action[info->agent];
