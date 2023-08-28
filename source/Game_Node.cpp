@@ -51,26 +51,64 @@ void Game_Node::deleteChildren()
 
 //   return a;
 // }
-int Game_Node::playerpoint(bool belong, uint8_t b_number)
+char Game_Node::wallpoint(uint8_t x, uint8_t y, char beforepoint, int *point)
+{
+  char p= basepoint;
+
+  uint8_t c1=0, c2=0;
+
+  bool ally_encamp   = (board->map[y][x] & BIT_WALL1) ? BIT_ENCAMP1 : BIT_ENCAMP2;
+  bool target_encamp = (board->map[y][x] & BIT_WALL1) ? BIT_ENCAMP2 : BIT_ENCAMP1;
+  bool ally_wall     = (board->map[y][x] & BIT_WALL1) ? BIT_WALL1   : BIT_WALL2  ;
+
+  if(beforepoint) return beforepoint;
+
+  for(int i=1; i <= wall_search_max; i++){
+    x -= 1;  y -= 1;
+    for(int j=0; j < 4; j++){
+      for(int k=0; k < 2*i; k++){
+        bool encamp1 = true;
+        bool encamp2 = true;
+
+        y += (uint8_t)sin(90 * j);
+        x += (uint8_t)cos(90 * j);
+
+        if(board->isIgnoreCoord(x,y))continue;
+
+        if(board->map[y][x] & BIT_CASTLE) p += c - cp * i;
+
+        if(encamp1 && (board->map[y][x] & ally_encamp)){
+          encamp1=false;
+          p -= basepoint /2;
+        }
+
+        if(encamp2 && (board->map[y][x] & target_encamp)){
+          encamp2=false;
+          p -= ep;
+        }
+
+        if(board->map[y][x] & ally_wall) (i==1)? c1++ : c2++ ;
+      }
+    }
+  }
+
+}
+int Game_Node::playerpoint(bool belong, uint8_t b_number, char (*pmap)[])
 {
     uint8_t x, y;
 
     Agent *target_agent = (belong == Player1) ? board->agent1: board->agent2;
-    bool target_wall    = (belong == Player1) ? BIT_WALL2    : BIT_WALL1;
     bool ally_wall      = (belong == Player1) ? BIT_WALL1    : BIT_WALL2;
-    bool target_player  = (belong == Player1) ? BIT_AGENT2   : BIT_AGENT1;
 
     x = target_agent[b_number].x;
     y = target_agent[b_number].y;
 
     int p = 0;
 
-    int a=2,b=4,c=1,d=2;
-
     vector<Action> action;
     board->getLegalAct(belong, action, b_number);
 
-    p += action.size();
+    p += a * action.size();
 
     for(int i=0;i<4;i++){
         for(int direc = 0; direc < Direction_Max; direc++) {
@@ -80,8 +118,6 @@ int Game_Node::playerpoint(bool belong, uint8_t b_number)
         
         if(board->isIgnoreCoord(mx, my)) continue;
         if(board->map[my][mx] & BIT_CASTLE)    p += a *(10- i*i);
-        if(board->map[my][mx] & target_player) p -= b *(10- i*i);
-        if(board->map[my][mx] & target_wall)   p -= c *(10- i*i);
         if(board->map[my][mx] & ally_wall)     p += d *(10- i*i);
         }
     }
@@ -89,6 +125,7 @@ int Game_Node::playerpoint(bool belong, uint8_t b_number)
 }
 int Game_Node::evaluate_current_board()
 {
+  char pmap[board->info->height][board->info->width] = {{0}};
   int p = 0;
   int a_score,b_score;
   bool belong;
@@ -100,16 +137,16 @@ int Game_Node::evaluate_current_board()
   belong = Player1;
   for(uint8_t i=0; i< board->info->agent ; i++){
 
-    p += playerpoint(belong, i);
+    p += playerpoint(belong, i, pmap);
   }
 
   belong = Player2;
   for(uint8_t i=0; i< board->info->agent ; i++){
 
-    p -= playerpoint(belong, i);
+    p -= playerpoint(belong, i, pmap);
   }
 
-  //cout << "ポイント：" << p <<"  "<< b_score<<"  "<< a_score<<"\n";
+  //cout << "ポイント：" << p << "\n";
 
   return p;
 }

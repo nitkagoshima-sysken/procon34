@@ -17,7 +17,9 @@ public:
 
   void expandChildren(int backnumber);
   void deleteChildren();
-  int playerpoint(bool belong, uint8_t b_number);
+
+  char wallpoint(uint8_t x, uint8_t y , char beforepoint,int *point);
+  int playerpoint(bool belong, uint8_t b_number, char (*pmap)[]);
   int evaluate_current_board();
 };
 
