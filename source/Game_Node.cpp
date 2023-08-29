@@ -75,11 +75,11 @@ char Game_Node::wallpoint(uint8_t x, uint8_t y, char beforepoint, int *point)
 
         if(board->isIgnoreCoord(x,y))continue;
 
-        if(board->map[y][x] & BIT_CASTLE) p += coefficient_castle_w1 - coefficient_castle_w2 * i;
+        //if(board->map[y][x] & BIT_CASTLE) p += coefficient_castle_w1 - coefficient_castle_w2 * i;
 
         if(encamp1 && (board->map[y][x] & ally_encamp)){
           encamp1=false;
-          p -= basepoint *3/4;
+          p -= basepoint *4/5;
         }
 
         if(encamp2 && (board->map[y][x] & target_encamp)){
@@ -105,8 +105,9 @@ char Game_Node::wallpoint(uint8_t x, uint8_t y, char beforepoint, int *point)
 
   return p;
 }
-int Game_Node::playerpoint(bool belong, uint8_t b_number, char **pmap)
+int Game_Node::playerpoint(bool belong, uint8_t b_number, char **pmap, int *point)
 {
+  int act;
   int p = 0;
   uint8_t x, y;
 
@@ -119,11 +120,12 @@ int Game_Node::playerpoint(bool belong, uint8_t b_number, char **pmap)
   y = target_agent[b_number].y;
 
   board->getLegalAct(belong, action, b_number);
+  act =action.size();
 
-  p += coefficient_act * action.size();
+  p += coefficient_act * act*act;
 
-  if(board->map[y][x] & BIT_CASTLE)    p += coefficient_castle_p *10;
-  if(board->map[y][x] & ally_wall)     p +=(pmap[y][x] = wallpoint(x, y, pmap[y][x], &p)) *10;
+  if(board->map[y][x] & BIT_CASTLE)    p += coefficient_castle_p *20;
+  if(board->map[y][x] & ally_wall)     p +=(pmap[y][x] = wallpoint(x, y, pmap[y][x], point)) *20;
   for(int i=1; i <= agent_search_max; i++){
     x -= 1;  y -= 1;
     for(int j=0; j < 4; j++){
@@ -133,8 +135,8 @@ int Game_Node::playerpoint(bool belong, uint8_t b_number, char **pmap)
         x += (uint8_t)cos(90 * j);
 
         if(board->isIgnoreCoord(x,y))continue;
-        if(board->map[y][x] & BIT_CASTLE)    p += coefficient_castle_p *(10- i*i);
-        if(board->map[y][x] & ally_wall)     p +=(pmap[y][x] = wallpoint(x, y, pmap[y][x], &p)) *(10- i*i);
+        if(board->map[y][x] & BIT_CASTLE)    p += coefficient_castle_p *(20- i*i);
+        if(board->map[y][x] & ally_wall)     p +=(pmap[y][x] = wallpoint(x, y, pmap[y][x], point)) *(20- i*i);
       }
     }
   }
@@ -157,14 +159,12 @@ int Game_Node::evaluate_current_board()
 
   belong = Player1;
   for(uint8_t i=0; i< board->info->agent ; i++){
-
-    p += playerpoint(belong, i, pmap);
+    p += playerpoint(belong, i, pmap, &p) / coefficient_agent;
   }
 
   belong = Player2;
   for(uint8_t i=0; i< board->info->agent ; i++){
-
-    p -= playerpoint(belong, i, pmap);
+    p -= playerpoint(belong, i, pmap, &p) / coefficient_agent;
   }
 
   for(int i = 0; i < board->info->height; i++) {
