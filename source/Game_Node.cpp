@@ -100,47 +100,56 @@ char Game_Node::wallpoint(uint8_t x, uint8_t y, char beforepoint, int *point)
     if(c1>2)csum=2;
     if(c2>2)csum=3;
 
-    p += csum;
+    p += b* csum;
   }
 
   return p;
 }
-int Game_Node::playerpoint(bool belong, uint8_t b_number, char (*pmap)[])
+int Game_Node::playerpoint(bool belong, uint8_t b_number, char **pmap)
 {
-    uint8_t x, y;
+  int p = 0;
+  uint8_t x, y;
 
-    Agent *target_agent = (belong == Player1) ? board->agent1: board->agent2;
-    bool ally_wall      = (belong == Player1) ? BIT_WALL1    : BIT_WALL2;
+  Agent *target_agent = (belong == Player1) ? board->agent1: board->agent2;
+  bool ally_wall      = (belong == Player1) ? BIT_WALL1    : BIT_WALL2;
 
-    x = target_agent[b_number].x;
-    y = target_agent[b_number].y;
+  vector<Action> action;
 
-    int p = 0;
+  x = target_agent[b_number].x;
+  y = target_agent[b_number].y;
 
-    vector<Action> action;
-    board->getLegalAct(belong, action, b_number);
+  board->getLegalAct(belong, action, b_number);
 
-    p += a * action.size();
+  p += a * action.size();
 
-    for(int i=0;i<4;i++){
-        for(int direc = 0; direc < Direction_Max; direc++) {
+  if(board->map[y][x] & BIT_CASTLE)    p += a *10;
+  if(board->map[y][x] & ally_wall)     p +=(pmap[y][x] = wallpoint(x, y, pmap[y][x], &p)) *10;
+  for(int i=1; i <= agent_search_max; i++){
+    x -= 1;  y -= 1;
+    for(int j=0; j < 4; j++){
+      for(int k=0; k < 2*i; k++){
     
-        uint8_t mx = x + (i+1) * round(cos(direc * PI/4));
-        uint8_t my = y + (i+1) * round(sin(direc * PI/4));
-        
-        if(board->isIgnoreCoord(mx, my)) continue;
-        if(board->map[my][mx] & BIT_CASTLE)    p += a *(10- i*i);
-        if(board->map[my][mx] & ally_wall)     p += d *(10- i*i);
-        }
+        y += (uint8_t)sin(90 * j);
+        x += (uint8_t)cos(90 * j);
+
+        if(board->isIgnoreCoord(x,y))continue;
+        if(board->map[y][x] & BIT_CASTLE)    p += a *(10- i*i);
+        if(board->map[y][x] & ally_wall)     p +=(pmap[y][x] = wallpoint(x, y, pmap[y][x], &p)) *(10- i*i);
+      }
     }
-    return p;
+  }
+  return p;
 }
 int Game_Node::evaluate_current_board()
 {
-  char pmap[board->info->height][board->info->width] = {{0}};
   int p = 0;
   int a_score,b_score;
   bool belong;
+
+  char **pmap = new char*[board->info->height]();
+  for(int i = 0 ; i < board->info->height; i++) {
+    pmap[i] = new char[board->info->width]();
+  }
 
   board->score(a_score,b_score);
 
