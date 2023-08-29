@@ -53,15 +53,15 @@ void Game_Node::deleteChildren()
 // }
 char Game_Node::wallpoint(uint8_t x, uint8_t y, char beforepoint, int *point)
 {
-  char p= basepoint;
+  char p= basepoint;   //基礎値設定
 
-  uint8_t c1=0, c2=0;
+  uint8_t c1=0, c2=0;  //1マス目の壁の数、２マス目の壁の数
 
   bool ally_encamp   = (board->map[y][x] & BIT_WALL1) ? BIT_ENCAMP1 : BIT_ENCAMP2;
   bool target_encamp = (board->map[y][x] & BIT_WALL1) ? BIT_ENCAMP2 : BIT_ENCAMP1;
   bool ally_wall     = (board->map[y][x] & BIT_WALL1) ? BIT_WALL1   : BIT_WALL2  ;
 
-  if(beforepoint) return beforepoint;
+  if(beforepoint) return beforepoint;  //前回探査していれば
 
   for(int i=1; i <= wall_search_max; i++){
     x -= 1;  y -= 1;
@@ -77,24 +77,24 @@ char Game_Node::wallpoint(uint8_t x, uint8_t y, char beforepoint, int *point)
 
         //if(board->map[y][x] & BIT_CASTLE) p += coefficient_castle_w1 - coefficient_castle_w2 * i;
 
-        if(encamp1 && (board->map[y][x] & ally_encamp)){
+        if(encamp1 && (board->map[y][x] & ally_encamp)){ //自陣があれば基礎値を小さく
           encamp1=false;
           p -= basepoint *4/5;
         }
 
-        if(encamp2 && (board->map[y][x] & target_encamp)){
+        if(encamp2 && (board->map[y][x] & target_encamp)){//敵陣があればポイント加算
           encamp2=false;
           p += coefficient_encamp;
         }
 
-        if(board->map[y][x] & ally_wall) (i==1)? c1++ : c2++ ;
+        if(board->map[y][x] & ally_wall) (i==1)? c1++ : c2++ ; //壁の個数カウント
       }
     }
   }
 
-  if(c1>=2 && c2>=2){
-    *point += coefficient_conect;
-  }else{
+  if(c1>=2 && c2>=2){               //壁の数による処理
+    *point += coefficient_conect;   //つながりポイント追加
+  }else{                            //壁の個数によってポイント加算
     char csum=1;
     csum += 3*c1 + 4*c2;
     if(c1>2)csum=2;
@@ -122,7 +122,7 @@ int Game_Node::playerpoint(bool belong, uint8_t b_number, char **pmap, int *poin
   board->getLegalAct(belong, action, b_number);
   act =action.size();
 
-  p += coefficient_act * act*act;
+  p += coefficient_act * act*act;      //合法手のポイント加算
 
   if(board->map[y][x] & BIT_CASTLE)    p += coefficient_castle_p *20;
   if(board->map[y][x] & ally_wall)     p +=(pmap[y][x] = wallpoint(x, y, pmap[y][x], point)) *20;
@@ -135,8 +135,8 @@ int Game_Node::playerpoint(bool belong, uint8_t b_number, char **pmap, int *poin
         x += (uint8_t)cos(90 * j);
 
         if(board->isIgnoreCoord(x,y))continue;
-        if(board->map[y][x] & BIT_CASTLE)    p += coefficient_castle_p *(20- i*i);
-        if(board->map[y][x] & ally_wall)     p +=(pmap[y][x] = wallpoint(x, y, pmap[y][x], point)) *(20- i*i);
+        if(board->map[y][x] & BIT_CASTLE)    p += coefficient_castle_p *(20- i*i);                             //城ポイント加算
+        if(board->map[y][x] & ally_wall)     p +=(pmap[y][x] = wallpoint(x, y, pmap[y][x], point)) *(20- i*i); //壁ポイント加算
       }
     }
   }
@@ -155,15 +155,15 @@ int Game_Node::evaluate_current_board()
 
   board->score(a_score,b_score);
 
-  p +=coefficient_score * (a_score - b_score);
+  p +=coefficient_score * (a_score - b_score);  //スコアポイント加算
 
   belong = Player1;
-  for(uint8_t i=0; i< board->info->agent ; i++){
+  for(uint8_t i=0; i< board->info->agent ; i++){//自職人ポイント加算
     p += playerpoint(belong, i, pmap, &p) / coefficient_agent;
   }
 
   belong = Player2;
-  for(uint8_t i=0; i< board->info->agent ; i++){
+  for(uint8_t i=0; i< board->info->agent ; i++){//敵職人ポイント減算
     p -= playerpoint(belong, i, pmap, &p) / coefficient_agent;
   }
 
