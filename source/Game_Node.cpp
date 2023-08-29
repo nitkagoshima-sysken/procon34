@@ -75,7 +75,7 @@ char Game_Node::wallpoint(uint8_t x, uint8_t y, char beforepoint, int *point)
 
         if(board->isIgnoreCoord(x,y))continue;
 
-        if(board->map[y][x] & BIT_CASTLE) p += c - cp * i;
+        if(board->map[y][x] & BIT_CASTLE) p += coefficient_castle_w1 - coefficient_castle_w2 * i;
 
         if(encamp1 && (board->map[y][x] & ally_encamp)){
           encamp1=false;
@@ -84,7 +84,7 @@ char Game_Node::wallpoint(uint8_t x, uint8_t y, char beforepoint, int *point)
 
         if(encamp2 && (board->map[y][x] & target_encamp)){
           encamp2=false;
-          p += ep;
+          p += coefficient_encamp;
         }
 
         if(board->map[y][x] & ally_wall) (i==1)? c1++ : c2++ ;
@@ -93,14 +93,14 @@ char Game_Node::wallpoint(uint8_t x, uint8_t y, char beforepoint, int *point)
   }
 
   if(c1>=2 && c2>=2){
-    *point += c;
+    *point += coefficient_conect;
   }else{
     char csum=1;
     csum += 3*c1 + 4*c2;
     if(c1>2)csum=2;
     if(c2>2)csum=3;
 
-    p += b* csum;
+    p += coefficient_wall * csum;
   }
 
   return p;
@@ -120,9 +120,9 @@ int Game_Node::playerpoint(bool belong, uint8_t b_number, char **pmap)
 
   board->getLegalAct(belong, action, b_number);
 
-  p += a * action.size();
+  p += coefficient_act * action.size();
 
-  if(board->map[y][x] & BIT_CASTLE)    p += a *10;
+  if(board->map[y][x] & BIT_CASTLE)    p += coefficient_castle_p *10;
   if(board->map[y][x] & ally_wall)     p +=(pmap[y][x] = wallpoint(x, y, pmap[y][x], &p)) *10;
   for(int i=1; i <= agent_search_max; i++){
     x -= 1;  y -= 1;
@@ -133,7 +133,7 @@ int Game_Node::playerpoint(bool belong, uint8_t b_number, char **pmap)
         x += (uint8_t)cos(90 * j);
 
         if(board->isIgnoreCoord(x,y))continue;
-        if(board->map[y][x] & BIT_CASTLE)    p += a *(10- i*i);
+        if(board->map[y][x] & BIT_CASTLE)    p += coefficient_castle_p *(10- i*i);
         if(board->map[y][x] & ally_wall)     p +=(pmap[y][x] = wallpoint(x, y, pmap[y][x], &p)) *(10- i*i);
       }
     }
@@ -153,7 +153,7 @@ int Game_Node::evaluate_current_board()
 
   board->score(a_score,b_score);
 
-  p += a_score - b_score ;
+  p +=coefficient_score * (a_score - b_score);
 
   belong = Player1;
   for(uint8_t i=0; i< board->info->agent ; i++){
@@ -166,6 +166,11 @@ int Game_Node::evaluate_current_board()
 
     p -= playerpoint(belong, i, pmap);
   }
+
+  for(int i = 0; i < board->info->height; i++) {
+    delete pmap[i];
+  }
+  delete pmap;
 
   //cout << "ポイント：" << p << "\n";
 
