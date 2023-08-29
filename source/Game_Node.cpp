@@ -79,12 +79,12 @@ char Game_Node::wallpoint(uint8_t x, uint8_t y, char beforepoint, int *point)
 
         if(encamp1 && (board->map[y][x] & ally_encamp)){
           encamp1=false;
-          p -= basepoint /2;
+          p -= basepoint *3/4;
         }
 
         if(encamp2 && (board->map[y][x] & target_encamp)){
           encamp2=false;
-          p -= ep;
+          p += ep;
         }
 
         if(board->map[y][x] & ally_wall) (i==1)? c1++ : c2++ ;
@@ -92,6 +92,18 @@ char Game_Node::wallpoint(uint8_t x, uint8_t y, char beforepoint, int *point)
     }
   }
 
+  if(c1>=2 && c2>=2){
+    *point += c;
+  }else{
+    char csum=1;
+    csum += 3*c1 + 4*c2;
+    if(c1>2)csum=2;
+    if(c2>2)csum=3;
+
+    p += csum;
+  }
+
+  return p;
 }
 int Game_Node::playerpoint(bool belong, uint8_t b_number, char (*pmap)[])
 {
