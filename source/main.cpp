@@ -4,21 +4,23 @@
 #include "Field.hpp"
 #include "Game_Node.hpp"
 #include <vector>
+#include <unistd.h>
 using namespace std;
 
 int main(int argc, char *argv[])
 {
-  if(argc < 2) {
-    cerr << "競技フィールドを指定してください．";
-    return 1;
-  }
+  // if(argc < 2) {
+  //   cerr << "競技フィールドを指定してください．";
+  //   return 1;
+  // }
 
   bool initiative = Player1;
-  if(argc == 3 && argv[2] == "init=player2") {
-    initiative = Player2;
-  }
+  // if(argc == 3 && argv[2] == "init=player2") {
+  //   initiative = Player2;
+  // }
 
-  char *path = argv[1];
+  char *path = "../Field_Data/C11.csv";
+  // char *path = argv[1];
   Map map(path);
   
   Field_t **fieldmap;
@@ -34,30 +36,31 @@ int main(int argc, char *argv[])
 
   // メインループ
   for(int count = 0; count < TURN_NUM; count++) {
-    match.draw();
+    // system("clear");
     cout << "turn:" << count << endl;
     cout << "current_:" << ((match.next_turn == Player1) ? "Player1" : "Player2") << endl;
+    match.draw();
+    cout << "player1の城壁状態:\n";
+    for(int i = 0; i < match.walls[Player1].size(); i++) {
+      cout << "城壁" << i << ":" << match.walls[Player1][i].consol_num << endl;
+    }
+    cout << "player2の城壁状態:\n";
+    for(int i = 0; i < match.walls[Player2].size(); i++) {
+      cout << "城壁" << i << ":" << match.walls[Player2][i].consol_num << endl;
+    }
 
     if(match.next_turn == Player1) {
       Game_Node **root_node = new Game_Node*[info->agent]();
 
+      Board *init_board = new Board(match);
+      init_board->next_turn = match.next_turn;
+
       for(int i = 0; i < info->agent; i++) {
-        Field_t **tmp = new Field_t*[info->height]();
-        for(int j = 0; j < info->height; j++) {
-          tmp[j] = new Field_t[info->height]();
-          memcpy(tmp[j], match.map[j], info->height);
-        }
-        Board *init_board = new Board(tmp, info);
-        init_board->next_turn = match.next_turn;
         root_node[i] = new Game_Node(init_board);
         cout << "職人" << i << "(" << +root_node[i]->board->agent1[i].x << ", " << +root_node[i]->board->agent1[i].y << ")" << "のゲーム木構築中..." << endl;
-        expandChildren_by_num(root_node[i], 5, i);
+        expandChildren_by_num(root_node[i], 3, i);
         cout << "職人" << i << "の盤面評価中..." << endl;
         TreeSearch(root_node[i], i);
-        // for(int j = 0; j < info->height; j++) {
-        //   delete tmp[j];
-        // }
-        // delete tmp;
       }
 
       for(int i = 0; i < info->agent; i++) {
@@ -100,6 +103,8 @@ int main(int argc, char *argv[])
       delete act;
     }
     match.next_turn = !match.next_turn;
+    // cout << "press enter to continue\n";
+    // getchar();
   }
 
   cout << "ゲーム終了時の盤面" << endl;

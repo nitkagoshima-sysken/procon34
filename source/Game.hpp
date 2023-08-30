@@ -68,6 +68,7 @@ typedef struct _Wall {
 typedef struct {
   Wall *head;
   Wall *tail;
+  short consol_num; // 壁の連結数(と同時に，この連結した城壁の点数でもある)
 } Walls;
 
 class Board {
@@ -86,7 +87,7 @@ public:
   bool next_turn;
 
   Board(Field_t **fieldmap, FieldInfo *info);
-  Board(Field_t **fieldmap, FieldInfo *info, Agent *agent1, Agent *agent2);
+  Board(const Board &board);
   ~Board();
 
   void draw();
@@ -108,7 +109,7 @@ public:
   void Encamp_Update(uint8_t seed_x, uint8_t seed_y);
 
   int putwall(bool belong, Wall *wall);
-  int getwall(bool belong);
+  int getwall(bool belong, uint8_t wall_x, uint8_t wall_y);
 
   // void addLog(Log *act_log); // ターン毎のエージェントのログを配列に追加
   // void printLog();
