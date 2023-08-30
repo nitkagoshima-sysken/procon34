@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
   //   initiative = Player2;
   // }
 
-  char *path = "../Field_Data/C11.csv";
+  char *path = "../Field_Data/A25.csv";
   // char *path = argv[1];
   Map map(path);
   
@@ -80,6 +80,7 @@ int main(int argc, char *argv[])
         }
         match.ActionAnAgent(match.next_turn, i, root_node[i]->pre_act);
       }
+      // drawTree(root_node[0]);  
       for(int i = 0; i < info->agent; i++) {
         deleteTree(root_node[i]);
       }
@@ -103,8 +104,8 @@ int main(int argc, char *argv[])
       delete act;
     }
     match.next_turn = !match.next_turn;
-    // cout << "press enter to continue\n";
-    // getchar();
+    cout << "press enter to continue\n";
+    getchar();
   }
 
   cout << "ゲーム終了時の盤面" << endl;

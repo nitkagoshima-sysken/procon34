@@ -267,6 +267,13 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
     wall->y = my;
     putwall(belong, wall);
 
+    for(int direc = 0; direc < Direction_Max; direc++) {
+      uint8_t mmx = mx + round(cos(direc * PI/4));
+      uint8_t mmy = my + round(sin(direc * PI/4));
+
+      Encamp_Update(mmx, mmy);
+    }
+
     return ACT_SUCCESS;
   }
 
@@ -305,7 +312,7 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
 
 void Board::pushCell(Cell *stack, short &sp, uint8_t x, uint8_t y)
 {
-  cout << "push (" << +x << ", " << +y << ")\n";
+  // cout << "push (" << +x << ", " << +y << ")\n";
   stack[sp].x = x;
   stack[sp].y = y;
   sp++;
@@ -319,7 +326,7 @@ int Board::popCell(Cell *stack, short &sp, uint8_t &x, uint8_t &y)
 
   x = stack[sp].x;
   y = stack[sp].y;
-  cout << "pop (" << +x << ", " << +y << ")\n";
+  // cout << "pop (" << +x << ", " << +y << ")\n";
 
   return 0;
 }
@@ -357,12 +364,12 @@ void Board::Encamp_Update(uint8_t seed_x, uint8_t seed_y)
       uint8_t my = y + round(sin(direc * PI/4));
 
       if(isIgnoreCoord(mx, my)) { // 途中でフィールド外枠に到達したということは陣地形成していない
-        cout << "ignore coord: " << "(" << (int)mx << ", " << (int)my << ")\n";
+        // cout << "ignore coord: " << "(" << (int)mx << ", " << (int)my << ")\n";
         return;
       }
       if(!(bool)(map[my][mx] & target_wall)) { // 城壁じゃなければ(陣地になる可能性があれば)
         if(bitmap[my][mx]) { // 訪れたことがあればスキップ
-          cout << "it has done.\n";
+          // cout << "it has done.\n";
           continue;
         }
         pushCell(stack, sp, mx, my);
@@ -461,14 +468,25 @@ void Board::draw()
       switch(map[i][j] & (BIT_ENCAMP1 | BIT_ENCAMP2)) {
         case FILD_POSITION_RED : cout << "\x1b[41m"; break;
         case FILD_POSIITON_BLUE: cout << "\x1b[44m"; break;
-        case FILD_POSITION_NONE: cout << "\x1b[49m"; break;
         case FILD_POSITION_AND : cout << "\x1b[45m"; break;
+        case FILD_POSITION_NONE: 
+          if(i % 2) {
+            if(j % 2)
+              cout << "\x1b[48;5;242m";
+            else
+              cout << "\x1b[49m";
+          } else {
+            if((j % 2) == 0)
+              cout << "\x1b[48;5;242m";
+            else
+              cout << "\x1b[49m";
+          }
       }
 
       switch (map[i][j] & (BIT_AGENT1 | BIT_AGENT2 /*| BIT_POND*/))
       {
-        case FILD_AGENT1 : cout << '1'; break;
-        case FILD_AGENT2 : cout << '2'; break;
+        case FILD_AGENT1 : cout << "\x1b[36m" << '1' << "\x1b[37m"; break;
+        case FILD_AGENT2 : cout << "\x1b[32m" << '2' << "\x1b[37m"; break;
         //case FILD_POND   : cout << "P"; break;
         
         default          : cout << '-'; break;
@@ -476,13 +494,14 @@ void Board::draw()
       switch (map[i][j] & (BIT_CASTLE | BIT_WALL1 | BIT_WALL2))
       {
         case FILD_CASL   : cout << '@'; break;
-        case FILD_WALL1  : cout << 'A'; break;
-        case FILD_WALL2  : cout << 'B'; break;
+        case FILD_WALL1  : cout << "\x1b[33m" << 'A' << "\x1b[37m"; break;
+        case FILD_WALL2  : cout << "\x1b[34m" << 'B' << "\x1b[37m"; break;
         
         default          : cout << (char)((map[i][j] & BIT_POND)? 'P' : '-'); break;
       }
     }
-    cout << "\x1b[49m\n";
+    cout << "\x1b[49m";
+    cout << "\x1b[39m\n";
   }
   cout << "\n";
 }
