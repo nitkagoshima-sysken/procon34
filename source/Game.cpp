@@ -271,7 +271,7 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
       uint8_t mmx = mx + round(cos(direc * PI/4));
       uint8_t mmy = my + round(sin(direc * PI/4));
 
-      Encamp_Update(mmx, mmy);
+      Encamp_Update(belong, mmx, mmy);
     }
 
     return ACT_SUCCESS;
@@ -291,7 +291,7 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
       uint8_t mmx = mx + round(cos(direc * PI/4));
       uint8_t mmy = my + round(sin(direc * PI/4));
 
-      Encamp_Update(mmx, mmy);
+      Encamp_Update(belong, mmx, mmy);
     }
 
     return ACT_SUCCESS;
@@ -338,7 +338,7 @@ int Board::popCell(Cell *stack, short &sp, uint8_t &x, uint8_t &y)
   return 0;
 }
 
-void Board::Encamp_Update(uint8_t seed_x, uint8_t seed_y)
+void Board::Encamp_Update(bool belong, uint8_t seed_x, uint8_t seed_y)
 {
   if(isIgnoreCoord(seed_x, seed_y))
     return;
@@ -347,8 +347,8 @@ void Board::Encamp_Update(uint8_t seed_x, uint8_t seed_y)
   Cell stack[STACK_MAX_NUM] = {0};
   short sp = 0;
 
-  uint8_t target_wall = (next_turn == Player1) ? BIT_WALL1 : BIT_WALL1;
-  uint8_t target_encamp = (next_turn == Player1) ? BIT_ENCAMP1 : BIT_ENCAMP2;
+  uint8_t target_wall = (belong == Player1) ? BIT_WALL1 : BIT_WALL1;
+  uint8_t target_encamp = (belong == Player1) ? BIT_ENCAMP1 : BIT_ENCAMP2;
 
   for(uint8_t i = 0; i < info->height; i++) {
     for(uint8_t j = 0; j < info->width; j++) {
@@ -498,11 +498,11 @@ void Board::draw()
           }
       }
 
-      switch (map[i][j] & (BIT_AGENT1 | BIT_AGENT2 /*| BIT_POND*/))
+      switch (map[i][j] & (BIT_AGENT1 | BIT_AGENT2 | BIT_POND))
       {
         case FILD_AGENT1 : cout << "\x1b[36m" << '1' << "\x1b[37m"; break;
         case FILD_AGENT2 : cout << "\x1b[32m" << '2' << "\x1b[37m"; break;
-        //case FILD_POND   : cout << "P"; break;
+        case FILD_POND   : cout << "P"; break;
         
         default          : cout << '-'; break;
       }
@@ -512,7 +512,7 @@ void Board::draw()
         case FILD_WALL1  : cout << "\x1b[33m" << 'A' << "\x1b[37m"; break;
         case FILD_WALL2  : cout << "\x1b[34m" << 'B' << "\x1b[37m"; break;
         
-        default          : cout << (char)((map[i][j] & BIT_POND)? 'P' : '-'); break;
+        default          : cout << '-'; break;
       }
     }
     cout << "\x1b[49m";
