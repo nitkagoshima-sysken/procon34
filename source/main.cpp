@@ -4,21 +4,47 @@
 #include "Field.hpp"
 #include "Game_Node.hpp"
 #include <vector>
+#include <unistd.h>
 using namespace std;
+
+void playout(Board *match)
+{
+  FieldInfo *info = new FieldInfo;
+  memcpy(info, match->info, sizeof(FieldInfo));
+  for(int i = match->turn; i < TURN_NUM; i++) {
+    Action *act;
+    act = new Action[info->agent];
+    for(int j = 0; j < info->agent; j++) {
+      vector<Action> legal_act;
+      match->getLegalAct(match->next_turn, legal_act, j);
+      int rand_act = rand()%legal_act.size();
+      act[j] = legal_act[rand_act];
+      // cout << "select: " << (int)act[i].kind << ", " << (int)act[i].direc << endl;
+      match->ActionAnAgent(match->next_turn, j, act[j]);
+
+    // 陣地ができたかどうかを確認し，更新する
+    // game.Encamp_Update();
+
+    uint8_t x, y;
+    }
+    delete act;
+  }
+}
 
 int main(int argc, char *argv[])
 {
-  if(argc < 2) {
-    cerr << "競技フィールドを指定してください．";
-    return 1;
-  }
+  // if(argc < 2) {
+  //   cerr << "競技フィールドを指定してください．";
+  //   return 1;
+  // }
 
   bool initiative = Player1;
-  if(argc == 3 && argv[2] == "init=player2") {
-    initiative = Player2;
-  }
+  // if(argc == 3 && argv[2] == "init=player2") {
+  //   initiative = Player2;
+  // }
 
-  char *path = argv[1];
+  char *path = "../Field_Data/A11.csv";
+  // char *path = argv[1];
   Map map(path);
   
   Field_t **fieldmap;
@@ -30,60 +56,94 @@ int main(int argc, char *argv[])
   map.AnalyzeFile(&info, &fieldmap); // フィールド読み込み
 
   Board match(fieldmap, info);
+  match.next_turn = initiative;
 
   // メインループ
-  // for(int count = 0; count < TURN_NUM; count++) {
+  for(int count = 0; count < TURN_NUM; count++) {
+    // system("clear");
+    cout << "turn:" << count << endl;
+    cout << "current_:" << ((match.next_turn == Player1) ? "Player1" : "Player2") << endl;
+    match.draw();
+    // cout << "player1の城壁状態:\n";
+    // for(int i = 0; i < match.walls[Player1].size(); i++) {
+    //   cout << "城壁" << i << ":" << match.walls[Player1][i].consol_num << endl;
+    // }
+    // cout << "player2の城壁状態:\n";
+    // for(int i = 0; i < match.walls[Player2].size(); i++) {
+    //   cout << "城壁" << i << ":" << match.walls[Player2][i].consol_num << endl;
+    // }
 
-  //   Game_Node *root_node[info->agent]; // ゲーム木の根
+    if(match.next_turn == Player1) {
+      Game_Node **root_node = new Game_Node*[info->agent]();
 
-  //   for(int i = 0; i < info->agent; i++) {
-  //     Field_t **tmp = new Field_t*[info->height]();
-  //     for(int j = 0; j < info->height; j++) {
-  //       tmp[j] = new Field_t[info->height]();
-  //       memcpy(tmp[j], fieldmap[j], info->height);
-  //     }
-  //     Board *init_board = new Board(tmp, info);
-  //     root_node[i] = new Game_Node(init_board);
-  //   }
+      Board *init_board = new Board(match);
+      init_board->next_turn = match.next_turn;
 
-  //   // 職人のゲーム木構築
-  //   for(int i = 0; i < info->agent; i++) {
-  //     cout << "職人" << i << "(" << +root_node[i]->board->agent1[i].x << ", " << +root_node[i]->board->agent1[i].y << ")" << "のゲーム木構築中..." << endl;
-  //     expandChildren_by_num(root_node[i], 3, i);
-  //     cout << "職人" << i << "の盤面評価中..." << endl;
-  //     TreeSearch(root_node[i], i);
-  //   }
+      for(int i = 0; i < info->agent; i++) {
+        root_node[i] = new Game_Node(init_board);
+        cout << "職人" << i << "(" << +root_node[i]->board->agent1[i].x << ", " << +root_node[i]->board->agent1[i].y << ")" << "のゲーム木構築中..." << endl;
+        expandChildren_by_num(root_node[i], 4, i);
+        cout << "職人" << i << "の盤面評価中..." << endl;
+        TreeSearch(root_node[i], i);
+      }
 
-    
+      for(int i = 0; i < info->agent; i++) {
+        cout << "職人" << i << "のスコア: " << root_node[i]->evaluation << endl;
+        // for(int j = 0; j < root_node[i]->childrenNode.size(); j++) {
+        //   cout << "  " << "子供" << j << "のスコア:" << root_node[i]->childrenNode[j]->evaluation << endl;
+        // }
+      }
 
-  // }
+      // 職人のゲーム木構築
+      cout << "探索終わり\n";
+      for(int i = 0; i < info->agent; i++) {
+        for(int j = 0; j < root_node[i]->childrenNode.size(); j++) {
+          if(root_node[i]->evaluation == root_node[i]->childrenNode[j]->evaluation) {
+            // cout << "j:" << j << endl;
+            root_node[i]->pre_act = root_node[i]->childrenNode[j]->pre_act;
+            // cout << "kind:" << +root_node[i]->childrenNode[j]->pre_act.kind << ", direc:" << +root_node[i]->childrenNode[j]->pre_act.direc << endl;
+            break;
+          }
+        }
+        match.ActionAnAgent(match.next_turn, i, root_node[i]->pre_act);
+      }
+      // drawTree(root_node[0]);
+      for(int i = 0; i < info->agent; i++) {
+        deleteTree(root_node[i]);
+      }
+      delete root_node;
+    } else {
+      Action *act;
+      act = new Action[info->agent];
+      for(int i = 0; i < info->agent; i++) {
+        vector<Action> legal_act;
+        match.getLegalAct(match.next_turn, legal_act, i);
+        int rand_act = rand()%legal_act.size();
+        act[i] = legal_act[rand_act];
+        // cout << "select: " << (int)act[i].kind << ", " << (int)act[i].direc << endl;
+        match.ActionAnAgent(match.next_turn, i, act[i]);
 
-  Game_Node *root_node[info->agent]; // ゲーム木の根
+      // 陣地ができたかどうかを確認し，更新する
+      // game.Encamp_Update();
 
-  for(int i = 0; i < info->agent; i++) {
-    Field_t **tmp = new Field_t*[info->height]();
-    for(int j = 0; j < info->height; j++) {
-      tmp[j] = new Field_t[info->height]();
-      memcpy(tmp[j], fieldmap[j], info->height);
+      uint8_t x, y;
+      }
+      delete act;
     }
-    Board *init_board = new Board(tmp, info);
-    init_board->next_turn = initiative;
-    root_node[i] = new Game_Node(init_board);
+    match.next_turn = !match.next_turn;
+    // cout << "press enter to continue\n";
+    // getchar();
   }
 
-  // 職人のゲーム木構築
-  for(int i = 0; i < info->agent; i++) {
-    cout << "職人" << i << "(" << +root_node[i]->board->agent1[i].x << ", " << +root_node[i]->board->agent1[i].y << ")" << "のゲーム木構築中..." << endl;
-    expandChildren_by_num(root_node[i], 5, i);
-    cout << "職人" << i << "の盤面評価中..." << endl;
-    TreeSearch(root_node[i], i);
-  }
+  cout << "ゲーム終了時の盤面" << endl;
+  match.draw();
 
-  for(int i = 0; i < info->agent; i++) {
-    cout << "職人" << i << "のスコア: " << root_node[i]->evaluation << endl;
-  }
+  int score1 = 0, score2 = 0;
+  match.score(score1, score2);
 
-  // drawTree(root_node[0]);
+  cout << "プレイヤー1の点数: " << score1 << endl;
+  cout << "プレイヤー2の点数: " << score2 << endl;
 
+  cout << "勝利: " << ((score1 > score2) ? "プレイヤー1" : "プレイヤー2") << endl;
   return 0;
 }

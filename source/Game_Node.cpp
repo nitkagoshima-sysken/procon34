@@ -3,7 +3,6 @@
 #include <math.h>
 using namespace std;
 
-
 Game_Node::Game_Node(Board *board)
 {
   this->board = board;
@@ -11,29 +10,30 @@ Game_Node::Game_Node(Board *board)
 
 Game_Node::~Game_Node()
 {
-  delete board;
+  if(board)
+    delete board;
+  if(!childrenNode.empty())
+    childrenNode.clear();
 }
 
 void Game_Node::expandChildren(int backnumber)
 {
   std::vector<Board*> legal_board;
+  std::vector<Action> action;
+  board->getLegalAct(board->next_turn, action, backnumber);
   board->getLegalBoard(board->next_turn, legal_board, backnumber);
   
   for(int i = 0; i < legal_board.size(); i++) {
     Game_Node *child = new Game_Node(legal_board[i]);
+    child->pre_act = action[i];
+    child->parentNode = this;
+
     childrenNode.push_back(child);
   }
 }
 
-void Game_Node::deleteChildren()
-{
-  for(int i = 0; i < childrenNode.size(); i++) {
-    delete childrenNode[i];
-  }
-}
-
-// // 簡易評価関数
-// int Game_Node::evaluate_current_board()
+// 簡易評価関数
+// int Game_Node::evaluate_current_board(bool belong, uint8_t b_number)
 // {
 //   int ave1 = 0, ave2 = 0;
 //   for(int i = 0; i < board->info->agent; i++) {
@@ -44,12 +44,25 @@ void Game_Node::deleteChildren()
 
 //     ave1 += action1.size();
 //     ave2 += action2.size();
+//     // cout << "ave1:" << i << ":" << action1.size() << endl;
+//     // cout << "ave2:" << i << ":" << action2.size() << endl;
 //   }
 
-//   int a = ave1 - ave2;
-//   // cout << "a:" << a << endl;
+//   int score1 = 0, score2 = 0;
+//   board->score(score1, score2);
+//   int b = score1 - score2;
 
-//   return a;
+  
+
+//   int a = ave1 - ave2;
+//   // cout << "a:" << a << ", b:" << b << endl;
+
+//   return a + b * 10;
+// }
+
+// int Game_Node::evaluate_current_board(bool belong, uint8_t b_nunber)
+// {
+//   return 0;
 // }
 char Game_Node::wallpoint(uint8_t x, uint8_t y, char beforepoint, int *point)
 {
@@ -197,7 +210,7 @@ void expandChildren_by_num(Game_Node *root, int n, int backnumber)
 }
 
 void TreeSearch(Game_Node *root, int backnumber)
-{ 
+{
   if(root->childrenNode.empty()) { // 子供がいなければ
     root->evaluation =  root->evaluate_current_board();
     return;
@@ -211,7 +224,8 @@ void TreeSearch(Game_Node *root, int backnumber)
   // 子供の点数をくらべて，カレントノードの点数を決める
   int max_score, min_score;
   
-   max_score = root->childrenNode[0]->evaluation;
+  max_score = root->childrenNode[0]->evaluation;
+  min_score = root->childrenNode[0]->evaluation;
 
   for(int i = 0; i < root->childrenNode.size(); i++) {
     if(root->childrenNode[i]->evaluation > max_score) {
@@ -241,14 +255,14 @@ void drawTree(Game_Node *root, int n)
     for(int j = 0; j < n; j++)
       cout << "| ";
     cout << "|";
-    cout << "-- " << root->evaluation << endl;
+    cout << "-- " << root->evaluation << " kind:" << +root->pre_act.kind << ", direc" << +root->pre_act.kind << endl; 
     return;
   }
 
   for(int j = 0; j < n; j++)
     cout << "| ";
   cout << "|";
-  cout << "-- " << root->evaluation << " next:" << root->board->next_turn << endl; 
+  cout << "-- " << root->evaluation << " next:" << root->board->next_turn << ", kind:" << +root->pre_act.kind << ", direc" << +root->pre_act.kind << endl; 
   for(int i = 0; i < root->childrenNode.size(); i++) {
     Game_Node *node = root->childrenNode[i];
     drawTree(node, n + 1);
@@ -264,4 +278,14 @@ void drawTree(Game_Node *root)
     drawTree(node, 0);
   }
 }
-  
+void deleteTree(Game_Node *root)
+{
+  if(root->childrenNode.empty())
+    return;
+
+  for(int i = 0; i < root->childrenNode.size(); i++) {
+    Game_Node *node = root->childrenNode[i];
+    deleteTree(node);
+    delete node;
+  }
+}

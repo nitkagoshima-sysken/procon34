@@ -24,6 +24,7 @@ public:
   Game_Node *parentNode;
   Board *board;
   std::vector<Game_Node*> childrenNode;
+  Action pre_act;
   
   Game_Node(Board *board);
   ~Game_Node();
@@ -34,10 +35,12 @@ public:
   char wallpoint(uint8_t x, uint8_t y , char beforepoint,int *point);
   int playerpoint(bool belong, uint8_t b_number, char **pmap, int *point);
   int evaluate_current_board();
+
 };
 
 void expandChildren_by_num(Game_Node *root, int n, int backnumber);
 void TreeSearch(Game_Node *root, int backnumber);
 void drawTree(Game_Node *root);
+void deleteTree(Game_Node* root);
 
 #endif
