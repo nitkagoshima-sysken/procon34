@@ -218,34 +218,75 @@ void TreeSearch(Game_Node *root, int backnumber)
   for(int i = 0; i < root->childrenNode.size(); i++) {
     Game_Node *node = root->childrenNode[i];
     TreeSearch(node, backnumber);
-  }
 
-  // 子供の点数をくらべて，カレントノードの点数を決める
-  int max_score, min_score;
-  
-  max_score = root->childrenNode[0]->evaluation;
-  min_score = root->childrenNode[0]->evaluation;
+    int max_score = root->childrenNode[0]->evaluation;
+    int min_score = root->childrenNode[0]->evaluation;
 
-  for(int i = 0; i < root->childrenNode.size(); i++) {
-    if(root->childrenNode[i]->evaluation > max_score) {
-      max_score = root->childrenNode[i]->evaluation;
+    //子どもの評価値を出して比べる
+    for(int j = 0; j <= i; j++){//最大値
+      if(root->childrenNode[j]->evaluation > max_score){
+        max_score = root->childrenNode[j]->evaluation;
+      }
+    }
+
+    for(int j = 0; j <= i; j++){//最小値
+      if(root->childrenNode[j]->evaluation < min_score){
+        min_score = root->childrenNode[j]->evaluation;
+      }
+    }
+
+    // ループ毎に更新
+    //親の評価値がループごとに更新されるようにする
+    if(root->board->next_turn == true){
+      root->evaluation = max_score;
+    }
+    else{
+      root->evaluation = min_score;
+    }
+
+    //親と子の評価値を比べて子どもの方が大きかったらブレイク
+    if(i == 0) // 最初は親のノードに暫定的な点数がついていないのでパス
+      continue;
+
+    if(root->parentNode == nullptr)
+      continue;
+
+    if(root->board->next_turn == Player1) { // ベータカット
+      if(root->parentNode->evaluation < root->childrenNode[i]->evaluation){//親＜子ども
+        break;
+      }
+    } else { // アルファカット
+      if(root->parentNode->evaluation > root->childrenNode[i]->evaluation) { // 親 > 子供
+        break;
+      }
     }
   }
 
-  for(int i = 0; i < root->childrenNode.size(); i++) {
-      if(root->childrenNode[i]->evaluation < min_score) {
-        min_score = root->childrenNode[i]->evaluation;
-      }
-  }
+//   // 子供の点数をくらべて，カレントノードの点数を決める
+//   int max_score, min_score;
+  
+//    max_score = root->childrenNode[0]->evaluation;
 
-  if(root->board->next_turn == Player1){
-    root->evaluation = max_score;
-  }
-  else{
-    root->evaluation = min_score;
-  }
+//   for(int i = 0; i < root->childrenNode.size(); i++){
+//    if(root->childrenNode[i]->evaluation > max_score){
+//    max_score = root->childrenNode[i]->evaluation;
+//   }
+//  }
 
-  // cout << "evaluation: " << root->evaluation << endl;
+//  for(int i = 0; i < root->childrenNode.size(); i++){
+//    if(root->childrenNode[i]->evaluation < min_score){
+//    min_score = root->childrenNode[i]->evaluation;
+//   }
+//  }
+//   // root->board->current_turn == true : Player1 min
+//   // root->board->current_turn == false: Player2 max
+
+//   if(root->board->current_turn == true){
+//     root->evaluation = max_score;
+//   }
+//   else{
+//     root->evaluation = min_score;
+//   }
 }
 
 void drawTree(Game_Node *root, int n)
