@@ -469,7 +469,7 @@ bool Board::move_enable(uint8_t x, uint8_t y, bool belong)
 
 bool Board::build_enable(uint8_t x, uint8_t y, bool belong)
 {
-  bool target_agent = (belong == Player1) ? BIT_AGENT2 : BIT_AGENT1;
+  uint8_t target_agent = (belong == Player1) ? BIT_AGENT2 : BIT_AGENT1;
   if(map[y][x] & (target_agent | BIT_CASTLE | BIT_WALL2 | BIT_WALL1))
     return false;
   return true;
