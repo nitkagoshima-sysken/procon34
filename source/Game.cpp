@@ -218,6 +218,8 @@ void Board::getLegalBoard(bool belong, vector<Board*> &legal_board, uint8_t back
   }
 }
 
+void 
+
 int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
 {
 
@@ -593,15 +595,16 @@ int Board::getwall(bool belong, uint8_t wall_x, uint8_t wall_y)
       }
     }
   }
-  // cout << "player1の城壁状態:\n";
-  // for(int i = 0; i < walls[Player1].size(); i++) {
-  //   cout << "城壁" << i << ":" << walls[Player1][i].consol_num << endl;
-  // }
-  // cout << "player2の城壁状態:\n";
-  // for(int i = 0; i < walls[Player2].size(); i++) {
-  //   cout << "城壁" << i << ":" << walls[Player2][i].consol_num << endl;
-  // }
-  // cout << "belong:" << ((belong == Player1) ? "player1" : "player2") << ", x:" << +wall_x << ", y:" << +wall_y << endl;
+  cout << "player1の城壁状態:\n";
+  for(int i = 0; i < walls[Player1].size(); i++) {
+    cout << "城壁" << i << ":" << walls[Player1][i].consol_num << endl;
+  }
+  cout << "player2の城壁状態:\n";
+  for(int i = 0; i < walls[Player2].size(); i++) {
+    cout << "城壁" << i << ":" << walls[Player2][i].consol_num << endl;
+  }
+  cout << "belong:" << ((belong == Player1) ? "player1" : "player2") << ", x:" << +wall_x << ", y:" << +wall_y << endl;
+  exit(1);
 
   return 1;
 }

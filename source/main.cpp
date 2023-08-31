@@ -7,6 +7,30 @@
 #include <unistd.h>
 using namespace std;
 
+void playout(Board *match)
+{
+  FieldInfo *info = new FieldInfo;
+  memcpy(info, match->info, sizeof(FieldInfo));
+  for(int i = match->turn; i < TURN_NUM; i++) {
+    Action *act;
+    act = new Action[info->agent];
+    for(int j = 0; j < info->agent; j++) {
+      vector<Action> legal_act;
+      match->getLegalAct(match->next_turn, legal_act, j);
+      int rand_act = rand()%legal_act.size();
+      act[j] = legal_act[rand_act];
+      // cout << "select: " << (int)act[i].kind << ", " << (int)act[i].direc << endl;
+      match->ActionAnAgent(match->next_turn, j, act[j]);
+
+    // 陣地ができたかどうかを確認し，更新する
+    // game.Encamp_Update();
+
+    uint8_t x, y;
+    }
+    delete act;
+  }
+}
+
 int main(int argc, char *argv[])
 {
   // if(argc < 2) {
@@ -58,13 +82,16 @@ int main(int argc, char *argv[])
       for(int i = 0; i < info->agent; i++) {
         root_node[i] = new Game_Node(init_board);
         cout << "職人" << i << "(" << +root_node[i]->board->agent1[i].x << ", " << +root_node[i]->board->agent1[i].y << ")" << "のゲーム木構築中..." << endl;
-        expandChildren_by_num(root_node[i], 3, i);
+        expandChildren_by_num(root_node[i], 4, i);
         cout << "職人" << i << "の盤面評価中..." << endl;
         TreeSearch(root_node[i], i);
       }
 
       for(int i = 0; i < info->agent; i++) {
         cout << "職人" << i << "のスコア: " << root_node[i]->evaluation << endl;
+        for(int j = 0; j < root_node[i]->childrenNode.size(); j++) {
+          cout << "  " << "子供" << j << "のスコア:" << root_node[i]->childrenNode[j]->evaluation << endl;
+        }
       }
 
       // 職人のゲーム木構築
@@ -80,7 +107,7 @@ int main(int argc, char *argv[])
         }
         match.ActionAnAgent(match.next_turn, i, root_node[i]->pre_act);
       }
-      // drawTree(root_node[0]);  
+      // drawTree(root_node[0]);
       for(int i = 0; i < info->agent; i++) {
         deleteTree(root_node[i]);
       }
@@ -104,8 +131,8 @@ int main(int argc, char *argv[])
       delete act;
     }
     match.next_turn = !match.next_turn;
-    cout << "press enter to continue\n";
-    getchar();
+    // cout << "press enter to continue\n";
+    // getchar();
   }
 
   cout << "ゲーム終了時の盤面" << endl;

@@ -34,8 +34,6 @@ void Game_Node::expandChildren(int backnumber)
 // 簡易評価関数
 int Game_Node::evaluate_current_board(bool belong, uint8_t b_number)
 {
-  board->draw();
-  cout << ((belong == Player1) ? "player1" : "player2") << endl;
   int ave1 = 0, ave2 = 0;
   for(int i = 0; i < board->info->agent; i++) {
     std::vector<Action> action1;
@@ -45,16 +43,20 @@ int Game_Node::evaluate_current_board(bool belong, uint8_t b_number)
 
     ave1 += action1.size();
     ave2 += action2.size();
+    // cout << "ave1:" << i << ":" << action1.size() << endl;
+    // cout << "ave2:" << i << ":" << action2.size() << endl;
   }
 
   int score1 = 0, score2 = 0;
   board->score(score1, score2);
-  int b = (belong == Player1) ? score1 - score2 : score2 - score1;
+  int b = score1 - score2;
 
-  int a = (belong == Player1) ? ave1 - ave2 : ave2 - ave1;
-  cout << "a:" << a << ", b:" << b << endl;
+  
 
-  return a + b;
+  int a = ave1 - ave2;
+  // cout << "a:" << a << ", b:" << b << endl;
+
+  return a + b * 10;
 }
 
 // int Game_Node::evaluate_current_board(bool belong, uint8_t b_nunber)
@@ -126,14 +128,14 @@ void drawTree(Game_Node *root, int n)
     for(int j = 0; j < n; j++)
       cout << "| ";
     cout << "|";
-    cout << "-- " << root->evaluation << endl;
+    cout << "-- " << root->evaluation << " kind:" << +root->pre_act.kind << ", direc" << +root->pre_act.kind << endl; 
     return;
   }
 
   for(int j = 0; j < n; j++)
     cout << "| ";
   cout << "|";
-  cout << "-- " << root->evaluation << " next:" << root->board->next_turn << endl; 
+  cout << "-- " << root->evaluation << " next:" << root->board->next_turn << ", kind:" << +root->pre_act.kind << ", direc" << +root->pre_act.kind << endl; 
   for(int i = 0; i < root->childrenNode.size(); i++) {
     Game_Node *node = root->childrenNode[i];
     drawTree(node, n + 1);
