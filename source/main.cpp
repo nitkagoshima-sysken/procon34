@@ -1,7 +1,6 @@
 #include "procon2023.hpp"
 #include "Game.hpp"
 #include "FieldMap.hpp"
-#include "Field.hpp"
 #include "Game_Node.hpp"
 #include <vector>
 #include <unistd.h>
@@ -47,7 +46,7 @@ int main(int argc, char *argv[])
   // char *path = argv[1];
   Map map(path);
   
-  Field_t **fieldmap;
+  Bitmap_t **fieldmap;
   FieldInfo *info;
 
   if(map.readMapFile() < 0) {
@@ -83,13 +82,13 @@ int main(int argc, char *argv[])
       Board *init_board = new Board(match);
       init_board->next_turn = match.next_turn;
 
-      // cout << ((match.next_turn == Player1) ? "player1" : "player2") << endl;
-      // for(int i = 0; i < info->agent; i++) {
-      //   std::vector<Action> action;
-      //   match.getLegalAct(match.next_turn, action ,i);
-      //   cout << "職人" << i << "の合法手数:" << action.size() << endl;
-      // }
-      // cout << endl;
+      cout << ((match.next_turn == Player1) ? "player1" : "player2") << endl;
+      for(int i = 0; i < info->agent; i++) {
+        std::vector<Action> action;
+        match.getLegalAct(match.next_turn, action ,i);
+        cout << "職人" << i << "の合法手数:" << action.size() << endl;
+      }
+      cout << endl;
 
       for(int i = 0; i < info->agent; i++) {
         root_node[i] = new Game_Node(init_board);

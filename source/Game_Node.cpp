@@ -1,4 +1,3 @@
-#include "procon2023.hpp"
 #include "Game_Node.hpp"
 #include <math.h>
 using namespace std;
@@ -83,8 +82,8 @@ char Game_Node::wallpoint(uint8_t x, uint8_t y, char beforepoint, int *point)
         bool encamp1 = true;
         bool encamp2 = true;
 
-        y += (uint8_t)sin(90 * j);
-        x += (uint8_t)cos(90 * j);
+        y += round(sin(j * PI/2));
+        x += round(cos(j * PI/2));
 
         if(board->isIgnoreCoord(x,y))continue;
 
@@ -144,8 +143,8 @@ int Game_Node::playerpoint(bool belong, uint8_t b_number, char **pmap, int *poin
     for(int j=0; j < 4; j++){
       for(int k=0; k < 2*i; k++){
     
-        y += (uint8_t)sin(90 * j);
-        x += (uint8_t)cos(90 * j);
+        y += round(sin(j * PI/2));
+        x += round(cos(j * PI/2));
 
         if(board->isIgnoreCoord(x,y))continue;
         if(board->map[y][x] & BIT_CASTLE)    p += coefficient_castle_p *(20- i*i);                             //城ポイント加算

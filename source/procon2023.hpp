@@ -19,7 +19,7 @@
 #define BIT_AGENT1         (1<<6)
 #define BIT_AGENT2         (1<<7)
 
-typedef unsigned char Field_t;
+typedef unsigned short Bitmap_t;
 
 typedef unsigned char Length_t;
 

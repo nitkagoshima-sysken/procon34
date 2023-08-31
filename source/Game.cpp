@@ -5,7 +5,7 @@
 #include <iomanip>
 using namespace std;
 
-Board::Board(Field_t **fieldmap, FieldInfo *info)
+Board::Board(Bitmap_t **fieldmap, FieldInfo *info)
 {
   this->map = fieldmap;
   this->info = info;
@@ -39,9 +39,9 @@ Board::Board(Field_t **fieldmap, FieldInfo *info)
 
 Board::Board(const Board &board)
 {
-  map = new Field_t*[board.info->height]();
+  map = new Bitmap_t*[board.info->height]();
   for(int i = 0; i < board.info->height; i++) {
-    map[i] = new Field_t[board.info->width];
+    map[i] = new Bitmap_t[board.info->width];
     memcpy(map[i], board.map[i], board.info->width);
   }
   
@@ -234,8 +234,8 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
   uint8_t mx = x + round(cos(direc * PI/4));
   uint8_t my = y + round(sin(direc * PI/4));
 
-  uint8_t target_agent_bit = (belong == Player1) ? BIT_AGENT1 : BIT_AGENT2;
-  uint8_t target_wall = (belong == Player1) ? BIT_WALL1 : BIT_WALL2;
+  Bitmap_t target_agent_bit = (belong == Player1) ? BIT_AGENT1 : BIT_AGENT2;
+  Bitmap_t target_wall = (belong == Player1) ? BIT_WALL1 : BIT_WALL2;
 
   // cout << "x:" << +x << ", y:" << +y << endl;
   if(isIgnoreCoord(mx, my)) {
@@ -299,6 +299,7 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
 
   cout << "\x1b[41m";
   cerr << "Act failed: " << (int)backnumber << endl; 
+  cerr << "detail: kind:" << +act.kind << ", direc:" << +act.direc << endl;
   cout << "\x1b[49m";
   return ACT_FAILED;
 }
@@ -347,8 +348,8 @@ void Board::Encamp_Update(bool belong, uint8_t seed_x, uint8_t seed_y)
   Cell stack[STACK_MAX_NUM] = {0};
   short sp = 0;
 
-  uint8_t target_wall = (belong == Player1) ? BIT_WALL1 : BIT_WALL2;
-  uint8_t target_encamp = (belong == Player1) ? BIT_ENCAMP1 : BIT_ENCAMP2;
+  Bitmap_t target_wall = (belong == Player1) ? BIT_WALL1 : BIT_WALL2;
+  Bitmap_t target_encamp = (belong == Player1) ? BIT_ENCAMP1 : BIT_ENCAMP2;
 
   for(uint8_t i = 0; i < info->height; i++) {
     for(uint8_t j = 0; j < info->width; j++) {
@@ -461,7 +462,7 @@ bool Board::isIgnoreCoord(uint8_t x, uint8_t y)
 
 bool Board::move_enable(uint8_t x, uint8_t y, bool belong)
 {
-  uint8_t target_wall = (belong == Player1) ? BIT_WALL2 : BIT_WALL1;
+  Bitmap_t target_wall = (belong == Player1) ? BIT_WALL2 : BIT_WALL1;
   if(map[y][x] & (BIT_AGENT1 | BIT_AGENT2 | target_wall | BIT_POND))
     return false;
   return true;
@@ -469,7 +470,7 @@ bool Board::move_enable(uint8_t x, uint8_t y, bool belong)
 
 bool Board::build_enable(uint8_t x, uint8_t y, bool belong)
 {
-  uint8_t target_agent = (belong == Player1) ? BIT_AGENT2 : BIT_AGENT1;
+  Bitmap_t target_agent = (belong == Player1) ? BIT_AGENT2 : BIT_AGENT1;
   if(map[y][x] & (target_agent | BIT_CASTLE | BIT_WALL2 | BIT_WALL1))
     return false;
   return true;
@@ -526,8 +527,8 @@ int Board::putwall(bool belong, Wall *wall)
   if(wall == nullptr)
     return 1;
 
-  uint8_t target_wall = (next_turn == Player1) ? BIT_WALL1 : BIT_WALL1;
-  uint8_t target_encamp = (next_turn == Player1) ? BIT_ENCAMP1 : BIT_ENCAMP2;
+  Bitmap_t target_wall = (next_turn == Player1) ? BIT_WALL1 : BIT_WALL1;
+  Bitmap_t target_encamp = (next_turn == Player1) ? BIT_ENCAMP1 : BIT_ENCAMP2;
 
   // 城壁の周り8方向を探査して，自陣の城壁があれば連結する
   uint8_t direc = 0;

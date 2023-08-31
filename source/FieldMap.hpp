@@ -6,12 +6,12 @@ private:
   char *MapFilePath;
   char *buf;
   int size;
-  Field_t **map;
+  Bitmap_t **map;
 public:
   Map(char *path);
   ~Map();
   int readMapFile();
-  void AnalyzeFile(FieldInfo **info, Field_t ***map);
+  void AnalyzeFile(FieldInfo **info, Bitmap_t ***map);
 };
 
 #endif

@@ -42,7 +42,7 @@ int Map::readMapFile()
   return 0;
 }
 
-void Map::AnalyzeFile(FieldInfo **info, Field_t ***map)
+void Map::AnalyzeFile(FieldInfo **info, Bitmap_t ***map)
 {
   char *p = buf;
   char *q = buf;
@@ -57,14 +57,14 @@ void Map::AnalyzeFile(FieldInfo **info, Field_t ***map)
   }
   cout << "height: " << (int)height << "width: " << (int)width << endl;
 
-  *map = new Field_t*[(int)height]();
+  *map = new Bitmap_t*[(int)height]();
   for(int i = 0; i < (int)height; i++) {
-    (*map)[i] = new Field_t[(int)width]();
+    (*map)[i] = new Bitmap_t[(int)width]();
   }
 
   for(int i = 0; i < height; i++) {
     for(int j = 0; j < width;) {
-      uint8_t cell = FILD_NONE;
+      Bitmap_t cell = FILD_NONE;
       if(isspace(*p)) {
         p++;
         continue;

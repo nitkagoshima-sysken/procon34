@@ -2,8 +2,6 @@
 #define GAME_HPP_
 
 #include "procon2023.hpp"
-#include "Field.hpp"
-
 #define STACK_MAX_NUM 1000
 
 typedef enum {
@@ -77,7 +75,7 @@ private:
 public:
   uint8_t turn;
   uint8_t board_type; // A:0, B:1, C:2
-  Field_t **map;
+  Bitmap_t **map;
   FieldInfo *info;
   Agent *agent1;
   Agent *agent2;
@@ -86,7 +84,7 @@ public:
 
   bool next_turn;
 
-  Board(Field_t **fieldmap, FieldInfo *info);
+  Board(Bitmap_t **fieldmap, FieldInfo *info);
   Board(const Board &board);
   ~Board();
 
