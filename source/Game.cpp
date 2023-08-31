@@ -347,7 +347,7 @@ void Board::Encamp_Update(bool belong, uint8_t seed_x, uint8_t seed_y)
   Cell stack[STACK_MAX_NUM] = {0};
   short sp = 0;
 
-  uint8_t target_wall = (belong == Player1) ? BIT_WALL1 : BIT_WALL1;
+  uint8_t target_wall = (belong == Player1) ? BIT_WALL1 : BIT_WALL2;
   uint8_t target_encamp = (belong == Player1) ? BIT_ENCAMP1 : BIT_ENCAMP2;
 
   for(uint8_t i = 0; i < info->height; i++) {
