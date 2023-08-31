@@ -279,13 +279,20 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
 
   if(kind == ACT_DEMOLISH) {
     if(map[my][mx] & (BIT_WALL1 | BIT_WALL2))
-        map[my][mx] &= !(BIT_WALL1 | BIT_WALL2);
+        map[my][mx] &= ~(BIT_WALL1 | BIT_WALL2);
 
     // if(getwall(belong, mx, my) == 1)
     //   cout << "getwall:エラー\n";
 
       // cout << "Player" << (int)belong << "'s agent" << (int)(backnumber - ((belong == Player1) ? FILD_AGENT11 : FILD_AGENT21)) << " demolish "
       //    << "( " << (int)mx << ", " << (int)my << " )\n";
+
+    for(int direc = 0; direc < Direction_Max; direc++) {
+      uint8_t mmx = mx + round(cos(direc * PI/4));
+      uint8_t mmy = my + round(sin(direc * PI/4));
+
+      Encamp_Update(mmx, mmy);
+    }
 
     return ACT_SUCCESS;
   }
@@ -454,7 +461,7 @@ bool Board::isIgnoreCoord(uint8_t x, uint8_t y)
 
 bool Board::move_enable(uint8_t x, uint8_t y, bool belong)
 {
-  bool target_wall = (belong == Player1) ? BIT_WALL2 : BIT_WALL1;
+  uint8_t target_wall = (belong == Player1) ? BIT_WALL2 : BIT_WALL1;
   if(map[y][x] & (BIT_AGENT1 | BIT_AGENT2 | target_wall | BIT_POND))
     return false;
   return true;

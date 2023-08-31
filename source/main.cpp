@@ -83,6 +83,14 @@ int main(int argc, char *argv[])
       Board *init_board = new Board(match);
       init_board->next_turn = match.next_turn;
 
+      // cout << ((match.next_turn == Player1) ? "player1" : "player2") << endl;
+      // for(int i = 0; i < info->agent; i++) {
+      //   std::vector<Action> action;
+      //   match.getLegalAct(match.next_turn, action ,i);
+      //   cout << "職人" << i << "の合法手数:" << action.size() << endl;
+      // }
+      // cout << endl;
+
       for(int i = 0; i < info->agent; i++) {
         root_node[i] = new Game_Node(init_board);
         cout << "職人" << i << "(" << +root_node[i]->board->agent1[i].x << ", " << +root_node[i]->board->agent1[i].y << ")" << "のゲーム木構築中..." << endl;
