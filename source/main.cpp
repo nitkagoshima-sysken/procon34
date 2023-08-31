@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
   //   initiative = Player2;
   // }
 
-  char *path = "../Field_Data/A11.csv";
+  char *path = "../Field_Data/B11.csv";
   // char *path = argv[1];
   Map map(path);
   
@@ -57,6 +57,10 @@ int main(int argc, char *argv[])
 
   Board match(fieldmap, info);
   match.next_turn = initiative;
+
+  int depth = 0;
+  cout << "探索の深さを指定:";
+  cin >> depth;
 
   // メインループ
   for(int count = 0; count < TURN_NUM; count++) {
@@ -82,7 +86,7 @@ int main(int argc, char *argv[])
       for(int i = 0; i < info->agent; i++) {
         root_node[i] = new Game_Node(init_board);
         cout << "職人" << i << "(" << +root_node[i]->board->agent1[i].x << ", " << +root_node[i]->board->agent1[i].y << ")" << "のゲーム木構築中..." << endl;
-        expandChildren_by_num(root_node[i], 4, i);
+        expandChildren_by_num(root_node[i], depth, i);
         cout << "職人" << i << "の盤面評価中..." << endl;
         TreeSearch(root_node[i], i);
       }

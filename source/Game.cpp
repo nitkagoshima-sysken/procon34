@@ -247,7 +247,7 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
 
   if(kind == ACT_MOVE && move_enable(mx, my, belong)) {
     map[my][mx] |= (target_agent_bit & map[y][x]); // Agentを移動
-    map[y][x] &= !target_agent_bit;
+    map[y][x] &= ~target_agent_bit;
     target_agent[backnumber].x = mx;
     target_agent[backnumber].y = my; // Agent構造体のx, y座標も移動させて帳尻合わせ
 
@@ -340,8 +340,8 @@ void Board::Encamp_Update(uint8_t seed_x, uint8_t seed_y)
   Cell stack[STACK_MAX_NUM] = {0};
   short sp = 0;
 
-  uint8_t target_wall = (!next_turn == Player1) ? BIT_WALL1 : BIT_WALL1;
-  uint8_t target_encamp = (!next_turn == Player1) ? BIT_ENCAMP1 : BIT_ENCAMP2;
+  uint8_t target_wall = (next_turn == Player1) ? BIT_WALL1 : BIT_WALL1;
+  uint8_t target_encamp = (next_turn == Player1) ? BIT_ENCAMP1 : BIT_ENCAMP2;
 
   for(uint8_t i = 0; i < info->height; i++) {
     for(uint8_t j = 0; j < info->width; j++) {
@@ -359,6 +359,12 @@ void Board::Encamp_Update(uint8_t seed_x, uint8_t seed_y)
     if(popCell(stack, sp, x, y)) // popするデータがなくなった
       break;
 
+    if(map[y][x] & target_wall) {
+      continue;
+    }
+
+    bitmap[y][x] = true;
+
     for(int direc = 0; direc < Direction_Max; direc+=2) { // 上下左右を調べる
       uint8_t mx = x + round(cos(direc * PI/4));
       uint8_t my = y + round(sin(direc * PI/4));
@@ -367,7 +373,7 @@ void Board::Encamp_Update(uint8_t seed_x, uint8_t seed_y)
         // cout << "ignore coord: " << "(" << (int)mx << ", " << (int)my << ")\n";
         return;
       }
-      if(!(bool)(map[my][mx] & target_wall)) { // 城壁じゃなければ(陣地になる可能性があれば)
+      if(!(map[my][mx] & target_wall)) { // 城壁じゃなければ(陣地になる可能性があれば)
         if(bitmap[my][mx]) { // 訪れたことがあればスキップ
           // cout << "it has done.\n";
           continue;
