@@ -41,7 +41,7 @@ Board::Board(const Board &board)
 {
   map = new Bitmap_t*[board.info->height]();
   for(int i = 0; i < board.info->height; i++) {
-    map[i] = new Bitmap_t[board.info->width];
+    map[i] = new Bitmap_t[board.info->width]();
     memcpy(map[i], board.map[i], board.info->width);
   }
   
