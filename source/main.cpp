@@ -89,6 +89,7 @@ int main(int argc, char *argv[])
         cout << "職人" << i << "の合法手数:" << action.size() << endl;
       }
       cout << endl;
+      
 
       for(int i = 0; i < info->agent; i++) {
         root_node[i] = new Game_Node(init_board);
