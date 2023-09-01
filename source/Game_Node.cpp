@@ -69,9 +69,9 @@ char Game_Node::wallpoint(uint8_t x, uint8_t y, char beforepoint, int *point)
 
   uint8_t c1=0, c2=0;  //1マス目の壁の数、２マス目の壁の数
 
-  bool ally_encamp   = (board->map[y][x] & BIT_WALL1) ? BIT_ENCAMP1 : BIT_ENCAMP2;
-  bool target_encamp = (board->map[y][x] & BIT_WALL1) ? BIT_ENCAMP2 : BIT_ENCAMP1;
-  bool ally_wall     = (board->map[y][x] & BIT_WALL1) ? BIT_WALL1   : BIT_WALL2  ;
+  Bitmap_t ally_encamp   = (board->map[y][x] & BIT_WALL1) ? BIT_ENCAMP1 : BIT_ENCAMP2;
+  Bitmap_t target_encamp = (board->map[y][x] & BIT_WALL1) ? BIT_ENCAMP2 : BIT_ENCAMP1;
+  Bitmap_t ally_wall     = (board->map[y][x] & BIT_WALL1) ? BIT_WALL1   : BIT_WALL2  ;
 
   if(beforepoint) return beforepoint;  //前回探査していれば
 
@@ -124,7 +124,7 @@ int Game_Node::playerpoint(bool belong, uint8_t b_number, char **pmap, int *poin
   uint8_t x, y;
 
   Agent *target_agent = (belong == Player1) ? board->agent1: board->agent2;
-  bool ally_wall      = (belong == Player1) ? BIT_WALL1    : BIT_WALL2;
+  Bitmap_t ally_wall      = (belong == Player1) ? BIT_WALL1    : BIT_WALL2;
 
   vector<Action> action;
 
