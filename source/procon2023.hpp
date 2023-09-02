@@ -18,6 +18,7 @@
 #define BIT_WALL2          (1<<5)
 #define BIT_AGENT1         (1<<6)
 #define BIT_AGENT2         (1<<7)
+#define BIT_OPENED_ENCAMP  (1<<8)
 
 typedef unsigned short Bitmap_t;
 

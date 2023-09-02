@@ -105,6 +105,7 @@ public:
   void pushCell(Cell *stack, short &sp, uint8_t x, uint8_t y);
   int popCell(Cell *stack, short &sp, uint8_t &x, uint8_t &y);
   void Encamp_Update(bool belong, uint8_t seed_x, uint8_t seed_y);
+  void Encamp_Opened(bool belong, uint8_t seed_x, uint8_t seed_y);
 
   int putwall(bool belong, Wall *wall);
   int getwall(bool belong, uint8_t wall_x, uint8_t wall_y);
