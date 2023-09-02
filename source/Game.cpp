@@ -297,7 +297,7 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
       if(map[mmy][mmx] & (target_encamp | target_wall))
         continue;
 
-      Encamp_Opened(belong, mmx, mmy);
+      // Encamp_Opened(belong, mmx, mmy);
     }
 
     return ACT_SUCCESS;
@@ -560,6 +560,9 @@ void Board::draw()
               cout << "\x1b[49m";
           }
       }
+
+      if(map[i][j] & BIT_OPENED_ENCAMP)
+        cout << "\x1b[48;5;178m";
 
       switch (map[i][j] & (BIT_AGENT1 | BIT_AGENT2 | BIT_POND))
       {
