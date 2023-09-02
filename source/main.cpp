@@ -93,10 +93,12 @@ int main(int argc, char *argv[])
       cout << endl;
       
 
+      int lastdepth = ((TURN_NUM - count) < depth) ? (TURN_NUM - count) : depth ;
+
       for(int i = 0; i < info->agent; i++) {
         root_node[i] = new Game_Node(init_board);
         cout << "職人" << i << "(" << +root_node[i]->board->agent1[i].x << ", " << +root_node[i]->board->agent1[i].y << ")" << "のゲーム木構築中..." << endl;
-        expandChildren_by_num(root_node[i], depth, i);
+        expandChildren_by_num(root_node[i], lastdepth, i);
         cout << "職人" << i << "の盤面評価中..." << endl;
         TreeSearch(root_node[i], i);
       }
