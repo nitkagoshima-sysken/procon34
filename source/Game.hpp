@@ -49,6 +49,12 @@ typedef struct {
   uint8_t y;
 } Cell;
 
+typedef struct {
+  uint8_t xr;
+  uint8_t xl;
+  uint8_t y;
+} Segment;
+
 /**
  * 城壁を管理する構造体
  * 
@@ -104,6 +110,8 @@ public:
 
   void pushCell(Cell *stack, short &sp, uint8_t x, uint8_t y);
   int popCell(Cell *stack, short &sp, uint8_t &x, uint8_t &y);
+  void pushSegment(Segment *stack, short &sp, uint8_t y, uint8_t xl, uint8_t xr);
+  int popSegment(Segment *stack, short &sp, uint8_t &y, uint8_t &xl, uint8_t &xr);
   void Encamp_Update(bool belong, uint8_t seed_x, uint8_t seed_y);
   void Encamp_Opened(bool belong, uint8_t seed_x, uint8_t seed_y);
 
