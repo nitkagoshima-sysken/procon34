@@ -6,30 +6,6 @@
 #include <unistd.h>
 using namespace std;
 
-void playout(Board *match)
-{
-  FieldInfo *info = new FieldInfo;
-  memcpy(info, match->info, sizeof(FieldInfo));
-  for(int i = match->turn; i < TURN_NUM; i++) {
-    Action *act;
-    act = new Action[info->agent];
-    for(int j = 0; j < info->agent; j++) {
-      vector<Action> legal_act;
-      match->getLegalAct(match->next_turn, legal_act, j);
-      int rand_act = rand()%legal_act.size();
-      act[j] = legal_act[rand_act];
-      // cout << "select: " << (int)act[i].kind << ", " << (int)act[i].direc << endl;
-      match->ActionAnAgent(match->next_turn, j, act[j]);
-
-    // 陣地ができたかどうかを確認し，更新する
-    // game.Encamp_Update();
-
-    uint8_t x, y;
-    }
-    delete act;
-  }
-}
-
 int main(int argc, char *argv[])
 {
 

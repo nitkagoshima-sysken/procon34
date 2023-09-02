@@ -279,8 +279,6 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
   }
 
   if(kind == ACT_DEMOLISH) {
-    if(map[my][mx] & (BIT_WALL1 | BIT_WALL2))
-        map[my][mx] &= ~(BIT_WALL1 | BIT_WALL2);
 
     // if(getwall(belong, mx, my) == 1)
     //   cout << "getwall:エラー\n";
@@ -288,17 +286,33 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
       // cout << "Player" << (int)belong << "'s agent" << (int)(backnumber - ((belong == Player1) ? FILD_AGENT11 : FILD_AGENT21)) << " demolish "
       //    << "( " << (int)mx << ", " << (int)my << " )\n";
 
+    uint8_t ax[4] = {0}, ay[4] = {0}, cnt = 0;
     for(int direc = 0; direc < Direction_Max; direc++) {
       uint8_t mmx = mx + round(cos(direc * PI/4));
       uint8_t mmy = my + round(sin(direc * PI/4));
 
-      Encamp_Update(belong, mmx, mmy);
-
-      if(map[mmy][mmx] & (target_encamp | target_wall))
+      if(isIgnoreCoord(mmx, mmy))
         continue;
 
-      // Encamp_Opened(belong, mmx, mmy);
+      Encamp_Update(belong, mmx, mmy);
+
+      if(direc%2 || (map[mmy][mmx] & BIT_OPENED_ENCAMP))
+        continue;
+
+      if(map[mmy][mmx] & target_encamp) {
+        ax[cnt] = mmx;
+        ay[cnt] = mmy;
+        cnt++;
+      }
     }
+    if(cnt != 3) {
+      for(int i = 0; i < cnt; i++) {
+        Encamp_Opened(belong, ax[i], ay[i]);
+      }
+    }
+
+    if(map[my][mx] & (BIT_WALL1 | BIT_WALL2))
+        map[my][mx] &= ~(BIT_WALL1 | BIT_WALL2);
 
     return ACT_SUCCESS;
   }
