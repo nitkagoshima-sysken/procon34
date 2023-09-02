@@ -90,7 +90,6 @@ int main(int argc, char *argv[])
       }
       cout << endl;
       
-
       for(int i = 0; i < info->agent; i++) {
         root_node[i] = new Game_Node(init_board);
         cout << "職人" << i << "(" << +root_node[i]->board->agent1[i].x << ", " << +root_node[i]->board->agent1[i].y << ")" << "のゲーム木構築中..." << endl;
