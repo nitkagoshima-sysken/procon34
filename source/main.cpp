@@ -32,6 +32,8 @@ void playout(Board *match)
 
 int main(int argc, char *argv[])
 {
+  srand((unsigned)time(NULL));
+
   // if(argc < 2) {
   //   cerr << "競技フィールドを指定してください．";
   //   return 1;
