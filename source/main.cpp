@@ -3,7 +3,6 @@
 #include "FieldMap.hpp"
 #include "Game_Node.hpp"
 #include <vector>
-#include <unistd.h>
 using namespace std;
 
 int main(int argc, char *argv[])
@@ -15,13 +14,10 @@ int main(int argc, char *argv[])
   //   return 1;
   // }
 
-  bool initiative = Player1;
-  // if(argc == 3 && argv[2] == "init=player2") {
-  //   initiative = Player2;
-  // }
+  char *path = argv[1];
+  int depth = atoi(argv[2]);
+  int turn_num = atoi(argv[3]);
 
-  char *path = "../Field_Data/B11.csv";
-  // char *path = argv[1];
   Map map(path);
   
   Bitmap_t **fieldmap;
@@ -33,14 +29,10 @@ int main(int argc, char *argv[])
   map.AnalyzeFile(&info, &fieldmap); // フィールド読み込み
 
   Board match(fieldmap, info);
-  match.next_turn = initiative;
-
-  int depth = 0;
-  cout << "探索の深さを指定:";
-  cin >> depth;
+  match.next_turn = Player1;
 
   // メインループ
-  for(int count = 0; count < TURN_NUM; count++) {
+  for(int count = 0; count < turn_num; count++) {
     // system("clear");
     cout << "turn:" << count << endl;
     cout << "current_:" << ((match.next_turn == Player1) ? "Player1" : "Player2") << endl;

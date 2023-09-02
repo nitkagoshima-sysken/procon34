@@ -1,5 +1,5 @@
 CC	= g++
-CFLAGS = -Wall -g -O0
+CFLAGS = -Wall -O3
 SRCS = Game.cpp
 SRCS += main.cpp
 SRCS += FieldMap.cpp

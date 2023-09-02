@@ -28,7 +28,7 @@ typedef unsigned char Length_t;
 #define WALL_POINT     10
 #define POSITION_POINT 30
 
-#define TURN_NUM 60
+#define TURN_NUM 200
 
 #define FILD_NONE   0
 #define FILD_WALL1   BIT_WALL1
