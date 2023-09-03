@@ -274,15 +274,10 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
       Encamp_Update(belong, mmx, mmy);
     }
 
-    if(map[my][mx] & BIT_OPENED_ENCAMP) {
-      if(map[my][mx] & BIT_ENCAMP1)
-        map[my][mx] &= ~BIT_ENCAMP1;
-      else if(map[my][mx] & BIT_ENCAMP2)
-        map[my][mx] &= ~BIT_ENCAMP2;
-      else
-        cout << "Error: 解放された陣地登録されているが，陣地でない\n";
-
-      map[my][mx] &= ~BIT_OPENED_ENCAMP;
+    if(map[my][mx] & BIT_ENCAMP1) {
+      map[my][mx] &= ~(BIT_ENCAMP1 | BIT_OPENED_ENCAMP);
+    } else if(map[my][mx] & BIT_ENCAMP2) {
+      map[my][mx] &= ~(BIT_ENCAMP2 | BIT_OPENED_ENCAMP);
     }
 
     return ACT_SUCCESS;
@@ -325,7 +320,12 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
       if(map[mmy][mmx] & target_wall)
         special_cnt++;
     }
-    if(cnt != 4 && special_cnt != 4) {
+    if(cnt == 4) {
+      Bitmap_t tmp = (map[my+1][mx] & BIT_ENCAMP1) ? BIT_ENCAMP1 : BIT_ENCAMP2;
+      map[my][mx] |= tmp;
+    } else if(special_cnt == 4) {
+      Bitmap_t tmp = (map[my+1][mx] & BIT_WALL1) ? BIT_WALL1 : BIT_WALL2;
+    } else {
       for(int i = 0; i < cnt; i++) {
         Encamp_Opened(target_belong, ax[i], ay[i]);
       }
@@ -535,6 +535,7 @@ void Board::Encamp_Update(bool belong, uint8_t seed_x, uint8_t seed_y)
   for(uint8_t i = 0; i < info->height; i++) {
     for(uint8_t j = 0; j < info->width; j++) {
       if(bitmap[i][j]) {
+        map[i][j] &= ~(BIT_ENCAMP1 | BIT_ENCAMP2); // 一度陣地情報をクリア
         map[i][j] |= target_encamp;
         map[i][j] &= ~BIT_OPENED_ENCAMP; // 解放された陣地ではなくなる
       }
