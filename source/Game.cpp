@@ -421,7 +421,7 @@ void Board::Encamp_Update(bool belong, uint8_t seed_x, uint8_t seed_y)
       continue;
 
     uint8_t x = xl;
-    for(; x > 0; x--) {
+    for(; x >= 0; x--) {
       if(x == 0 || x == info->width - 1 || y == 0 || y == info->height - 1) { // 途中でフィールド外枠に到達したということは陣地形成していない
         // cout << "陣地形成なし: " << "(" << +x << ", " << +y << ")\n";
         return;
@@ -458,6 +458,69 @@ void Board::Encamp_Update(bool belong, uint8_t seed_x, uint8_t seed_y)
     }
   }
 }
+
+// void Board::Encamp_Update(bool belong, uint8_t seed_x, uint8_t seed_y)
+// {
+//   if(isIgnoreCoord(seed_x, seed_y))
+//     return;
+
+//   bool bitmap[info->height][info->width];
+//   Cell stack[STACK_MAX_NUM] = {0};
+//   short sp = 0;
+
+//   Bitmap_t target_wall = (belong == Player1) ? BIT_WALL1 : BIT_WALL2;
+//   Bitmap_t target_encamp = (belong == Player1) ? BIT_ENCAMP1 : BIT_ENCAMP2;
+
+//   for(uint8_t i = 0; i < info->height; i++) {
+//     for(uint8_t j = 0; j < info->width; j++) {
+//       bitmap[i][j] = false;
+//     }
+//   }
+
+//   if(map[seed_y][seed_x] & target_wall) { // シード座標が城壁ならストップ
+//     return;
+//   }
+//   pushCell(stack, sp, seed_x, seed_y);
+
+//   while(sp >= 0) {
+//     uint8_t x, y;
+//     if(popCell(stack, sp, x, y)) // popするデータがなくなった
+//       break;
+
+//     if(map[y][x] & target_wall) {
+//       continue;
+//     }
+
+//     bitmap[y][x] = true;
+
+//     for(int direc = 0; direc < Direction_Max; direc+=2) { // 上下左右を調べる
+//       uint8_t mx = x + round(cos(direc * PI/4));
+//       uint8_t my = y + round(sin(direc * PI/4));
+
+//       if(isIgnoreCoord(mx, my)) { // 途中でフィールド外枠に到達したということは陣地形成していない
+//         // cout << "ignore coord: " << "(" << (int)mx << ", " << (int)my << ")\n";
+//         return;
+//       }
+//       if(!(map[my][mx] & target_wall)) { // 城壁じゃなければ(陣地になる可能性があれば)
+//         if(bitmap[my][mx]) { // 訪れたことがあればスキップ
+//           // cout << "it has done.\n";
+//           continue;
+//         }
+//         pushCell(stack, sp, mx, my);
+//         bitmap[my][mx] = true;
+//       }
+//     }
+//   }
+//   // ここまで来たということは陣地形成されている
+//   for(uint8_t i = 0; i < info->height; i++) {
+//     for(uint8_t j = 0; j < info->width; j++) {
+//       if(bitmap[i][j]) {
+//         map[i][j] |= target_encamp;
+//       }
+//     }
+//   }
+
+// }
 
 void Board::Encamp_Opened(bool belong, uint8_t seed_x, uint8_t seed_y)
 {
