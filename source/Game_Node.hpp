@@ -36,13 +36,10 @@ public:
   int playerpoint(bool belong, uint8_t b_number, char **pmap, int *point);
 
   int (*ev_function)(Board *board, bool belong);
-
-  int evaluate_current_board();
-
 };
 
 void expandChildren_by_num(Game_Node *root, int n, int backnumber);
-void TreeSearch(Game_Node *root, int backnumber);
+void TreeSearch(Game_Node *root, int backnumber, bool belong);
 void drawTree(Game_Node *root);
 void deleteTree(Game_Node* root);
 

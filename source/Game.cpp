@@ -53,7 +53,7 @@ Board::Board(const Board &board)
   memcpy(agent1, board.agent1, sizeof(Agent) * board.info->agent);
   memcpy(agent2, board.agent2, sizeof(Agent) * board.info->agent);
 
-  for(int i = 0; i < board.walls[Player1].size(); i++) {
+  for(int i = 0; i < (int)board.walls[Player1].size(); i++) {
     Wall *cur = board.walls[Player1][i].head;
     Wall *tail = nullptr;
     Wall *wall = nullptr;
@@ -75,7 +75,7 @@ Board::Board(const Board &board)
     new_walls.consol_num = board.walls[Player1][i].consol_num;
     walls[Player1].push_back(new_walls);
   }
-  for(int i = 0; i < board.walls[Player2].size(); i++) {
+  for(int i = 0; i < (int)board.walls[Player2].size(); i++) {
     Wall *cur = board.walls[Player2][i].head;
     Wall *tail = nullptr;
     Wall *wall = nullptr;
@@ -185,7 +185,7 @@ void Board::getLegalBoard(bool belong, vector<Board*> &legal_board, uint8_t back
   vector<Action> action;
   getLegalAct(belong, action, backnumber);
 
-  for(int i = 0; i < action.size(); i++) {
+  for(int i = 0; i < (int)action.size(); i++) {
     Board *board = new Board(*this);
     
     // printデバッグ(コピーコンストラクタ動作確認)
@@ -324,7 +324,8 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
       Bitmap_t tmp = (map[my+1][mx] & BIT_ENCAMP1) ? BIT_ENCAMP1 : BIT_ENCAMP2;
       map[my][mx] |= tmp;
     } else if(special_cnt == 4) {
-      Bitmap_t tmp = (map[my+1][mx] & BIT_WALL1) ? BIT_WALL1 : BIT_WALL2;
+      Bitmap_t tmp = (map[my+1][mx] & BIT_WALL1) ? BIT_ENCAMP1 : BIT_ENCAMP2;
+      map[my][mx] |= tmp;
     } else {
       for(int i = 0; i < cnt; i++) {
         Encamp_Opened(target_belong, ax[i], ay[i]);
@@ -554,7 +555,6 @@ void Board::Encamp_Opened(bool belong, uint8_t seed_x, uint8_t seed_y)
   short sp = 0;
 
   Bitmap_t target_wall = (belong == Player1) ? BIT_WALL1 : BIT_WALL2;
-  Bitmap_t target_encamp = (belong == Player1) ? BIT_ENCAMP1 : BIT_ENCAMP2;
 
   for(uint8_t i = 0; i < info->length; i++) {
     for(uint8_t j = 0; j < info->length; j++) {
@@ -754,7 +754,7 @@ int Board::putwall(bool belong, Wall *wall)
     walls[belong].push_back(wal);
   } else if(cnt == 1) {
     // つながった城壁の先頭または末尾であるから探索する
-    for(int i = 0; i < walls[belong].size(); i++) {
+    for(int i = 0; i < (int)walls[belong].size(); i++) {
       if(walls[belong][i].tail->x == x[0] && 
           walls[belong][i].tail->y == y[0]) {
         wall->next = nullptr;
@@ -778,7 +778,7 @@ int Board::putwall(bool belong, Wall *wall)
 
 int Board::getwall(bool belong, uint8_t wall_x, uint8_t wall_y)
 {
-  for(int i = 0; i < walls[belong].size(); i++) {
+  for(int i = 0; i < (int)walls[belong].size(); i++) {
     Wall *pre = nullptr, *wall;
     int j;
     for(wall = walls[belong][i].head, j = 1; wall; pre = wall, wall = wall->next, j++) { // 読みにくいforでごめん

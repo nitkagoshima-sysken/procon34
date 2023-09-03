@@ -9,7 +9,7 @@
  * 
  * @param belong 注目するプレイヤーを指定
  */
-static int ev_diff_score(Board *board, bool belong) {
+int ev_diff_score(Board *board, bool belong) {
   //自分と相手のスコアを取得
   int score1, score2;
   board->score(score1, score2);
@@ -22,7 +22,7 @@ static int ev_diff_score(Board *board, bool belong) {
  * 
  * @param belong 注目するプレイヤーを指定
  */
-static int ev_destroy(Board *board, bool belong) {
+int ev_destroy(Board *board, bool belong) {
   //自分と相手のスコアを取得
   int score1, score2;
   board->score(score1, score2);

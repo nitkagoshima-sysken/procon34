@@ -1,10 +1,11 @@
 CC	= g++
-CFLAGS = -Wall -O3
+CFLAGS = -Wall -g -O0
 SRCS = Game.cpp
 SRCS += main.cpp
 SRCS += FieldMap.cpp
 SRCS += Game_Node.cpp
-# SRCS += Field.cpp
+# SRCS += Evaluation_functions.cpp
+# SRCS += main_ev_func.cpp
 
 OBJS=$(SRCS:.cpp=.o)
 
