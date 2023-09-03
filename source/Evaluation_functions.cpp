@@ -4,7 +4,11 @@
 #include <vector>
 #include <math.h>
 
-// 両者の点数の差だけをスコアとして返却する評価関数
+/**
+ * @brief  両者の点数の差だけをスコアとして返却する評価関数
+ * 
+ * @param belong 注目するプレイヤーを指定
+ */
 static int ev_diff_score(Board *board, bool belong) {
   //自分と相手のスコアを取得
   int score1, score2;
@@ -13,18 +17,22 @@ static int ev_diff_score(Board *board, bool belong) {
   return (belong == Player1) ? (score1 - score2) : (score2 - score1);
 }
 
-// 敵の壁の数をスコア換算する評価関数
+/**
+ * @brief  敵の点数を減らす思想を持った評価関数
+ * 
+ * @param belong 注目するプレイヤーを指定
+ */
 static int ev_destroy(Board *board, bool belong) {
   //自分と相手のスコアを取得
   int score1, score2;
   board->score(score1, score2);
-  int target_score;
+  int target_score = (belong == Player1) ? score2 : score1;
 
   //合法手の数
   int legal_num = 0;
   for(int i = 0; i < board->info->agent; i++) {
     std::vector<Action> act;
-    board->getLegalAct(Player2, act, i);
+    board->getLegalAct(!belong, act, i);
     legal_num += act.size();
   }
 
