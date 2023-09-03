@@ -14,9 +14,23 @@ int main(int argc, char *argv[])
   //   return 1;
   // }
 
-  char *path = argv[1];
-  int depth = atoi(argv[2]);
-  int turn_num = atoi(argv[3]);
+  int turn_num = TURN_NUM;
+  int depth = 1;
+  char *path = "../Field_Data/B11.csv";
+  switch(argc) {
+    case 1:
+      cout << "競技フィールド: B11, 探索深度: 1, ターン数: " << TURN_NUM << "で試合を開始します．\n";
+      cout << "引数を設定したい場合は次のようにしてください 例: ./procon ../Field_Data/B11 1 " << TURN_NUM << endl;
+      cout << "press enter\n";
+      getchar();
+      break;
+    case 4:
+      turn_num = atoi(argv[3]);
+    case 3:
+      depth = atoi(argv[2]);
+    case 2:
+      path = argv[1];
+  }
 
   Map map(path);
   

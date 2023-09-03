@@ -274,6 +274,17 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
       Encamp_Update(belong, mmx, mmy);
     }
 
+    if(map[my][mx] & BIT_OPENED_ENCAMP) {
+      if(map[my][mx] & BIT_ENCAMP1)
+        map[my][mx] &= ~BIT_ENCAMP1;
+      else if(map[my][mx] & BIT_ENCAMP2)
+        map[my][mx] &= ~BIT_ENCAMP2;
+      else
+        cout << "Error: 解放された陣地登録されているが，陣地でない\n";
+
+      map[my][mx] &= ~BIT_OPENED_ENCAMP;
+    }
+
     return ACT_SUCCESS;
   }
 
