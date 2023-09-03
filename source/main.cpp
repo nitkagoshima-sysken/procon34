@@ -74,7 +74,6 @@ int main(int argc, char *argv[])
       }
       cout << endl;
       
-
       int lastdepth = ((TURN_NUM - count) < depth) ? (TURN_NUM - count) : depth ;
 
       for(int i = 0; i < info->agent; i++) {

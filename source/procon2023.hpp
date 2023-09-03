@@ -63,8 +63,7 @@ typedef enum {
 } FieldKIND;
 
 typedef struct {
-  Length_t height;
-  Length_t width;
+  Length_t length;
   int agent;
   int pond;
   int castle;

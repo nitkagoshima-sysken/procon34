@@ -100,8 +100,8 @@ void Map::AnalyzeFile(FieldInfo **info, Bitmap_t ***map)
   }
 
   *info = new FieldInfo;
-  (*info)->height = height;
-  (*info)->width  = width;
+  (*info)->length = height;
+  (*info)->length  = width;
   (*info)->agent  = agent1;
   (*info)->castle = castle;
   (*info)->pond   = pond;

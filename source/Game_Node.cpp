@@ -160,9 +160,9 @@ int Game_Node::evaluate_current_board()
   int a_score,b_score;
   bool belong;
 
-  char **pmap = new char*[board->info->height]();
-  for(int i = 0 ; i < board->info->height; i++) {
-    pmap[i] = new char[board->info->width]();
+  char **pmap = new char*[board->info->length]();
+  for(int i = 0 ; i < board->info->length; i++) {
+    pmap[i] = new char[board->info->length]();
   }
 
   board->score(a_score,b_score);
@@ -179,7 +179,7 @@ int Game_Node::evaluate_current_board()
     p -= playerpoint(belong, i, pmap, &p) / coefficient_agent;
   }
 
-  for(int i = 0; i < board->info->height; i++) {
+  for(int i = 0; i < board->info->length; i++) {
     delete pmap[i];
   }
   delete pmap;

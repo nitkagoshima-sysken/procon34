@@ -49,7 +49,7 @@ static int ev_destroy(Board *board, bool belong) {
   //職人と職人の距離
     int distance = (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1);
 
-    dist[i] = distance * 100 / board->info->height * board->info->width + board->info->height * board->info->width;
+    dist[i] = distance * 100 / board->info->length * board->info->length + board->info->length * board->info->length;
   }
 
   int legal_ave = legal_num / board->info->agent;

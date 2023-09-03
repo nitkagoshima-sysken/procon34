@@ -15,8 +15,8 @@ Board::Board(Bitmap_t **fieldmap, FieldInfo *info)
 
   for(int i = 0; i < info->agent; i++) {
     int cnt1 = 0, cnt2 = 0;
-    for(int j = 0; j < info->height; j++) {
-      for(int k = 0; k < info->width; k++) {
+    for(int j = 0; j < info->length; j++) {
+      for(int k = 0; k < info->length; k++) {
         if(map[j][k] & BIT_AGENT1) {
           agent1[cnt1].x = k;
           agent1[cnt1].y = j;
@@ -39,10 +39,10 @@ Board::Board(Bitmap_t **fieldmap, FieldInfo *info)
 
 Board::Board(const Board &board)
 {
-  map = new Bitmap_t*[board.info->height]();
-  for(int i = 0; i < board.info->height; i++) {
-    map[i] = new Bitmap_t[board.info->width]();
-    memcpy(map[i], board.map[i], sizeof(Bitmap_t) * board.info->width);
+  map = new Bitmap_t*[board.info->length]();
+  for(int i = 0; i < board.info->length; i++) {
+    map[i] = new Bitmap_t[board.info->length]();
+    memcpy(map[i], board.map[i], sizeof(Bitmap_t) * board.info->length);
   }
   
   info = new FieldInfo;
@@ -115,7 +115,7 @@ Board::Board(const Board &board)
 
 Board::~Board()
 {
-  for(int i = 0; i < info->height; i++)
+  for(int i = 0; i < info->length; i++)
     delete map[i];
   delete map;
   
@@ -484,15 +484,15 @@ void Board::Encamp_Update(bool belong, uint8_t seed_x, uint8_t seed_y)
   if(isIgnoreCoord(seed_x, seed_y))
     return;
 
-  bool bitmap[info->height][info->width];
+  bool bitmap[info->length][info->length];
   Cell stack[STACK_MAX_NUM] = {0};
   short sp = 0;
 
   Bitmap_t target_wall = (belong == Player1) ? BIT_WALL1 : BIT_WALL2;
   Bitmap_t target_encamp = (belong == Player1) ? BIT_ENCAMP1 : BIT_ENCAMP2;
 
-  for(uint8_t i = 0; i < info->height; i++) {
-    for(uint8_t j = 0; j < info->width; j++) {
+  for(uint8_t i = 0; i < info->length; i++) {
+    for(uint8_t j = 0; j < info->length; j++) {
       bitmap[i][j] = false;
     }
   }
@@ -532,8 +532,8 @@ void Board::Encamp_Update(bool belong, uint8_t seed_x, uint8_t seed_y)
     }
   }
   // ここまで来たということは陣地形成されている
-  for(uint8_t i = 0; i < info->height; i++) {
-    for(uint8_t j = 0; j < info->width; j++) {
+  for(uint8_t i = 0; i < info->length; i++) {
+    for(uint8_t j = 0; j < info->length; j++) {
       if(bitmap[i][j]) {
         map[i][j] &= ~(BIT_ENCAMP1 | BIT_ENCAMP2); // 一度陣地情報をクリア
         map[i][j] |= target_encamp;
@@ -549,15 +549,15 @@ void Board::Encamp_Opened(bool belong, uint8_t seed_x, uint8_t seed_y)
   if(isIgnoreCoord(seed_x, seed_y))
     return;
 
-  bool bitmap[info->height][info->width];
+  bool bitmap[info->length][info->length];
   Cell stack[STACK_MAX_NUM] = {0};
   short sp = 0;
 
   Bitmap_t target_wall = (belong == Player1) ? BIT_WALL1 : BIT_WALL2;
   Bitmap_t target_encamp = (belong == Player1) ? BIT_ENCAMP1 : BIT_ENCAMP2;
 
-  for(uint8_t i = 0; i < info->height; i++) {
-    for(uint8_t j = 0; j < info->width; j++) {
+  for(uint8_t i = 0; i < info->length; i++) {
+    for(uint8_t j = 0; j < info->length; j++) {
       bitmap[i][j] = false;
     }
   }
@@ -621,8 +621,8 @@ void Board::score(int &score1, int &score2)
 {
   score1 = 0;
   score2 = 0; 
-  for(int i=0 ; i < info->height ; i++){
-    for(int j=0 ; j < info->width ; j++){
+  for(int i=0 ; i < info->length ; i++){
+    for(int j=0 ; j < info->length ; j++){
       if(map[i][j] & BIT_WALL1){
         score1 += WALL_POINT;
       }else if(map[i][j] & BIT_ENCAMP1){
@@ -645,7 +645,7 @@ void Board::score(int &score1, int &score2)
 
 bool Board::isIgnoreCoord(uint8_t x, uint8_t y)
 {
-  if(x < 0 || x > info->width - 1 || y < 0 || y > info->height - 1) {
+  if(x < 0 || x > info->length - 1 || y < 0 || y > info->length - 1) {
     return true;
   }
   return false;
@@ -661,7 +661,7 @@ bool Board::isIgnoreCoord(uint8_t x, uint8_t y)
 bool Board::move_enable(uint8_t x, uint8_t y, bool belong)
 {
   Bitmap_t target_wall = (belong == Player1) ? BIT_WALL2 : BIT_WALL1;
-  if(map[y][x] & (BIT_AGENT1 | BIT_AGENT2 | target_wall | BIT_POND) || ((x==0 || x==info->width-1) && (y==0 || y==info->height-1)))
+  if(map[y][x] & (BIT_AGENT1 | BIT_AGENT2 | target_wall | BIT_POND) || ((x==0 || x==info->length-1) && (y==0 || y==info->length-1)))
     return false;
   return true;
 }
@@ -669,15 +669,15 @@ bool Board::move_enable(uint8_t x, uint8_t y, bool belong)
 bool Board::build_enable(uint8_t x, uint8_t y, bool belong)
 {
   Bitmap_t target_agent = (belong == Player1) ? BIT_AGENT2 : BIT_AGENT1;
-  if((map[y][x] & (target_agent | BIT_CASTLE | BIT_WALL2 | BIT_WALL1)) || ((x==0 || x==info->width-1) && (y==0 || y==info->height-1)))
+  if((map[y][x] & (target_agent | BIT_CASTLE | BIT_WALL2 | BIT_WALL1)) || ((x==0 || x==info->length-1) && (y==0 || y==info->length-1)))
     return false;
   return true;
 }
 
 void Board::draw()
 {
-  for(Length_t i = 0; i < info->height; i++) {
-    for(Length_t j = 0; j < info->width; j++) {
+  for(Length_t i = 0; i < info->length; i++) {
+    for(Length_t j = 0; j < info->length; j++) {
 
       switch(map[i][j] & (BIT_ENCAMP1 | BIT_ENCAMP2)) {
         case FILD_POSITION_RED : cout << "\x1b[41m"; break;
