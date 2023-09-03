@@ -18,6 +18,7 @@
 #define BIT_WALL2          (1<<5)
 #define BIT_AGENT1         (1<<6)
 #define BIT_AGENT2         (1<<7)
+#define BIT_OPENED_ENCAMP  (1<<8)
 
 typedef unsigned short Bitmap_t;
 
@@ -27,7 +28,7 @@ typedef unsigned char Length_t;
 #define WALL_POINT     10
 #define POSITION_POINT 30
 
-#define TURN_NUM 60
+#define TURN_NUM 200
 
 #define FILD_NONE   0
 #define FILD_WALL1   BIT_WALL1
