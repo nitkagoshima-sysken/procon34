@@ -311,7 +311,7 @@ void drawTree(Game_Node *root, int n)
 
 void drawTree(Game_Node *root)
 {
-  cout << "root:" << root->evaluation << " next:" << root->board->next_turn << endl; 
+  cout << "root:" << root->evaluation << " next:" << root->board->next_turn << endl;
 
   for(int i = 0; i < root->childrenNode.size(); i++) {
     Game_Node *node = root->childrenNode[i];
