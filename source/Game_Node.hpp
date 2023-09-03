@@ -35,7 +35,7 @@ public:
   char wallpoint(uint8_t x, uint8_t y , char beforepoint,int *point);
   int playerpoint(bool belong, uint8_t b_number, char **pmap, int *point);
 
-  int (*evaluate_current_board)(Board *board, bool belong);
+  // int (*evaluate_current_board)(Board *board, bool belong);
 
   int evaluate_current_board();
 

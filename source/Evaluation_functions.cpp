@@ -41,16 +41,7 @@ static int ev_destroy(Board *board, bool belong) {
   //職人と職人の距離
     int distance = (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1);
 
-  dist[i] = distance;
-    /**
-     * 2点(x1, y1), (x2, y2)の距離を算出(新基礎数学，第6章§1，p164参考(一年生の数学の教科書))
-     * 使用する関数: sqrt(引数はdouble型)
-     * sqrt関数は，引数に渡した数の根号(ルート)を実数で返却する
-     * ただし，今回はsqrtからの返却値はintでキャストする(できなければ無理にしなくていい．
-     * もしかしたらエラー出ちゃうかも？)
-     * 
-     * dist配列に全職人同士の距離を格納する(i番目の職人ならdist[i]に)
-    */
+    dist[i] = distance * 100 / board->info->height * board->info->width + board->info->height * board->info->width;
   }
 
   int legal_ave = legal_num / board->info->agent;
@@ -64,7 +55,13 @@ static int ev_destroy(Board *board, bool belong) {
   c = 12 - legal_ave * 25;
   }
 
-  a = ;
+  int par_sum = 0;
+  for(int i = 0; i < board->info->agent; i++) {
+    par_sum += dist[i];
+  }
+  par_sum /= board->info->agent;
+  a = -par_sum + 100;
+
   b = 100 / (target_score + 1);
   // 最終的に返すスコア
   int score = 50 * a + 25 * b + 25 * c;
