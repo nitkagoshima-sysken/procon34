@@ -660,7 +660,7 @@ bool Board::isIgnoreCoord(uint8_t x, uint8_t y)
 bool Board::move_enable(uint8_t x, uint8_t y, bool belong)
 {
   Bitmap_t target_wall = (belong == Player1) ? BIT_WALL2 : BIT_WALL1;
-  if(map[y][x] & (BIT_AGENT1 | BIT_AGENT2 | target_wall | BIT_POND))
+  if(map[y][x] & (BIT_AGENT1 | BIT_AGENT2 | target_wall | BIT_POND) || ((x==0 || x==info->width-1) && (y==0 || y==info->height-1)))
     return false;
   return true;
 }
