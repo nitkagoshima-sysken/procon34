@@ -32,12 +32,19 @@ static int ev_destroy(Board *board, bool belong) {
   for(int i = 0; i < board->info->agent; i++) {
     // プレイヤー1の職人iの座標
     int x1 = board->agent1[i].x;
-    int y1 = board->agent1[i].y;
+    int y1 = board->agent2[i].y;
     // プレイヤー2の職人iの座標
     int x2 = board->agent2[i].x;
-    int y2 = board->agent2[i].y;
+    int y2 = board->agent1[i].y;
+  
+  //職人と職人の距離
+    int distance = (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1);
 
-    int distance;
+  
+    
+ 
+
+  
     /**
      * 2点(x1, y1), (x2, y2)の距離を算出(新基礎数学，第6章§1，p164参考(一年生の数学の教科書))
      * 使用する関数: sqrt(引数はdouble型)
@@ -50,7 +57,7 @@ static int ev_destroy(Board *board, bool belong) {
   }
 
   // 最終的に返すスコア
-  int score = 0;
+  int score = (100 /+ 1) + ;
 
   // なにかしらの処理
 
