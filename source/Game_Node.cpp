@@ -2,6 +2,7 @@
 #include <math.h>
 #include "Evaluation_func.hpp"
 #include "main_ev_func.hpp"
+#include <assert.h>
 using namespace std;
 
 Game_Node::Game_Node(Board *board)
@@ -28,6 +29,7 @@ void Game_Node::expandChildren(int backnumber)
     Game_Node *child = new Game_Node(legal_board[i]);
     child->pre_act = action[i];
     child->parentNode = this;
+    child->ev_function = this->ev_function;
 
     childrenNode.push_back(child);
   }
@@ -214,6 +216,7 @@ void TreeSearch(Game_Node *root, int backnumber, bool belong)
 {
   if(root->childrenNode.empty()) { // 子供がいなければ
     if(root->ev_function) {
+      // root->ev_function = evaluate_current_board;
       root->evaluation =  root->ev_function(root->board, belong);
     } else {
       cerr << "error: 評価関数が設定されていません\n";
