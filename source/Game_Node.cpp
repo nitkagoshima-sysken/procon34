@@ -2,7 +2,6 @@
 #include <math.h>
 #include "Evaluation_func.hpp"
 #include "main_ev_func.hpp"
-#include <assert.h>
 using namespace std;
 
 Game_Node::Game_Node(Board *board)
@@ -247,7 +246,7 @@ void TreeSearch(Game_Node *root, int backnumber, bool belong)
 
     // ループ毎に更新
     //親の評価値がループごとに更新されるようにする
-    if(root->board->next_turn == true){
+    if(root->board->next_turn == belong){
       root->evaluation = max_score;
     }
     else{
@@ -261,7 +260,7 @@ void TreeSearch(Game_Node *root, int backnumber, bool belong)
     if(root->parentNode == nullptr)
       continue;
 
-    if(root->board->next_turn == Player1) { // ベータカット
+    if(root->board->next_turn == belong) { // ベータカット
       if(root->parentNode->evaluation < root->childrenNode[i]->evaluation){//親＜子ども
         break;
       }

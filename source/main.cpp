@@ -5,6 +5,7 @@
 #include <vector>
 #include "main_ev_func.hpp"
 #include "Evaluation_func.hpp"
+#include <assert.h>
 using namespace std;
 
 int main(int argc, char *argv[])
@@ -21,12 +22,12 @@ int main(int argc, char *argv[])
   // }
 
   int turn_num = TURN_NUM;
-  int depth = 1;
+  int depth = 3;
   char *path = (char*)"../Field_Data/B11.csv";
   switch(argc) {
     case 1:
-      cout << "競技フィールド: B11, 探索深度: 1, ターン数: " << TURN_NUM << "で試合を開始します．\n";
-      cout << "引数を設定したい場合は次のようにしてください 例: ./procon ../Field_Data/B11 1 " << TURN_NUM << endl;
+      cout << "競技フィールド: B11, 探索深度: 3, ターン数: " << TURN_NUM << "で試合を開始します．\n";
+      cout << "引数を設定したい場合は次のようにしてください 例: ./procon ../Field_Data/B11 3 " << TURN_NUM << endl;
       cout << "press enter\n";
       getchar();
       break;
@@ -117,6 +118,7 @@ int main(int argc, char *argv[])
       }
       delete root_node;
     } else {
+      assert(match.next_turn == Player2);
       // Action *act;
       // act = new Action[info->agent];
       // for(int i = 0; i < info->agent; i++) {
