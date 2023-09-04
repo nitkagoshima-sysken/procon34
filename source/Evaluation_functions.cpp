@@ -18,6 +18,7 @@ static int ev_destroy(Board *board, bool belong) {
   //自分と相手のスコアを取得
   int score1, score2;
   board->score(score1, score2);
+  int target_score;
 
   //合法手の数
   int legal_num = 0;
@@ -40,11 +41,7 @@ static int ev_destroy(Board *board, bool belong) {
   //職人と職人の距離
     int distance = (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1);
 
-  
-    
- 
-
-  
+  dist[i] = distance;
     /**
      * 2点(x1, y1), (x2, y2)の距離を算出(新基礎数学，第6章§1，p164参考(一年生の数学の教科書))
      * 使用する関数: sqrt(引数はdouble型)
@@ -56,10 +53,21 @@ static int ev_destroy(Board *board, bool belong) {
     */
   }
 
-  // 最終的に返すスコア
-  int score = (100 /+ 1) + ;
+  int legal_ave = legal_num / board->info->agent;
 
-  // なにかしらの処理
+  int a, b, c;
+
+  if(legal_ave <= 8){
+    c = 100;
+  }
+  else{
+  c = 12 - legal_ave * 25;
+  }
+
+  a = ;
+  b = 100 / (target_score + 1);
+  // 最終的に返すスコア
+  int score = 50 * a + 25 * b + 25 * c;
 
   return score;
 
