@@ -9,13 +9,13 @@
 #define agent_search_max 4
 #define coefficient_act       50
 #define coefficient_castle_p  30
-#define coefficient_castle_w1 20
-#define coefficient_castle_w2 15
+// #define coefficient_castle_w1 20
+// #define coefficient_castle_w2 15
 #define basepoint             20
-#define coefficient_encamp    5
-#define coefficient_conect    100
+#define coefficient_encamp    3
+// #define coefficient_conect    100
 #define coefficient_wall      1
-#define coefficient_score     1
+#define coefficient_score     2
 #define coefficient_agent     16
 
 class Game_Node {

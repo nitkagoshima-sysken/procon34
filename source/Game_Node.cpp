@@ -104,13 +104,10 @@ char Game_Node::wallpoint(uint8_t x, uint8_t y, char beforepoint, int *point)
     }
   }
 
-  if(c1>=2 && c2>=2){               //壁の数による処理
-    *point += coefficient_conect;   //つながりポイント追加
-  }else{                            //壁の個数によってポイント加算
+  
+  if(c1*2<=8 && c2<=8){                            //壁の個数によってポイント加算
     char csum=1;
-    csum += 3*c1 + 4*c2;
-    if(c1>2)csum=2;
-    if(c2>2)csum=3;
+    csum += 2*c1 + c2;
 
     p += coefficient_wall * csum;
   }
