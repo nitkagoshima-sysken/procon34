@@ -75,12 +75,13 @@ char Game_Node::wallpoint(uint8_t x, uint8_t y, char beforepoint, int *point)
 
   if(beforepoint) return beforepoint;  //前回探査していれば
 
+  bool encamp1 = true;
+  bool encamp2 = true;
+  
   for(int i=1; i <= wall_search_max; i++){
     x -= 1;  y -= 1;
     for(int j=0; j < 4; j++){
       for(int k=0; k < 2*i; k++){
-        bool encamp1 = true;
-        bool encamp2 = true;
 
         y += round(sin(j * PI/2));
         x += round(cos(j * PI/2));
@@ -91,7 +92,7 @@ char Game_Node::wallpoint(uint8_t x, uint8_t y, char beforepoint, int *point)
 
         if(encamp1 && (board->map[y][x] & ally_encamp)){ //自陣があれば基礎値を小さく
           encamp1=false;
-          p -= basepoint *4/5;
+          p -= (basepoint *4)/5;
         }
 
         if(encamp2 && (board->map[y][x] & target_encamp)){//敵陣があればポイント加算
@@ -111,6 +112,8 @@ char Game_Node::wallpoint(uint8_t x, uint8_t y, char beforepoint, int *point)
 
     p += coefficient_wall * csum;
   }
+
+  // cout << "wp:" << +p << ", belong:" << ally_wall << "\n" ;
 
   return p;
 }
@@ -149,6 +152,9 @@ int Game_Node::playerpoint(bool belong, uint8_t b_number, char **pmap, int *poin
       }
     }
   }
+
+  // cout << "pp:" << p << ", belong:" << belong << "\n" ;
+
   return p;
 }
 int Game_Node::evaluate_current_board()
@@ -181,7 +187,7 @@ int Game_Node::evaluate_current_board()
   }
   delete pmap;
 
-  //cout << "ポイント：" << p << "\n";
+  // cout << "ポイント：" << p << "\n";
 
   return p;
 }
@@ -241,6 +247,9 @@ void TreeSearch(Game_Node *root, int backnumber)
       root->evaluation = min_score;
     }
 
+    if(root->childrenNode[0]->childrenNode.empty())
+      continue;
+
     //親と子の評価値を比べて子どもの方が大きかったらブレイク
     if(i == 0) // 最初は親のノードに暫定的な点数がついていないのでパス
       continue;
@@ -292,14 +301,14 @@ void drawTree(Game_Node *root, int n)
     for(int j = 0; j < n; j++)
       cout << "| ";
     cout << "|";
-    cout << "-- " << root->evaluation << " kind:" << +root->pre_act.kind << ", direc" << +root->pre_act.kind << endl; 
+    cout << "-- " << root->evaluation << " kind:" << +root->pre_act.kind << ", direc" << +root->pre_act.direc << endl; 
     return;
   }
 
   for(int j = 0; j < n; j++)
     cout << "| ";
   cout << "|";
-  cout << "-- " << root->evaluation << " next:" << root->board->next_turn << ", kind:" << +root->pre_act.kind << ", direc" << +root->pre_act.kind << endl; 
+  cout << "-- " << root->evaluation << " next:" << root->board->next_turn << ", kind:" << +root->pre_act.kind << ", direc" << +root->pre_act.direc << endl; 
   for(int i = 0; i < root->childrenNode.size(); i++) {
     Game_Node *node = root->childrenNode[i];
     drawTree(node, n + 1);

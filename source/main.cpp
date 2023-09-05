@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
         }
         match.ActionAnAgent(match.next_turn, i, root_node[i]->pre_act);
       }
-      // drawTree(root_node[0]);
+      // drawTree(root_node[1]);
       for(int i = 0; i < info->agent; i++) {
         deleteTree(root_node[i]);
       }
