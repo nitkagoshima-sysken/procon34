@@ -113,7 +113,7 @@ char Game_Node::wallpoint(uint8_t x, uint8_t y, char beforepoint, int *point)
     p += coefficient_wall * csum;
   }
 
-  // cout << "wp:" << +p << ", belong:" << ally_wall << "\n" ;
+  cout << "wp:" << +p << ", belong:" << ally_wall << "\n" ;
 
   return p;
 }
@@ -153,7 +153,7 @@ int Game_Node::playerpoint(bool belong, uint8_t b_number, char **pmap, int *poin
     }
   }
 
-  // cout << "pp:" << p << ", belong:" << belong << "\n" ;
+  cout << "pp:" << p << ", belong:" << belong << "\n" ;
 
   return p;
 }
@@ -187,7 +187,7 @@ int Game_Node::evaluate_current_board()
   }
   delete pmap;
 
-  // cout << "ポイント：" << p << "\n";
+  cout << "ポイント：" << p << "\n";
 
   return p;
 }
