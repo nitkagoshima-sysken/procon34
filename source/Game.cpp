@@ -5,6 +5,28 @@
 #include <iomanip>
 using namespace std;
 
+int UnionFind::root(int x)
+{
+  if(par[x] == x) return x;
+  return par[x] = root(par[x]);
+}
+
+void UnionFind::unite(int x, int y)
+{
+  int root_x = root(x);
+  int root_y = root(y);
+  if(root_x == root_y)
+    return;
+  par[root_x] = root_y;
+}
+
+bool UnionFind::same(int x, int y)
+{
+  int root_x = root(x);
+  int root_y = root(y);
+  return root_x == root_y;
+}
+
 Board::Board(Bitmap_t **fieldmap, FieldInfo *info)
 {
   this->map = fieldmap;
