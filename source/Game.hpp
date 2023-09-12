@@ -75,6 +75,19 @@ typedef struct {
   short consol_num; // 壁の連結数(と同時に，この連結した城壁の点数でもある)
 } Walls;
 
+class UnionFind {
+  std::vector<int> par;
+
+  UnionFind(int n) : par(n) {
+    for(int i = 0; i < n; i++) {
+      par[i] = i; // 最初は全て根であるとして初期化
+    }
+  };
+  int root(int x);
+  void unite(int x, int y);
+  bool same(int x, int y);
+};
+
 class Board {
 private:
   Log **log;
