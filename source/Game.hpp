@@ -3,6 +3,7 @@
 
 #include "procon2023.hpp"
 #include <map>
+#include <map>
 #define STACK_MAX_NUM 1000
 
 typedef enum {
@@ -103,6 +104,8 @@ public:
   Agent *agent2;
 
   std::vector<Walls> walls[2];
+
+  UnionFind uni_tree;
 
   UnionFind uni_tree;
 
