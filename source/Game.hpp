@@ -2,6 +2,7 @@
 #define GAME_HPP_
 
 #include "procon2023.hpp"
+#include <map>
 #define STACK_MAX_NUM 1000
 
 typedef enum {
@@ -44,10 +45,16 @@ typedef struct {
   uint8_t backnumber;
 } Agent;
 
-typedef struct {
+typedef struct Cell Cell;
+
+struct Cell {
   uint8_t x;
   uint8_t y;
-} Cell;
+
+  bool operator==(const Cell &rhs) {
+    return (x == rhs.x) && (y == rhs.y);
+  }
+};
 
 typedef struct {
   uint8_t xr;
@@ -76,16 +83,11 @@ typedef struct {
 } Walls;
 
 class UnionFind {
-  std::vector<int> par;
+  std::map<Cell, Cell> par;
 
-  UnionFind(int n) : par(n) {
-    for(int i = 0; i < n; i++) {
-      par[i] = i; // 最初は全て根であるとして初期化
-    }
-  };
-  int root(int x);
-  void unite(int x, int y);
-  bool same(int x, int y);
+  Cell root(Cell cell);
+  void unite(Cell cell_1, Cell cell_2);
+  bool same(Cell cell_1, Cell cell_2);
 };
 
 class Board {
@@ -100,6 +102,8 @@ public:
   Agent *agent2;
 
   std::vector<Walls> walls[2];
+
+  UnionFind uni_tree;
 
   bool next_turn;
 

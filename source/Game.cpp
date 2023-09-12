@@ -5,26 +5,26 @@
 #include <iomanip>
 using namespace std;
 
-int UnionFind::root(int x)
+Cell UnionFind::root(Cell cell)
 {
-  if(par[x] == x) return x;
-  return par[x] = root(par[x]);
+  if(par[cell] == cell) return cell;
+  return par[cell] = root(par[cell]);
 }
 
-void UnionFind::unite(int x, int y)
+void UnionFind::unite(Cell cell_1, Cell cell_2)
 {
-  int root_x = root(x);
-  int root_y = root(y);
-  if(root_x == root_y)
+  Cell root_1 = root(cell_1);
+  Cell root_2 = root(cell_2);
+  if(root_1 == root_2)
     return;
-  par[root_x] = root_y;
+  par[root_1] = root_2;
 }
 
-bool UnionFind::same(int x, int y)
+bool UnionFind::same(Cell cell_1, Cell cell_2)
 {
-  int root_x = root(x);
-  int root_y = root(y);
-  return root_x == root_y;
+  Cell root_1 = root(cell_1);
+  Cell root_2 = root(cell_2);
+  return root_1 == root_2;
 }
 
 Board::Board(Bitmap_t **fieldmap, FieldInfo *info)
