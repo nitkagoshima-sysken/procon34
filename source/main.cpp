@@ -6,6 +6,7 @@
 #include "main_ev_func.hpp"
 #include "Evaluation_func.hpp"
 #include <assert.h>
+#include "http.hpp"
 using namespace std;
 
 int main(int argc, char *argv[])
@@ -51,6 +52,12 @@ int main(int argc, char *argv[])
 
   Board match(fieldmap, info);
   match.next_turn = Player1;
+
+  Connect request("/matches");
+  request.fetch();
+  request.get();
+  char *response = request.res();
+  cout << response << endl;
 
   // メインループ
   // for(int count = 0; count < turn_num; count++) {

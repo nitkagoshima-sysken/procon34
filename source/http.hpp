@@ -12,13 +12,14 @@
 #define RESPONSE_MAX 4096
 
 class Connect {
+public:
   int sockfd;
   std::string path;
   std::string token;
 
   Connect(std::string path);
   int fetch();
-  int req_get();
+  int get();
   // int req_post(std::string str);
-  char *get_response();
+  char *res();
 };

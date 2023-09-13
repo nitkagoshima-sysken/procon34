@@ -40,6 +40,9 @@ int Connect::fetch()
   }
 
   memcpy(&(addr.sin_addr.s_addr), addr_arr, sizeof addr_arr);
+  std::string str = "connect to " + to_string(addr_arr[0]) + "." + to_string(addr_arr[1]) + "." 
+                + to_string(addr_arr[2]) + "." + to_string(addr_arr[3]) + "\n";
+  cout << str << endl;
   if(connect(sockfd, (struct sockaddr*)&addr, sizeof(struct sockaddr_in)) < 0) {
     cerr << "connect error\n";
   }
@@ -47,30 +50,27 @@ int Connect::fetch()
   return 0;
 }
 
-int Connect::req_get()
+int Connect::get()
 {
   // リクエストメッセージの作成
   string request = "GET http://";
-  request += IP_ADDRESS;
-  request += path;
-  request += " HTTP/1.1";
-  string header = "Host: localhost\r\n";
-  header += "Content-Type: application/json\r\nprocon-token: ";
-  header += TOKEN;
+  request += IP_ADDRESS + std::string(":") + std::to_string(SEREVR_PORT) + path + "?token=" + TOKEN + " HTTP/1.0";
+  string header = "Host: localhost\r\nContent-Type: application/json";
 
   string request_message = request + "\r\n" + header + "\r\n\r\n";
 
+  cout << request_message << endl;
   if(send(sockfd, request_message.c_str(), request_message.length(), 0) < 0)
     return 1;
 
   return 0;
 }
 
-char *Connect::get_response()
+char *Connect::res()
 {
   char *response = new char[RESPONSE_MAX];
 
-  if(recv(sockfd, response, sizeof response, 0) < 0) {
+  if(recv(sockfd, response, RESPONSE_MAX, 0) < 0) {
     cerr << "recv error\n";
     return nullptr;
   }
