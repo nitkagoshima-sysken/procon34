@@ -83,6 +83,7 @@ typedef struct {
 } Walls;
 
 class UnionFind {
+  public:
   std::map<Cell, Cell> par;
 
   Cell root(Cell cell);

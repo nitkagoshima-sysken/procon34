@@ -289,19 +289,33 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
     // wall->y = my;
     // putwall(belong, wall);
 
+  //自分自身が根であると認識させる
+
     for(int direc = 0; direc < Direction_Max; direc++) {
       uint8_t mmx = mx + round(cos(direc * PI/4));
       uint8_t mmy = my + round(sin(direc * PI/4));
 
-      Encamp_Update(belong, mmx, mmy);
+    //壁があったら結合して分類
+    if((Cell){mmx, mmy} == (Cell){mmx, mmy} & target_wall){
+      unite((Cell){mmx, mmy} == (Cell){mmx, mmy}, target_wall);
+    
+    }else{
+      return;
     }
 
+
+
+      // Encamp_Update(belong, mmx, mmy);
+    }
+//mny mnx
     if(map[my][mx] & BIT_ENCAMP1) {
       map[my][mx] &= ~(BIT_ENCAMP1 | BIT_OPENED_ENCAMP);
     } else if(map[my][mx] & BIT_ENCAMP2) {
       map[my][mx] &= ~(BIT_ENCAMP2 | BIT_OPENED_ENCAMP);
     }
-
+  
+  //uni_tree.root
+  //uni_tree.par
     return ACT_SUCCESS;
   }
 
