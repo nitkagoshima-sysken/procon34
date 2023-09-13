@@ -301,35 +301,30 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
     for(int direc = 0; direc < Direction_Max; direc++) {
       uint8_t mmx = mx + round(cos(direc * PI/4));
       uint8_t mmy = my + round(sin(direc * PI/4));
-
-    //壁があったら結合して分類
-    if(map[mmy][mmx] & target_wall){
-      //親同士比較root変数用意建築する予定見つけた壁の座標の
-      if(uni_tree.same((Cell){mx, my}, (Cell){mmx, mmy})){
-        //
-        for(int d = 0; d < Direction_Max; d += 2){
-          uint8_t mmx2 = mx + round(cos(d * PI/4));
-          uint8_t mmy2 = my + round(sin(d * PI/4));
-          Encamp_Update(belong, mmx2, mmy2);
+      if(isIgnoreCoord(mmx, mmy))
+        continue;
+      //壁があったら結合して分類
+      if(map[mmy][mmx] & target_wall) {
+        //親同士比較root変数用意建築する予定見つけた壁の座標の
+        if(uni_tree.same((Cell){mx, my}, (Cell){mmx, mmy})) {
+          //
+          for(int d = 0; d < Direction_Max; d += 2) {
+            uint8_t mmx2 = mx + round(cos(d * PI/4));
+            uint8_t mmy2 = my + round(sin(d * PI/4));
+            Encamp_Update(belong, mmx2, mmy2);
+          }
         }
-      }
-
-
-      uni_tree.unite((Cell){mx, my}, (Cell){mmx, mmy});//今から置く予定mxmy//真ん中の周りの壁の座標mmxmmy
+        uni_tree.unite((Cell){mx, my}, (Cell){mmx, mmy});//今から置く予定mxmy//真ん中の周りの壁の座標mmxmmy
     }
 
 
-      // Encamp_Update(belong, mmx, mmy);
     }
-//mny mnx
     if(map[my][mx] & BIT_ENCAMP1) {
       map[my][mx] &= ~(BIT_ENCAMP1 | BIT_OPENED_ENCAMP);
     } else if(map[my][mx] & BIT_ENCAMP2) {
       map[my][mx] &= ~(BIT_ENCAMP2 | BIT_OPENED_ENCAMP);
     }
   
-  //uni_tree.root
-  //uni_tree.par
     return ACT_SUCCESS;
   }
 

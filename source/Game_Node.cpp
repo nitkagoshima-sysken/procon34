@@ -54,8 +54,6 @@ void Game_Node::expandChildren(int backnumber)
 //   board->score(score1, score2);
 //   int b = score1 - score2;
 
-  
-
 //   int a = ave1 - ave2;
 //   // cout << "a:" << a << ", b:" << b << endl;
 
