@@ -5,6 +5,11 @@
 #include <iomanip>
 using namespace std;
 
+bool operator<(const Cell &lhs, const Cell &rhs)
+{
+  return (lhs.x < rhs.x || lhs.y < lhs.y);
+}
+
 Cell UnionFind::root(Cell cell)
 {
   if(par[cell] == cell) return cell;

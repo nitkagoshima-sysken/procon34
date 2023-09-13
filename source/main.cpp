@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
   
   map[1][1] |= BIT_WALL1;
   map[2][0] |= BIT_WALL1;
-  map[2][0] |= BIT_WALL1;
+  map[3][1] |= BIT_WALL1;
   map[2][3] |= BIT_AGENT1;
 
   info->agent = 1;
