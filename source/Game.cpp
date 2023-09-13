@@ -278,8 +278,8 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
     target_agent[backnumber].x = mx;
     target_agent[backnumber].y = my; // Agent構造体のx, y座標も移動させて帳尻合わせ
 
-    // cout << "Player" << (int)belong << "'s agent" << (int)(backnumber - ((belong == Player1) ? FILD_AGENT11 : FILD_AGENT21)) << " move "
-    //      << "( " << (int)mx << ", " << (int)my << " )\n";
+    cout << "Player" << +belong << "'s agent" << +backnumber << " move "
+         << "( " << +mx << ", " << +my << " )\n";
 
     return ACT_SUCCESS;
   }
@@ -287,8 +287,8 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
   if(kind == ACT_BUILD && build_enable(mx, my, belong)) {
     map[my][mx] |= target_wall;
 
-    // cout << "Player" << (int)belong << "'s agent" << (int)(backnumber - ((belong == Player1) ? FILD_AGENT11 : FILD_AGENT21)) << " build "
-    //      << "( " << (int)mx << ", " << (int)my << " )\n";
+    cout << "Player" << +belong << "'s agent" << +backnumber << " build "
+         << "( " << +mx << ", " << +my << " )\n";
     // Wall *wall = new Wall;
     // wall->x = mx;
     // wall->y = my;
@@ -333,8 +333,8 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
     // if(getwall(belong, mx, my) == 1)
     //   cout << "getwall:エラー\n";
 
-      // cout << "Player" << (int)belong << "'s agent" << (int)(backnumber - ((belong == Player1) ? FILD_AGENT11 : FILD_AGENT21)) << " demolish "
-      //    << "( " << (int)mx << ", " << (int)my << " )\n";
+      cout << "Player" << +belong << "'s agent" << +backnumber << " demolish "
+         << "( " << +mx << ", " << +my << " )\n";
 
     Bitmap_t target_encamp = BIT_ENCAMP1;
     bool target_belong = Player1;
@@ -387,6 +387,7 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
   cerr << "Act failed: " << (int)backnumber << endl; 
   cerr << "detail: kind:" << +act.kind << ", direc:" << +act.direc << endl;
   cout << "\x1b[49m";
+  exit(1);
   return ACT_FAILED;
 }
 

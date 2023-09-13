@@ -97,6 +97,15 @@ int main(int argc, char *argv[])
         expandChildren_by_num(root_node[i], lastdepth, i);
         cout << "職人" << i << "の盤面評価中..." << endl;
         TreeSearch(root_node[i], i, Player1);
+        for(int j = 0; j < (int)root_node[i]->childrenNode.size(); j++) {
+          if(root_node[i]->evaluation == root_node[i]->childrenNode[j]->evaluation) {
+            // cout << "j:" << j << endl;
+            root_node[i]->pre_act = root_node[i]->childrenNode[j]->pre_act;
+            cout << "kind:" << +root_node[i]->childrenNode[j]->pre_act.kind << ", direc:" << +root_node[i]->childrenNode[j]->pre_act.direc << endl;
+            break;
+          }
+        }
+        match.ActionAnAgent(match.next_turn, i, root_node[i]->pre_act);
       }
 
       for(int i = 0; i < info->agent; i++) {
@@ -104,20 +113,6 @@ int main(int argc, char *argv[])
         // for(int j = 0; j < root_node[i]->childrenNode.size(); j++) {
         //   cout << "  " << "子供" << j << "のスコア:" << root_node[i]->childrenNode[j]->evaluation << endl;
         // }
-      }
-
-      // 職人のゲーム木構築
-      cout << "探索終わり\n";
-      for(int i = 0; i < info->agent; i++) {
-        for(int j = 0; j < (int)root_node[i]->childrenNode.size(); j++) {
-          if(root_node[i]->evaluation == root_node[i]->childrenNode[j]->evaluation) {
-            // cout << "j:" << j << endl;
-            root_node[i]->pre_act = root_node[i]->childrenNode[j]->pre_act;
-            // cout << "kind:" << +root_node[i]->childrenNode[j]->pre_act.kind << ", direc:" << +root_node[i]->childrenNode[j]->pre_act.direc << endl;
-            break;
-          }
-        }
-        match.ActionAnAgent(match.next_turn, i, root_node[i]->pre_act);
       }
       // drawTree(root_node[0]);
       for(int i = 0; i < info->agent; i++) {
