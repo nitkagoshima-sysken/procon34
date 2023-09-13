@@ -5,6 +5,33 @@
 #include <iomanip>
 using namespace std;
 
+bool operator<(const Cell &lhs, const Cell &rhs)
+{
+  return (lhs.x < rhs.x || lhs.y < lhs.y);
+}
+
+Cell UnionFind::root(Cell cell)
+{
+  if(par[cell] == cell) return cell;
+  return par[cell] = root(par[cell]);
+}
+
+void UnionFind::unite(Cell cell_1, Cell cell_2)
+{
+  Cell root_1 = root(cell_1);
+  Cell root_2 = root(cell_2);
+  if(root_1 == root_2)
+    return;
+  par[root_1] = root_2;
+}
+
+bool UnionFind::same(Cell cell_1, Cell cell_2)
+{
+  Cell root_1 = root(cell_1);
+  Cell root_2 = root(cell_2);
+  return root_1 == root_2;
+}
+
 Board::Board(Bitmap_t **fieldmap, FieldInfo *info)
 {
   this->map = fieldmap;
@@ -267,19 +294,42 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
     // wall->y = my;
     // putwall(belong, wall);
 
+  //自分自身が根であると認識させる
+
+  //自分自身が根であると認識させる
+
     for(int direc = 0; direc < Direction_Max; direc++) {
       uint8_t mmx = mx + round(cos(direc * PI/4));
       uint8_t mmy = my + round(sin(direc * PI/4));
 
-      Encamp_Update(belong, mmx, mmy);
+    //壁があったら結合して分類
+    if(map[mmy][mmx] & target_wall){
+      //親同士比較root変数用意建築する予定見つけた壁の座標の
+      if(uni_tree.same((Cell){mx, my}, (Cell){mmx, mmy})){
+        //
+        for(int d = 0; d < Direction_Max; d += 2){
+          uint8_t mmx2 = mx + round(cos(d * PI/4));
+          uint8_t mmy2 = my + round(sin(d * PI/4));
+          Encamp_Update(belong, mmx2, mmy2);
+        }
+      }
+
+
+      uni_tree.unite((Cell){mx, my}, (Cell){mmx, mmy});//今から置く予定mxmy//真ん中の周りの壁の座標mmxmmy
     }
 
+
+      // Encamp_Update(belong, mmx, mmy);
+    }
+//mny mnx
     if(map[my][mx] & BIT_ENCAMP1) {
       map[my][mx] &= ~(BIT_ENCAMP1 | BIT_OPENED_ENCAMP);
     } else if(map[my][mx] & BIT_ENCAMP2) {
       map[my][mx] &= ~(BIT_ENCAMP2 | BIT_OPENED_ENCAMP);
     }
-
+  
+  //uni_tree.root
+  //uni_tree.par
     return ACT_SUCCESS;
   }
 
