@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
   // char *response = request.res();
   // cout << response << endl;
 
-  メインループ
+  // メインループ
   for(int count = 0; count < turn_num; count++) {
     // system("clear");
     cout << "turn:" << count << endl;
