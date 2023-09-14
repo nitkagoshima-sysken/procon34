@@ -298,13 +298,18 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
       uint8_t mmy = my + round(sin(direc * PI/4));
 
     //壁があったら結合して分類
-    if((Cell){mmx, mmy} == (Cell){mmx, mmy} & target_wall){
-      unite((Cell){mmx, mmy} == (Cell){mmx, mmy}, target_wall);
-    
-    }else{
-      return;
-    }
+    if(map[mmy][mmx] & target_wall){
+      //親同士比較root変数用意建築する予定見つけた壁の座標の
+      if(uni_tree.same((Cell){mx, my}, (Cell){mmx, mmy})){
+        //
+        for(int d = 0; d < Direction_Max; d += 2){
+          
+        }
+      }
 
+
+      uni_tree.unite((Cell){mx, my}, (Cell){mmx, mmy});//今から置く予定mxmy//真ん中の周りの壁の座標mmxmmy
+    }
 
 
       // Encamp_Update(belong, mmx, mmy);
