@@ -53,7 +53,7 @@ struct Cell {
   uint8_t y;
 
   bool operator==(const Cell &rhs) {
-    return (x == rhs.x) && (y == rhs.y);
+    return ((x == rhs.x) && (y == rhs.y));
   }
 };
 
@@ -104,8 +104,6 @@ public:
   Agent *agent2;
 
   std::vector<Walls> walls[2];
-
-  UnionFind uni_tree;
 
   UnionFind uni_tree;
 

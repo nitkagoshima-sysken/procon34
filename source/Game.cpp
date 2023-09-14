@@ -303,7 +303,9 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
       if(uni_tree.same((Cell){mx, my}, (Cell){mmx, mmy})){
         //
         for(int d = 0; d < Direction_Max; d += 2){
-          
+          uint8_t mmx2 = mx + round(cos(d * PI/4));
+          uint8_t mmy2 = my + round(sin(d * PI/4));
+          Encamp_Update(belong, mmx2, mmy2);
         }
       }
 
