@@ -17,6 +17,7 @@
 #define coefficient_wall      1
 #define coefficient_score     2
 #define coefficient_agent     1
+#define coefficient_adva      1
 
 class Game_Node {
 public:
@@ -34,7 +35,7 @@ public:
 
   //char wallpoint(uint8_t x, uint8_t y , char beforepoint,int *point);
   int playerpoint(bool belong, uint8_t b_number);
-  int feild_advantage();
+  void feild_advantage(int *p1, int *p2);
   // int (*evaluate_current_board)(Board *board, bool belong);
 
   int evaluate_current_board();

@@ -154,26 +154,87 @@ int Game_Node::playerpoint(bool belong, uint8_t b_number)
   // }
   return p;
 }
-int feild_advantage(){
-  char **pmap = new char*[board->info->height]();
-  for(int i = 0 ; i < board->info->height; i++) {
-    pmap[i] = new char[board->info->width]();
-  }
+void Game_Node::feild_advantage(int *point1, int *point2){
+  char pmap[board->info->height][board->info->width][2]={0};
+  int p1=0,p2=0;
 
-  for(int i = 0; i < board->info->height; i++) {
-    delete pmap[i];
+  for(uint8_t i=0; i < board->info->height ;i++){
+    for(uint8_t j=0; j < board->info->width ;j++){
+      if(board->map[i][j] & (BIT_WALL1 | BIT_WALL2)){
+        Bitmap_t tagetwall= (board->map[i][j] & BIT_WALL1) ? BIT_WALL1 : BIT_WALL2;
+        uint8_t  belong =   (board->map[i][j] & BIT_WALL1) ? 0:1;
+        bool flg1=false, flg2=false;
+        uint8_t x= j-1, y= i-1;
+        uint8_t mx, my;
+
+        if(board->isIgnoreCoord(x,y)){
+          flg2 = true;
+        }else if(board->map[y][x] & tagetwall){
+          flg1 = true;
+        }
+        for(int k=0; k<4; k++){
+          for(int l=0; l<2; l++){
+            mx = x; my = y;
+            y += round(sin(k * PI/2));
+            x += round(cos(k * PI/2));
+
+            if(board->isIgnoreCoord(x,y)){
+              flg1 = false;
+              flg2 = true;
+              continue;
+            }
+            
+            if(board->map[y][x] & tagetwall){
+              flg1 = true;
+
+              if(! flg2){
+                pmap[my][mx][belong]--;
+              }else flg2 = false;
+
+            }else{
+              if(! flg2){
+                if((pmap[my][mx][belong] > 1) && (k!=0 || l!=0)) belong ? p2++ : p1++;
+              }else flg2 = false;
+
+              if(! flg1){
+                if(!(board->map[y][x] & BIT_CASTLE)) pmap[y][x][belong]++;
+              }else flg1 = false;
+            }
+          }
+        }
+        if(pmap[y][x][belong] > 1) belong ? p2++ : p1++;
+      }
+    }
   }
-  delete pmap;
+  *point1 = p1;
+  *point2 = p2;
+
+  for(int k=0; k<2; k++){
+    for(uint8_t i=0; i < board->info->height ;i++){
+      for(uint8_t j=0; j < board->info->width ;j++){
+        if(pmap[i][j][k]>=0)
+          cout << " " ;
+        cout << +pmap[i][j][k] ;
+      }
+      cout << "\n" ;
+    }
+  }
+  cout << "\n" ;
 }
 int Game_Node::evaluate_current_board()
 {
   int p = 0;
   int a_score,b_score;
+  int adp1, adp2;
   bool belong;
 
   board->score(a_score,b_score);
 
   p +=coefficient_score * (a_score - b_score);  //スコアポイント加算
+
+  feild_advantage(&adp1, &adp2);
+
+  p +=coefficient_adva * (adp1 - adp2);
 
   belong = Player1;
   for(uint8_t i=0; i< board->info->agent ; i++){//自職人ポイント加算
