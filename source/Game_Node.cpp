@@ -227,17 +227,17 @@ void Game_Node::feild_advantage(int *point1, int *point2){
   *point1 = p1;
   *point2 = p2;
 
-  for(uint8_t k=0; k<2; k++){
-    for(uint8_t i=0; i < board->info->height ;i++){
-      for(uint8_t j=0; j < board->info->width ;j++){
-        if(pmap[i][j][k]>=0)
-          cout << " " ;
-        cout << (+pmap[i][j][k]) ;
-      }
-      cout << "\n" ;
-    }
-  }
-  cout << "\n" ;
+  // for(uint8_t k=0; k<2; k++){
+  //   for(uint8_t i=0; i < board->info->height ;i++){
+  //     for(uint8_t j=0; j < board->info->width ;j++){
+  //       if(pmap[i][j][k]>=0)
+  //         cout << " " ;
+  //       cout << (+pmap[i][j][k]) ;
+  //     }
+  //     cout << "\n" ;
+  //   }
+  // }
+  // cout << "\n" ;
 }
 int Game_Node::evaluate_current_board()
 {
