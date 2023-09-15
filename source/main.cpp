@@ -77,9 +77,6 @@ int main(int argc, char *argv[])
     if(match.next_turn == Player1) {
       Game_Node **root_node = new Game_Node*[info->agent]();
 
-      Board *init_board = new Board(match);
-      init_board->next_turn = match.next_turn;
-
       cout << ((match.next_turn == Player1) ? "player1" : "player2") << endl;
       for(int i = 0; i < info->agent; i++) {
         std::vector<Action> action;
@@ -91,20 +88,23 @@ int main(int argc, char *argv[])
       int lastdepth = ((TURN_NUM - count) < depth) ? (TURN_NUM - count) : depth ;
 
       for(int i = 0; i < info->agent; i++) {
+        Board *init_board = new Board(match);
+        init_board->next_turn = match.next_turn;
         root_node[i] = new Game_Node(init_board);
         root_node[i]->ev_function = evaluate_current_board;
         cout << "職人" << i << "(" << +root_node[i]->board->agent1[i].x << ", " << +root_node[i]->board->agent1[i].y << ")" << "のゲーム木構築中..." << endl;
         expandChildren_by_num(root_node[i], lastdepth, i);
         cout << "職人" << i << "の盤面評価中..." << endl;
         TreeSearch(root_node[i], i, Player1);
-        for(int j = 0; j < (int)root_node[i]->childrenNode.size(); j++) {
-          if(root_node[i]->evaluation == root_node[i]->childrenNode[j]->evaluation) {
+        for(auto itr = root_node[i]->childrenNode.begin(); itr != root_node[i]->childrenNode.end(); itr++) {
+          if(root_node[i]->evaluation == (*itr)->evaluation) {
             // cout << "j:" << j << endl;
-            root_node[i]->pre_act = root_node[i]->childrenNode[j]->pre_act;
-            cout << "kind:" << +root_node[i]->childrenNode[j]->pre_act.kind << ", direc:" << +root_node[i]->childrenNode[j]->pre_act.direc << endl;
+            root_node[i]->pre_act = (*itr)->pre_act;
+            // cout << "kind:" << +(*itr)->pre_act.kind << ", direc:" << +(*itr)->pre_act.direc << endl;
             break;
           }
         }
+        // match.draw();
         match.ActionAnAgent(match.next_turn, i, root_node[i]->pre_act);
       }
 
@@ -154,12 +154,24 @@ int main(int argc, char *argv[])
       int lastdepth = ((TURN_NUM - count) < depth) ? (TURN_NUM - count) : depth ;
 
       for(int i = 0; i < info->agent; i++) {
+        Board *init_board = new Board(match);
+        init_board->next_turn = match.next_turn;
         root_node[i] = new Game_Node(init_board);
-        root_node[i]->ev_function = ev_diff_score;
+        root_node[i]->ev_function = evaluate_current_board;
         cout << "職人" << i << "(" << +root_node[i]->board->agent1[i].x << ", " << +root_node[i]->board->agent1[i].y << ")" << "のゲーム木構築中..." << endl;
         expandChildren_by_num(root_node[i], lastdepth, i);
         cout << "職人" << i << "の盤面評価中..." << endl;
         TreeSearch(root_node[i], i, Player2);
+        for(auto itr = root_node[i]->childrenNode.begin(); itr != root_node[i]->childrenNode.end(); itr++) {
+          if(root_node[i]->evaluation == (*itr)->evaluation) {
+            // cout << "j:" << j << endl;
+            root_node[i]->pre_act = (*itr)->pre_act;
+            // cout << "kind:" << +(*itr)->pre_act.kind << ", direc:" << +(*itr)->pre_act.direc << endl;
+            break;
+          }
+        }
+        // match.draw();
+        match.ActionAnAgent(match.next_turn, i, root_node[i]->pre_act);
       }
 
       for(int i = 0; i < info->agent; i++) {
@@ -169,19 +181,6 @@ int main(int argc, char *argv[])
         // }
       }
 
-      // 職人のゲーム木構築
-      cout << "探索終わり\n";
-      for(int i = 0; i < info->agent; i++) {
-        for(int j = 0; j < (int)root_node[i]->childrenNode.size(); j++) {
-          if(root_node[i]->evaluation == root_node[i]->childrenNode[j]->evaluation) {
-            // cout << "j:" << j << endl;
-            root_node[i]->pre_act = root_node[i]->childrenNode[j]->pre_act;
-            // cout << "kind:" << +root_node[i]->childrenNode[j]->pre_act.kind << ", direc:" << +root_node[i]->childrenNode[j]->pre_act.direc << endl;
-            break;
-          }
-        }
-        match.ActionAnAgent(match.next_turn, i, root_node[i]->pre_act);
-      }
       // drawTree(root_node[0]);
       for(int i = 0; i < info->agent; i++) {
         deleteTree(root_node[i]);

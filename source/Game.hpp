@@ -134,8 +134,8 @@ public:
   void Encamp_Update(bool belong, uint8_t seed_x, uint8_t seed_y);
   void Encamp_Opened(bool belong, uint8_t seed_x, uint8_t seed_y);
 
-  int putwall(bool belong, Wall *wall);
-  int getwall(bool belong, uint8_t wall_x, uint8_t wall_y);
+  // int putwall(bool belong, Wall *wall);
+  // int getwall(bool belong, uint8_t wall_x, uint8_t wall_y);
 
   // void addLog(Log *act_log); // ターン毎のエージェントのログを配列に追加
   // void printLog();

@@ -7,7 +7,7 @@ using namespace std;
 
 bool operator<(const Cell &lhs, const Cell &rhs)
 {
-  return (lhs.x < rhs.x || lhs.y < lhs.y);
+  return (lhs.x < rhs.x || lhs.y < rhs.y);
 }
 
 Cell UnionFind::root(Cell cell)
@@ -80,50 +80,7 @@ Board::Board(const Board &board)
   memcpy(agent1, board.agent1, sizeof(Agent) * board.info->agent);
   memcpy(agent2, board.agent2, sizeof(Agent) * board.info->agent);
 
-  for(int i = 0; i < (int)board.walls[Player1].size(); i++) {
-    Wall *cur = board.walls[Player1][i].head;
-    Wall *tail = nullptr;
-    Wall *wall = nullptr;
-    for(; cur; cur = cur->next) {
-      if(wall == nullptr) {
-        wall = new Wall;
-        memcpy(wall, cur, sizeof(Wall));
-        wall->next = nullptr;
-        tail = wall;
-      } else {
-        tail->next = new Wall;
-        tail = tail->next;
-        memcpy(tail, cur, sizeof(Wall));
-      }
-    }
-    Walls new_walls;
-    new_walls.head = wall;
-    new_walls.tail = tail;
-    new_walls.consol_num = board.walls[Player1][i].consol_num;
-    walls[Player1].push_back(new_walls);
-  }
-  for(int i = 0; i < (int)board.walls[Player2].size(); i++) {
-    Wall *cur = board.walls[Player2][i].head;
-    Wall *tail = nullptr;
-    Wall *wall = nullptr;
-    for(; cur; cur = cur->next) {
-      if(wall == nullptr) {
-        wall = new Wall;
-        memcpy(wall, cur, sizeof(Wall));
-        wall->next = nullptr;
-        tail = wall;
-      } else {
-        tail->next = new Wall;
-        tail = tail->next;
-        memcpy(tail, cur, sizeof(Wall));
-      }
-    }
-    Walls new_walls;
-    new_walls.head = wall;
-    new_walls.tail = tail;
-    new_walls.consol_num = board.walls[Player2][i].consol_num;
-    walls[Player2].push_back(new_walls);
-  }
+  uni_tree = board.uni_tree;
 
   // cout << "---コピーコンストラクタ---\n";
   // cout << "player1の城壁状態:\n";
@@ -212,6 +169,7 @@ void Board::getLegalBoard(bool belong, vector<Board*> &legal_board, uint8_t back
   vector<Action> action;
   getLegalAct(belong, action, backnumber);
 
+  draw();
   for(int i = 0; i < (int)action.size(); i++) {
     Board *board = new Board(*this);
     
@@ -221,26 +179,10 @@ void Board::getLegalBoard(bool belong, vector<Board*> &legal_board, uint8_t back
     // cout << "height: " << +board->info->height << endl;
     // cout << "width : " << +board->info->width << endl;
     // board->draw();
-    // cout << ((belong == Player1) ? "player1" : "player2") << endl;
-    // cout << "kind:" << +action[i].kind << ", direc:" << +action[i].direc << endl;
-    // cout << "player1の城壁状態:\n";
-    // for(int i = 0; i < board->walls[Player1].size(); i++) {
-    //   cout << "城壁" << i << ":" << board->walls[Player1][i].consol_num << endl;
-    // }
-    // cout << "player2の城壁状態:\n";
-    // for(int i = 0; i < board->walls[Player2].size(); i++) {
-    //   cout << "城壁" << i << ":" << board->walls[Player2][i].consol_num << endl;
-    // }
+    cout << ((belong == Player1) ? "player1" : "player2") << endl;
+    cout << "kind:" << +action[i].kind << ", direc:" << +action[i].direc << endl;
     // cout << "------\n";
     board->ActionAnAgent(belong, backnumber, action[i]);
-    // cout << "player1の城壁状態:\n";
-    // for(int i = 0; i < board->walls[Player1].size(); i++) {
-    //   cout << "城壁" << i << ":" << board->walls[Player1][i].consol_num << endl;
-    // }
-    // cout << "player2の城壁状態:\n";
-    // for(int i = 0; i < board->walls[Player2].size(); i++) {
-    //   cout << "城壁" << i << ":" << board->walls[Player2][i].consol_num << endl;
-    // }
     legal_board.push_back(board);
   }
 }
@@ -278,8 +220,8 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
     target_agent[backnumber].x = mx;
     target_agent[backnumber].y = my; // Agent構造体のx, y座標も移動させて帳尻合わせ
 
-    cout << "Player" << +belong << "'s agent" << +backnumber << " move "
-         << "( " << +mx << ", " << +my << " )\n";
+    // cout << "Player" << +belong << "'s agent" << +backnumber << " move "
+    //      << "( " << +mx << ", " << +my << " )\n";
 
     return ACT_SUCCESS;
   }
@@ -287,17 +229,11 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
   if(kind == ACT_BUILD && build_enable(mx, my, belong)) {
     map[my][mx] |= target_wall;
 
-    cout << "Player" << +belong << "'s agent" << +backnumber << " build "
-         << "( " << +mx << ", " << +my << " )\n";
-    // Wall *wall = new Wall;
-    // wall->x = mx;
-    // wall->y = my;
-    // putwall(belong, wall);
+    // cout << "Player" << +belong << "'s agent" << +backnumber << " build "
+    //      << "( " << +mx << ", " << +my << " )\n";
 
-  //自分自身が根であると認識させる
-
-  //自分自身が根であると認識させる
-
+    //自分自身が根であると認識させる
+    uni_tree.par[(Cell){mx,my}] = (Cell){mx,my};
     for(int direc = 0; direc < Direction_Max; direc++) {
       uint8_t mmx = mx + round(cos(direc * PI/4));
       uint8_t mmy = my + round(sin(direc * PI/4));
@@ -307,18 +243,20 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
       if(map[mmy][mmx] & target_wall) {
         //親同士比較root変数用意建築する予定見つけた壁の座標の
         if(uni_tree.same((Cell){mx, my}, (Cell){mmx, mmy})) {
-          //
+          cout << "陣地形成判定" << endl;
           for(int d = 0; d < Direction_Max; d += 2) {
             uint8_t mmx2 = mx + round(cos(d * PI/4));
             uint8_t mmy2 = my + round(sin(d * PI/4));
+            if(isIgnoreCoord(mmx2, mmy2))
+              continue;
             Encamp_Update(belong, mmx2, mmy2);
           }
         }
         uni_tree.unite((Cell){mx, my}, (Cell){mmx, mmy});//今から置く予定mxmy//真ん中の周りの壁の座標mmxmmy
+      }
     }
+    cout << "mx, my:" << +uni_tree.par[(Cell){mx,my}].x << "," << +uni_tree.par[(Cell){mx,my}].y << endl;
 
-
-    }
     if(map[my][mx] & BIT_ENCAMP1) {
       map[my][mx] &= ~(BIT_ENCAMP1 | BIT_OPENED_ENCAMP);
     } else if(map[my][mx] & BIT_ENCAMP2) {
@@ -333,8 +271,8 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
     // if(getwall(belong, mx, my) == 1)
     //   cout << "getwall:エラー\n";
 
-      cout << "Player" << +belong << "'s agent" << +backnumber << " demolish "
-         << "( " << +mx << ", " << +my << " )\n";
+      // cout << "Player" << +belong << "'s agent" << +backnumber << " demolish "
+      //    << "( " << +mx << ", " << +my << " )\n";
 
     Bitmap_t target_encamp = BIT_ENCAMP1;
     bool target_belong = Player1;
@@ -769,103 +707,103 @@ void Board::draw()
   cout << "\n";
 }
 
-int Board::putwall(bool belong, Wall *wall)
-{
-  if(wall == nullptr)
-    return 1;
+// int Board::putwall(bool belong, Wall *wall)
+// {
+//   if(wall == nullptr)
+//     return 1;
 
-  Bitmap_t target_wall = (next_turn == Player1) ? BIT_WALL1 : BIT_WALL1;
-  Bitmap_t target_encamp = (next_turn == Player1) ? BIT_ENCAMP1 : BIT_ENCAMP2;
+//   Bitmap_t target_wall = (next_turn == Player1) ? BIT_WALL1 : BIT_WALL1;
+//   Bitmap_t target_encamp = (next_turn == Player1) ? BIT_ENCAMP1 : BIT_ENCAMP2;
 
-  // 城壁の周り8方向を探査して，自陣の城壁があれば連結する
-  uint8_t direc = 0;
-  uint8_t x[2], y[2];
-  uint8_t cnt = 0;
-  for(; direc < Direction_Max; direc++) {
-    uint8_t mx = wall->x + round(cos(direc * PI/4));
-    uint8_t my = wall->y + round(sin(direc * PI/4));
-    if(isIgnoreCoord(mx, my))
-      continue;
-    if(map[my][mx] & target_wall) {
-      x[cnt] = mx;
-      y[cnt] = my;
-      cnt++;
-    }
-  }
-  if(cnt == 0) {
-    Walls wal;
-    wal.head = wal.tail = wall;
-    wall->next = nullptr;
-    wal.consol_num = 1;
-    walls[belong].push_back(wal);
-  } else if(cnt == 1) {
-    // つながった城壁の先頭または末尾であるから探索する
-    for(int i = 0; i < (int)walls[belong].size(); i++) {
-      if(walls[belong][i].tail->x == x[0] && 
-          walls[belong][i].tail->y == y[0]) {
-        wall->next = nullptr;
-        walls[belong][i].tail->next = wall;
-        walls[belong][i].tail = wall;
-        walls[belong][i].consol_num++;
-        break;
-      }
-      if(walls[belong][i].head->x == x[0] && 
-          walls[belong][i].head->y == y[0]) {
-        wall->next = walls[belong][i].head->next;
-        walls[belong][i].head = wall;
-        walls[belong][i].consol_num++;
-        break;
-      }
-    }
-  }
-  // cout << "belong:" << ((belong == Player1) ? "player1" : "player2") << "x:" << +wall->x << ", y:" << +wall->y << "を登録しました\n";
-  return 0;
-}
+//   // 城壁の周り8方向を探査して，自陣の城壁があれば連結する
+//   uint8_t direc = 0;
+//   uint8_t x[2], y[2];
+//   uint8_t cnt = 0;
+//   for(; direc < Direction_Max; direc++) {
+//     uint8_t mx = wall->x + round(cos(direc * PI/4));
+//     uint8_t my = wall->y + round(sin(direc * PI/4));
+//     if(isIgnoreCoord(mx, my))
+//       continue;
+//     if(map[my][mx] & target_wall) {
+//       x[cnt] = mx;
+//       y[cnt] = my;
+//       cnt++;
+//     }
+//   }
+//   if(cnt == 0) {
+//     Walls wal;
+//     wal.head = wal.tail = wall;
+//     wall->next = nullptr;
+//     wal.consol_num = 1;
+//     walls[belong].push_back(wal);
+//   } else if(cnt == 1) {
+//     // つながった城壁の先頭または末尾であるから探索する
+//     for(int i = 0; i < (int)walls[belong].size(); i++) {
+//       if(walls[belong][i].tail->x == x[0] && 
+//           walls[belong][i].tail->y == y[0]) {
+//         wall->next = nullptr;
+//         walls[belong][i].tail->next = wall;
+//         walls[belong][i].tail = wall;
+//         walls[belong][i].consol_num++;
+//         break;
+//       }
+//       if(walls[belong][i].head->x == x[0] && 
+//           walls[belong][i].head->y == y[0]) {
+//         wall->next = walls[belong][i].head->next;
+//         walls[belong][i].head = wall;
+//         walls[belong][i].consol_num++;
+//         break;
+//       }
+//     }
+//   }
+//   // cout << "belong:" << ((belong == Player1) ? "player1" : "player2") << "x:" << +wall->x << ", y:" << +wall->y << "を登録しました\n";
+//   return 0;
+// }
 
-int Board::getwall(bool belong, uint8_t wall_x, uint8_t wall_y)
-{
-  for(int i = 0; i < (int)walls[belong].size(); i++) {
-    Wall *pre = nullptr, *wall;
-    int j;
-    for(wall = walls[belong][i].head, j = 1; wall; pre = wall, wall = wall->next, j++) { // 読みにくいforでごめん
-      if(wall->x == wall_x && wall->y == wall_y) {
-        if(pre == nullptr && wall->next == nullptr) { // 1個だけの壁
-          walls[belong][i].consol_num--;
-          walls[belong].erase(walls[belong].begin() + i);
-        } else if(wall->next == nullptr) { // 末端の壁を削除
-          pre->next = nullptr;
-          walls[belong][i].tail = pre;
-          walls[belong][i].consol_num--;
-          delete wall;
-        } else if(pre == nullptr) { // 頭部の壁を削除
-          walls[belong][i].head = wall->next;
-          walls[belong][i].consol_num--;
-          delete wall;
-        } else {
-          // 2つに分割
-          pre->next = nullptr;
-          walls[belong][i].tail = pre;
-          walls[belong][i].consol_num -= walls[belong][i].consol_num - j;
+// int Board::getwall(bool belong, uint8_t wall_x, uint8_t wall_y)
+// {
+//   for(int i = 0; i < (int)walls[belong].size(); i++) {
+//     Wall *pre = nullptr, *wall;
+//     int j;
+//     for(wall = walls[belong][i].head, j = 1; wall; pre = wall, wall = wall->next, j++) { // 読みにくいforでごめん
+//       if(wall->x == wall_x && wall->y == wall_y) {
+//         if(pre == nullptr && wall->next == nullptr) { // 1個だけの壁
+//           walls[belong][i].consol_num--;
+//           walls[belong].erase(walls[belong].begin() + i);
+//         } else if(wall->next == nullptr) { // 末端の壁を削除
+//           pre->next = nullptr;
+//           walls[belong][i].tail = pre;
+//           walls[belong][i].consol_num--;
+//           delete wall;
+//         } else if(pre == nullptr) { // 頭部の壁を削除
+//           walls[belong][i].head = wall->next;
+//           walls[belong][i].consol_num--;
+//           delete wall;
+//         } else {
+//           // 2つに分割
+//           pre->next = nullptr;
+//           walls[belong][i].tail = pre;
+//           walls[belong][i].consol_num -= walls[belong][i].consol_num - j;
 
-          Walls wal;
-          wal.head = wal.tail = wall->next;
-          wal.consol_num = 1;
-          walls[belong].push_back(wal);
-        }
-        return 0;
-      }
-    }
-  }
-  // cout << "player1の城壁状態:\n";
-  // for(int i = 0; i < walls[Player1].size(); i++) {
-  //   cout << "城壁" << i << ":" << walls[Player1][i].consol_num << endl;
-  // }
-  // cout << "player2の城壁状態:\n";
-  // for(int i = 0; i < walls[Player2].size(); i++) {
-  //   cout << "城壁" << i << ":" << walls[Player2][i].consol_num << endl;
-  // }
-  // cout << "belong:" << ((belong == Player1) ? "player1" : "player2") << ", x:" << +wall_x << ", y:" << +wall_y << endl;
-  // exit(1);
+//           Walls wal;
+//           wal.head = wal.tail = wall->next;
+//           wal.consol_num = 1;
+//           walls[belong].push_back(wal);
+//         }
+//         return 0;
+//       }
+//     }
+//   }
+//   // cout << "player1の城壁状態:\n";
+//   // for(int i = 0; i < walls[Player1].size(); i++) {
+//   //   cout << "城壁" << i << ":" << walls[Player1][i].consol_num << endl;
+//   // }
+//   // cout << "player2の城壁状態:\n";
+//   // for(int i = 0; i < walls[Player2].size(); i++) {
+//   //   cout << "城壁" << i << ":" << walls[Player2][i].consol_num << endl;
+//   // }
+//   // cout << "belong:" << ((belong == Player1) ? "player1" : "player2") << ", x:" << +wall_x << ", y:" << +wall_y << endl;
+//   // exit(1);
 
-  return 1;
-}
+//   return 1;
+// }
