@@ -84,7 +84,8 @@ typedef struct {
 } Walls;
 
 class UnionFind {
-  public:
+public:
+  std::map<Cell, Cell> ancestor;
   std::map<Cell, Cell> par;
 
   Cell root(Cell cell);
@@ -103,9 +104,8 @@ public:
   Agent *agent1;
   Agent *agent2;
 
-  std::vector<Walls> walls[2];
-
-  UnionFind uni_tree;
+  UnionFind uni_tree[2];
+  void put_wall(Cell cell, Bitmap_t target_wall, bool belong);
 
   bool next_turn;
 

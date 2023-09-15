@@ -12,8 +12,8 @@ bool operator<(const Cell &lhs, const Cell &rhs)
 
 Cell UnionFind::root(Cell cell)
 {
-  if(par[cell] == cell) return cell;
-  return par[cell] = root(par[cell]);
+  if(ancestor[cell] == cell) return cell;
+  return ancestor[cell] = root(ancestor[cell]);
 }
 
 void UnionFind::unite(Cell cell_1, Cell cell_2)
@@ -22,7 +22,8 @@ void UnionFind::unite(Cell cell_1, Cell cell_2)
   Cell root_2 = root(cell_2);
   if(root_1 == root_2)
     return;
-  par[root_1] = root_2;
+  ancestor[root_1] = root_2;
+  par[cell_1] = cell_2;
 }
 
 bool UnionFind::same(Cell cell_1, Cell cell_2)
@@ -59,8 +60,6 @@ Board::Board(Bitmap_t **fieldmap, FieldInfo *info)
     }
   }
 
-  log = new Log*[TURN_NUM];
-
   turn = 0;
 }
 
@@ -80,7 +79,13 @@ Board::Board(const Board &board)
   memcpy(agent1, board.agent1, sizeof(Agent) * board.info->agent);
   memcpy(agent2, board.agent2, sizeof(Agent) * board.info->agent);
 
-  uni_tree = board.uni_tree;
+  uni_tree[0] = UnionFind(board.uni_tree[0]);
+  uni_tree[1] = UnionFind(board.uni_tree[1]);
+
+  uni_tree[0].ancestor = board.uni_tree[0].ancestor;
+  uni_tree[1].ancestor = board.uni_tree[1].ancestor;
+  uni_tree[0].par = board.uni_tree[0].par;
+  uni_tree[1].par = board.uni_tree[1].par;
 
   // cout << "---コピーコンストラクタ---\n";
   // cout << "player1の城壁状態:\n";
@@ -169,7 +174,11 @@ void Board::getLegalBoard(bool belong, vector<Board*> &legal_board, uint8_t back
   vector<Action> action;
   getLegalAct(belong, action, backnumber);
 
-  draw();
+  // draw();
+  // for(auto itr = uni_tree[belong].par.begin(); itr != uni_tree[belong].par.end(); itr++) {
+  //   cout << "key: " << +(*itr).first.x << ", " << +(*itr).first.y << endl;
+  //   cout << "value: " << +(*itr).second.x << ", " << +(*itr).second.y << endl;
+  // }
   for(int i = 0; i < (int)action.size(); i++) {
     Board *board = new Board(*this);
     
@@ -179,11 +188,45 @@ void Board::getLegalBoard(bool belong, vector<Board*> &legal_board, uint8_t back
     // cout << "height: " << +board->info->height << endl;
     // cout << "width : " << +board->info->width << endl;
     // board->draw();
-    cout << ((belong == Player1) ? "player1" : "player2") << endl;
-    cout << "kind:" << +action[i].kind << ", direc:" << +action[i].direc << endl;
+    // cout << ((belong == Player1) ? "player1" : "player2") << endl;
+    // cout << "kind:" << +action[i].kind << ", direc:" << +action[i].direc << endl;
     // cout << "------\n";
     board->ActionAnAgent(belong, backnumber, action[i]);
     legal_board.push_back(board);
+    // if(action[i].kind == ACT_DEMOLISH) {
+    //   board->draw();
+    //   for(auto itr = board->uni_tree[belong].par.begin(); itr != board->uni_tree[belong].par.end(); itr++) {
+    //     cout << "key: " << +(*itr).first.x << ", " << +(*itr).first.y << endl;
+    //     cout << "value: " << +(*itr).second.x << ", " << +(*itr).second.y << endl;
+    //   }
+    // }
+  }
+}
+
+void Board::put_wall(Cell cell, Bitmap_t target_wall, bool belong)
+{
+  //自分自身が根であると認識させる
+  uni_tree[belong].ancestor[cell] = uni_tree[belong].par[cell] = cell;
+  for(int direc = 0; direc < Direction_Max; direc++) {
+    uint8_t mx = cell.x + round(cos(direc * PI/4));
+    uint8_t my = cell.y + round(sin(direc * PI/4));
+    if(isIgnoreCoord(mx, my))
+      continue;
+    //壁があったら結合して分類
+    if(map[my][mx] & target_wall) {
+      //親同士比較root変数用意建築する予定見つけた壁の座標の
+      if(uni_tree[belong].same(cell, (Cell){mx,my})) {
+        cout << "陣地形成判定" << endl;
+        for(int d = 0; d < Direction_Max; d += 2) {
+          uint8_t mmx = cell.x + round(cos(d * PI/4));
+          uint8_t mmy = cell.y + round(sin(d * PI/4));
+          if(isIgnoreCoord(mmx, mmy))
+            continue;
+          Encamp_Update(belong, mmx, mmy);
+        }
+      }
+      uni_tree[belong].unite(cell, (Cell){mx, my});//今から置く予定mxmy//真ん中の周りの壁の座標mmxmmy
+    }
   }
 }
 
@@ -232,30 +275,17 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
     // cout << "Player" << +belong << "'s agent" << +backnumber << " build "
     //      << "( " << +mx << ", " << +my << " )\n";
 
-    //自分自身が根であると認識させる
-    uni_tree.par[(Cell){mx,my}] = (Cell){mx,my};
-    for(int direc = 0; direc < Direction_Max; direc++) {
+    // put_wall((Cell){mx,my}, target_wall, belong);
+    // cout << "mx, my:" << +uni_tree[belong].ancestor[(Cell){mx,my}].x << "," << +uni_tree[belong].ancestor[(Cell){mx,my}].y << endl;
+
+    for(int direc = 0; direc < Direction_Max; direc += 2) {
       uint8_t mmx = mx + round(cos(direc * PI/4));
       uint8_t mmy = my + round(sin(direc * PI/4));
       if(isIgnoreCoord(mmx, mmy))
         continue;
-      //壁があったら結合して分類
-      if(map[mmy][mmx] & target_wall) {
-        //親同士比較root変数用意建築する予定見つけた壁の座標の
-        if(uni_tree.same((Cell){mx, my}, (Cell){mmx, mmy})) {
-          cout << "陣地形成判定" << endl;
-          for(int d = 0; d < Direction_Max; d += 2) {
-            uint8_t mmx2 = mx + round(cos(d * PI/4));
-            uint8_t mmy2 = my + round(sin(d * PI/4));
-            if(isIgnoreCoord(mmx2, mmy2))
-              continue;
-            Encamp_Update(belong, mmx2, mmy2);
-          }
-        }
-        uni_tree.unite((Cell){mx, my}, (Cell){mmx, mmy});//今から置く予定mxmy//真ん中の周りの壁の座標mmxmmy
-      }
+
+      Encamp_Update(belong, mmx, mmy);    
     }
-    cout << "mx, my:" << +uni_tree.par[(Cell){mx,my}].x << "," << +uni_tree.par[(Cell){mx,my}].y << endl;
 
     if(map[my][mx] & BIT_ENCAMP1) {
       map[my][mx] &= ~(BIT_ENCAMP1 | BIT_OPENED_ENCAMP);
@@ -267,7 +297,6 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
   }
 
   if(kind == ACT_DEMOLISH) {
-
     // if(getwall(belong, mx, my) == 1)
     //   cout << "getwall:エラー\n";
 
@@ -290,6 +319,14 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
       if(isIgnoreCoord(mmx, mmy))
         continue;
 
+      // if(uni_tree[belong].ancestor[(Cell){mx,my}] == (Cell){mx,my}) { // 祖先？
+
+      // } else {
+      //   if(uni_tree[belong].par[(Cell){mmx,mmy}] == (Cell){mx,my}) { // 親？
+      //     put_wall((Cell){mmx,mmy}, target_wall, belong);
+      //   }
+      // }
+
       Encamp_Update(belong, mmx, mmy);
 
       if(direc%2 || (map[mmy][mmx] & BIT_OPENED_ENCAMP))
@@ -303,6 +340,9 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
       if(map[mmy][mmx] & target_wall)
         special_cnt++;
     }
+    // uni_tree[belong].ancestor.erase((Cell){mx,my});
+    // uni_tree[belong].par.erase((Cell){mx,my});
+    
     if(cnt == 4) {
       Bitmap_t tmp = (map[my+1][mx] & BIT_ENCAMP1) ? BIT_ENCAMP1 : BIT_ENCAMP2;
       map[my][mx] |= tmp;
