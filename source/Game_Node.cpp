@@ -1,5 +1,6 @@
 #include "Game_Node.hpp"
 #include <math.h>
+#include <string.h>
 using namespace std;
 
 Game_Node::Game_Node(Board *board)
@@ -155,8 +156,23 @@ int Game_Node::playerpoint(bool belong, uint8_t b_number)
   return p;
 }
 void Game_Node::feild_advantage(int *point1, int *point2){
-  char pmap[board->info->height][board->info->width][2]={0};
+  char pmap[board->info->height][board->info->width][2];
+
+  memset(pmap, 0, (size_t)(sizeof(pmap[0][0][0]) * board->info->height * board->info->width * 2));
+
   int p1=0,p2=0;
+
+  // for(uint8_t k=0; k<2; k++){
+  //   for(uint8_t i=0; i < board->info->height ;i++){
+  //     for(uint8_t j=0; j < board->info->width ;j++){
+  //       if(pmap[i][j][k]>=0)
+  //         cout << " " ;
+  //       cout << (+pmap[i][j][k]) ;
+  //     }
+  //     cout << "\n" ;
+  //   }
+  // }
+  // cout << "\n" ;
 
   for(uint8_t i=0; i < board->info->height ;i++){
     for(uint8_t j=0; j < board->info->width ;j++){
@@ -211,7 +227,7 @@ void Game_Node::feild_advantage(int *point1, int *point2){
   *point1 = p1;
   *point2 = p2;
 
-  for(int k=0; k<2; k++){
+  for(uint8_t k=0; k<2; k++){
     for(uint8_t i=0; i < board->info->height ;i++){
       for(uint8_t j=0; j < board->info->width ;j++){
         if(pmap[i][j][k]>=0)
