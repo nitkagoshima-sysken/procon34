@@ -27,7 +27,6 @@ public:
   std::vector<Game_Node*> childrenNode;
   Action pre_act;
   
-  Game_Node(Board *board);
   ~Game_Node();
 
   void expandChildren(int backnumber);
