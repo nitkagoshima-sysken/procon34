@@ -99,6 +99,7 @@ Board::Board(const Board &board)
   // cout << "------\n";
 
   turn = board.turn;
+  next_turn = board.next_turn;
 
 }
 

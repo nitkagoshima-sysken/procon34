@@ -7,7 +7,7 @@
 
 #define wall_search_max  2
 #define agent_search_max 4
-#define coefficient_act       50
+#define coefficient_act       1
 #define coefficient_castle_p  30
 #define coefficient_castle_w1 20
 #define coefficient_castle_w2 15
@@ -15,8 +15,9 @@
 #define coefficient_encamp    5
 #define coefficient_conect    100
 #define coefficient_wall      1
-#define coefficient_score     1
-#define coefficient_agent     16
+#define coefficient_score     2
+#define coefficient_agent     1
+#define coefficient_adva      1
 
 class Game_Node {
 public:
@@ -32,10 +33,13 @@ public:
   void expandChildren(int backnumber);
   void deleteChildren();
 
-  char wallpoint(uint8_t x, uint8_t y , char beforepoint,int *point);
-  int playerpoint(bool belong, uint8_t b_number, char **pmap, int *point);
-
+  //char wallpoint(uint8_t x, uint8_t y , char beforepoint,int *point);
+  // int playerpoint(bool belong, uint8_t b_number);
+  // void feild_advantage(int *p1, int *p2);
   int (*ev_function)(Board *board, bool belong);
+
+  // int evaluate_current_board();
+
 };
 
 void expandChildren_by_num(Game_Node *root, int n, int backnumber);

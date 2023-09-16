@@ -2,6 +2,7 @@
 #include <math.h>
 #include "Evaluation_func.hpp"
 #include "main_ev_func.hpp"
+#include <string.h>
 using namespace std;
 
 Game_Node::Game_Node(Board *board)
@@ -67,15 +68,29 @@ void Game_Node::expandChildren(int backnumber)
 // char Game_Node::wallpoint(uint8_t x, uint8_t y, char beforepoint, int *point)
 // {
 //   char p= basepoint;   //基礎値設定
+// char Game_Node::wallpoint(uint8_t x, uint8_t y, char beforepoint, int *point)
+// {
+//   char p= basepoint;   //基礎値設定
 
+//   uint8_t c1=0, c2=0;  //1マス目の壁の数、２マス目の壁の数
 //   uint8_t c1=0, c2=0;  //1マス目の壁の数、２マス目の壁の数
 
 //   Bitmap_t ally_encamp   = (board->map[y][x] & BIT_WALL1) ? BIT_ENCAMP1 : BIT_ENCAMP2;
 //   Bitmap_t target_encamp = (board->map[y][x] & BIT_WALL1) ? BIT_ENCAMP2 : BIT_ENCAMP1;
 //   Bitmap_t ally_wall     = (board->map[y][x] & BIT_WALL1) ? BIT_WALL1   : BIT_WALL2  ;
+//   Bitmap_t ally_encamp   = (board->map[y][x] & BIT_WALL1) ? BIT_ENCAMP1 : BIT_ENCAMP2;
+//   Bitmap_t target_encamp = (board->map[y][x] & BIT_WALL1) ? BIT_ENCAMP2 : BIT_ENCAMP1;
+//   Bitmap_t ally_wall     = (board->map[y][x] & BIT_WALL1) ? BIT_WALL1   : BIT_WALL2  ;
 
 //   if(beforepoint) return beforepoint;  //前回探査していれば
+//   if(beforepoint) return beforepoint;  //前回探査していれば
 
+//   for(int i=1; i <= wall_search_max; i++){
+//     x -= 1;  y -= 1;
+//     for(int j=0; j < 4; j++){
+//       for(int k=0; k < 2*i; k++){
+//         bool encamp1 = true;
+//         bool encamp2 = true;
 //   for(int i=1; i <= wall_search_max; i++){
 //     x -= 1;  y -= 1;
 //     for(int j=0; j < 4; j++){
@@ -85,11 +100,19 @@ void Game_Node::expandChildren(int backnumber)
 
 //         y += round(sin(j * PI/2));
 //         x += round(cos(j * PI/2));
+//         y += round(sin(j * PI/2));
+//         x += round(cos(j * PI/2));
 
+//         if(board->isIgnoreCoord(x,y))continue;
 //         if(board->isIgnoreCoord(x,y))continue;
 
 //         //if(board->map[y][x] & BIT_CASTLE) p += coefficient_castle_w1 - coefficient_castle_w2 * i;
+//         //if(board->map[y][x] & BIT_CASTLE) p += coefficient_castle_w1 - coefficient_castle_w2 * i;
 
+//         if(encamp1 && (board->map[y][x] & ally_encamp)){ //自陣があれば基礎値を小さく
+//           encamp1=false;
+//           p -= basepoint *4/5;
+//         }
 //         if(encamp1 && (board->map[y][x] & ally_encamp)){ //自陣があれば基礎値を小さく
 //           encamp1=false;
 //           p -= basepoint *4/5;
@@ -99,7 +122,15 @@ void Game_Node::expandChildren(int backnumber)
 //           encamp2=false;
 //           p += coefficient_encamp;
 //         }
+//         if(encamp2 && (board->map[y][x] & target_encamp)){//敵陣があればポイント加算
+//           encamp2=false;
+//           p += coefficient_encamp;
+//         }
 
+//         if(board->map[y][x] & ally_wall) (i==1)? c1++ : c2++ ; //壁の個数カウント
+//       }
+//     }
+//   }
 //         if(board->map[y][x] & ally_wall) (i==1)? c1++ : c2++ ; //壁の個数カウント
 //       }
 //     }
@@ -112,13 +143,22 @@ void Game_Node::expandChildren(int backnumber)
 //     csum += 3*c1 + 4*c2;
 //     if(c1>2)csum=2;
 //     if(c2>2)csum=3;
+//   if(c1>=2 && c2>=2){               //壁の数による処理
+//     *point += coefficient_conect;   //つながりポイント追加
+//   }else{                            //壁の個数によってポイント加算
+//     char csum=1;
+//     csum += 3*c1 + 4*c2;
+//     if(c1>2)csum=2;
+//     if(c2>2)csum=3;
 
+//     p += coefficient_wall * csum;
+//   }
 //     p += coefficient_wall * csum;
 //   }
 
 //   return p;
 // }
-// int Game_Node::playerpoint(bool belong, uint8_t b_number, char **pmap, int *point)
+// int Game_Node::playerpoint(bool belong, uint8_t b_number)
 // {
 //   int act;
 //   int p = 0;
@@ -135,55 +175,134 @@ void Game_Node::expandChildren(int backnumber)
 //   board->getLegalAct(belong, action, b_number);
 //   act =action.size();
 
-//   p += coefficient_act * act*act;      //合法手のポイント加算
+  // p += coefficient_act * act;      //合法手のポイント加算
 
-//   if(board->map[y][x] & BIT_CASTLE)    p += coefficient_castle_p *20;
-//   if(board->map[y][x] & ally_wall)     p +=(pmap[y][x] = wallpoint(x, y, pmap[y][x], point)) *20;
-//   for(int i=1; i <= agent_search_max; i++){
-//     x -= 1;  y -= 1;
-//     for(int j=0; j < 4; j++){
-//       for(int k=0; k < 2*i; k++){
+  // if(board->map[y][x] & BIT_CASTLE)    p += coefficient_castle_p *20;
+  // if(board->map[y][x] & ally_wall)     p +=(pmap[y][x] = wallpoint(x, y, pmap[y][x], point)) *20;
+  // for(int i=1; i <= agent_search_max; i++){
+  //   x -= 1;  y -= 1;
+  //   for(int j=0; j < 4; j++){
+  //     for(int k=0; k < 2*i; k++){
     
-//         y += round(sin(j * PI/2));
-//         x += round(cos(j * PI/2));
+  //       y += round(sin(j * PI/2));
+  //       x += round(cos(j * PI/2));
 
-//         if(board->isIgnoreCoord(x,y))continue;
-//         if(board->map[y][x] & BIT_CASTLE)    p += coefficient_castle_p *(20- i*i);                             //城ポイント加算
-//         if(board->map[y][x] & ally_wall)     p +=(pmap[y][x] = wallpoint(x, y, pmap[y][x], point)) *(20- i*i); //壁ポイント加算
-//       }
-//     }
-//   }
+  //       if(board->isIgnoreCoord(x,y))continue;
+  //       if(board->map[y][x] & BIT_CASTLE)    p += coefficient_castle_p *(20- i*i);                             //城ポイント加算
+  //       if(board->map[y][x] & ally_wall)     p +=(pmap[y][x] = wallpoint(x, y, pmap[y][x], point)) *(20- i*i); //壁ポイント加算
+  //     }
+  //   }
+  // }
 //   return p;
+// }
+// void Game_Node::feild_advantage(int *point1, int *point2){
+//   char pmap[board->info->height][board->info->width][2];
+
+//   memset(pmap, 0, (size_t)(sizeof(pmap[0][0][0]) * board->info->height * board->info->width * 2));
+
+//   int p1=0,p2=0;
+
+//   // for(uint8_t k=0; k<2; k++){
+//   //   for(uint8_t i=0; i < board->info->height ;i++){
+//   //     for(uint8_t j=0; j < board->info->width ;j++){
+//   //       if(pmap[i][j][k]>=0)
+//   //         cout << " " ;
+//   //       cout << (+pmap[i][j][k]) ;
+//   //     }
+//   //     cout << "\n" ;
+//   //   }
+//   // }
+//   // cout << "\n" ;
+
+  // for(uint8_t i=0; i < board->info->height ;i++){
+  //   for(uint8_t j=0; j < board->info->width ;j++){
+  //     if(board->map[i][j] & (BIT_WALL1 | BIT_WALL2)){
+  //       Bitmap_t tagetwall= (board->map[i][j] & BIT_WALL1) ? BIT_WALL1 : BIT_WALL2;
+  //       uint8_t  belong =   (board->map[i][j] & BIT_WALL1) ? 0:1;
+  //       bool flg1=false, flg2=false;
+  //       uint8_t x= j-1, y= i-1;
+  //       uint8_t mx, my;
+
+  //       if(board->isIgnoreCoord(x,y)){
+  //         flg2 = true;
+  //       }else if(board->map[y][x] & tagetwall){
+  //         flg1 = true;
+  //       }
+  //       for(int k=0; k<4; k++){
+  //         for(int l=0; l<2; l++){
+  //           mx = x; my = y;
+  //           y += round(sin(k * PI/2));
+  //           x += round(cos(k * PI/2));
+
+  //           if(board->isIgnoreCoord(x,y)){
+  //             flg1 = false;
+  //             flg2 = true;
+  //             continue;
+  //           }
+            
+  //           if(board->map[y][x] & tagetwall){
+  //             flg1 = true;
+
+  //             if(! flg2){
+  //               pmap[my][mx][belong]--;
+  //             }else flg2 = false;
+
+  //           }else{
+  //             if(! flg2){
+  //               if((pmap[my][mx][belong] > 1) && (k!=0 || l!=0)) belong ? p2++ : p1++;
+  //             }else flg2 = false;
+
+  //             if(! flg1){
+  //               if(!(board->map[y][x] & BIT_CASTLE)) pmap[y][x][belong]++;
+  //             }else flg1 = false;
+  //           }
+  //         }
+  //       }
+  //       if(! flg2){
+  //         if(pmap[y][x][belong] > 1) belong ? p2++ : p1++;
+  //       }
+  //     }
+  //   }
+  // }
+  // *point1 = p1;
+  // *point2 = p2;
+
+  // for(uint8_t k=0; k<2; k++){
+  //   for(uint8_t i=0; i < board->info->height ;i++){
+  //     for(uint8_t j=0; j < board->info->width ;j++){
+  //       if(pmap[i][j][k]>=0)
+  //         cout << " " ;
+  //       cout << (+pmap[i][j][k]) ;
+  //     }
+  //     cout << "\n" ;
+  //   }
+  // }
+  // cout << "\n" ;
 // }
 // int Game_Node::evaluate_current_board()
 // {
 //   int p = 0;
 //   int a_score,b_score;
+//   int adp1, adp2;
 //   bool belong;
 
-//   char **pmap = new char*[board->info->length]();
-//   for(int i = 0 ; i < board->info->length; i++) {
-//     pmap[i] = new char[board->info->length]();
-//   }
-
-//   board->score(a_score,b_score);
+// //   board->score(a_score,b_score);
 
 //   p +=coefficient_score * (a_score - b_score);  //スコアポイント加算
 
+//   feild_advantage(&adp1, &adp2);
+
+//   p +=coefficient_adva * (adp1 - adp2);
+
 //   belong = Player1;
 //   for(uint8_t i=0; i< board->info->agent ; i++){//自職人ポイント加算
-//     p += playerpoint(belong, i, pmap, &p) / coefficient_agent;
+//     p += playerpoint(belong, i) / coefficient_agent;
 //   }
 
 //   belong = Player2;
 //   for(uint8_t i=0; i< board->info->agent ; i++){//敵職人ポイント減算
-//     p -= playerpoint(belong, i, pmap, &p) / coefficient_agent;
+//     p -= playerpoint(belong, i) / coefficient_agent;
 //   }
-
-//   for(int i = 0; i < board->info->length; i++) {
-//     delete pmap[i];
-//   }
-//   delete pmap;
 
 //   //cout << "ポイント：" << p << "\n";
 
