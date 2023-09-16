@@ -43,7 +43,7 @@ public:
 };
 
 void expandChildren_by_num(Game_Node *root, int n, int backnumber);
-void TreeSearch(Game_Node *root, int backnumber, bool belong);
+void TreeSearch(Game_Node *root, int backnumber, bool belong, bool first_node = true);
 void drawTree(Game_Node *root);
 void deleteTree(Game_Node* root);
 

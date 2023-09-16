@@ -328,7 +328,7 @@ void expandChildren_by_num(Game_Node *root, int n, int backnumber)
   }
 }
 
-void TreeSearch(Game_Node *root, int backnumber, bool belong)
+void TreeSearch(Game_Node *root, int backnumber, bool belong, bool first_node)
 {
   if(root->childrenNode.empty()) { // 子供がいなければ
     if(root->ev_function) {
@@ -346,7 +346,11 @@ void TreeSearch(Game_Node *root, int backnumber, bool belong)
 
   for(int i = 0; i < (int)root->childrenNode.size(); i++) {
     Game_Node *node = root->childrenNode[i];
-    TreeSearch(node, backnumber, belong);
+    if(i == 0) {
+      TreeSearch(node, backnumber, belong);
+    } else {
+      TreeSearch(node, backnumber, belong, false);
+    }
 
     int max_score = root->childrenNode[0]->evaluation;
     int min_score = root->childrenNode[0]->evaluation;
@@ -374,7 +378,7 @@ void TreeSearch(Game_Node *root, int backnumber, bool belong)
     }
 
     //親と子の評価値を比べて子どもの方が大きかったらブレイク
-    if(i == 0) // 最初は親のノードに暫定的な点数がついていないのでパス
+    if(first_node) // 最初は親のノードに暫定的な点数がついていないのでパス
       continue;
 
     if(root->parentNode == nullptr)
