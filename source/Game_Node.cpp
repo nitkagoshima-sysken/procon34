@@ -380,16 +380,13 @@ void TreeSearch(Game_Node *root, int backnumber, bool belong)
     if(root->parentNode == nullptr)
       continue;
 
-    if(root->childrenNode[i]->childrenNode.empty())
-      continue;
-
     if(root->board->next_turn == belong) { // ベータカット
-      if(root->parentNode->evaluation < root->childrenNode[i]->evaluation){//親＜子ども
+      if(root->parentNode->evaluation <= root->childrenNode[i]->evaluation){//親＜子ども
         root->childrenNode.erase(root->childrenNode.begin() + i+1, root->childrenNode.end());
         break;
       }
     } else { // アルファカット
-      if(root->parentNode->evaluation > root->childrenNode[i]->evaluation) { // 親 > 子供
+      if(root->parentNode->evaluation >= root->childrenNode[i]->evaluation) { // 親 > 子供
         root->childrenNode.erase(root->childrenNode.begin() + i+1, root->childrenNode.end());
         break;
       }

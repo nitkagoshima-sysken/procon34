@@ -168,7 +168,7 @@ int main(int argc, char *argv[])
         // }
       }
 
-      // drawTree(root_node[0]);
+      drawTree(root_node[0]);
       for(int i = 0; i < info->agent; i++) {
         deleteTree(root_node[i]);
       }
