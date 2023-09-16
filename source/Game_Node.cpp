@@ -333,7 +333,10 @@ void TreeSearch(Game_Node *root, int backnumber, bool belong)
   if(root->childrenNode.empty()) { // 子供がいなければ
     if(root->ev_function) {
       // root->ev_function = evaluate_current_board;
+      // printf("p: %p\n", root->ev_function);
+      // root->board->draw();
       root->evaluation =  root->ev_function(root->board, belong);
+      // cout << root->evaluation << endl;
     } else {
       cerr << "error: 評価関数が設定されていません\n";
       return;

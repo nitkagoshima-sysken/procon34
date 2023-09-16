@@ -5,22 +5,22 @@
 #include <vector>
 using namespace std;
 
-int playerpoint(bool belong, uint8_t b_number)
+int playerpoint(Board *board, bool belong, uint8_t b_number)
 {
   int act;
   int p = 0;
   uint8_t x, y;
 
-//   Agent *target_agent = (belong == Player1) ? board->agent1: board->agent2;
-//   Bitmap_t ally_wall      = (belong == Player1) ? BIT_WALL1    : BIT_WALL2;
+  Agent *target_agent = (belong == Player1) ? board->agent1: board->agent2;
+  Bitmap_t ally_wall      = (belong == Player1) ? BIT_WALL1    : BIT_WALL2;
 
-//   vector<Action> action;
+  vector<Action> action;
 
-//   x = target_agent[b_number].x;
-//   y = target_agent[b_number].y;
+  x = target_agent[b_number].x;
+  y = target_agent[b_number].y;
 
-//   board->getLegalAct(belong, action, b_number);
-//   act =action.size();
+  board->getLegalAct(belong, action, b_number);
+  act =action.size();
 
   p += coefficient_act * act;      //合法手のポイント加算
 
@@ -133,7 +133,7 @@ int evaluate_current_board(Board *board, bool belong)
   int adp1, adp2;
   // bool belong;
 
-//   board->score(a_score,b_score);
+  board->score(a_score,b_score);
 
   p +=coefficient_score * (a_score - b_score);  //スコアポイント加算
 
@@ -143,12 +143,12 @@ int evaluate_current_board(Board *board, bool belong)
 
   belong = Player1;
   for(uint8_t i=0; i< board->info->agent ; i++){//自職人ポイント加算
-    p += playerpoint(belong, i) / coefficient_agent;
+    p += playerpoint(board, belong, i) / coefficient_agent;
   }
 
   belong = Player2;
   for(uint8_t i=0; i< board->info->agent ; i++){//敵職人ポイント減算
-    p -= playerpoint(belong, i) / coefficient_agent;
+    p -= playerpoint(board, belong, i) / coefficient_agent;
   }
 
   //cout << "ポイント：" << p << "\n";

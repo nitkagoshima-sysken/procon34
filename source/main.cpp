@@ -80,9 +80,13 @@ int main(int argc, char *argv[])
       int lastdepth = ((TURN_NUM - count) < depth) ? (TURN_NUM - count) : depth ;
 
       for(int i = 0; i < info->agent; i++) {
+        cout << "---\n";
+        match.draw();
+        cout << "---\n";
         Board *init_board = new Board(match);
         root_node[i] = new Game_Node(init_board);
         root_node[i]->ev_function = evaluate_current_board;
+        printf("first p: %p\n", evaluate_current_board);
         cout << "職人" << i << "(" << +root_node[i]->board->agent1[i].x << ", " << +root_node[i]->board->agent1[i].y << ")" << "のゲーム木構築中..." << endl;
         expandChildren_by_num(root_node[i], lastdepth, i);
         cout << "職人" << i << "の盤面評価中..." << endl;
@@ -135,9 +139,6 @@ int main(int argc, char *argv[])
         std::vector<Action> action;
         match.getLegalAct(match.next_turn, action ,i);
         cout << "職人" << i << "の合法手数:" << action.size() << endl;
-        for(auto itr = action.begin(); itr != action.end(); itr++) {
-          cout << "kind: " << +itr->kind << ", direc" << +itr->direc << endl;
-        }
       }
       cout << endl;
       
