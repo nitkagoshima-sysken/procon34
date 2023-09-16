@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
   map.AnalyzeFile(&info, &fieldmap); // フィールド読み込み
 
   Board match(fieldmap, info);
-  match.next_turn = Player1;
+  match.next_turn = first_player;
 
   if(first_player == Player2) {
     Agent *tmp = match.agent1;
