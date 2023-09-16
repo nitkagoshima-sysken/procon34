@@ -380,12 +380,17 @@ void TreeSearch(Game_Node *root, int backnumber, bool belong)
     if(root->parentNode == nullptr)
       continue;
 
+    if(root->childrenNode[i]->childrenNode.empty())
+      continue;
+
     if(root->board->next_turn == belong) { // ベータカット
       if(root->parentNode->evaluation < root->childrenNode[i]->evaluation){//親＜子ども
+        root->childrenNode.erase(root->childrenNode.begin() + i+1, root->childrenNode.end());
         break;
       }
     } else { // アルファカット
       if(root->parentNode->evaluation > root->childrenNode[i]->evaluation) { // 親 > 子供
+        root->childrenNode.erase(root->childrenNode.begin() + i+1, root->childrenNode.end());
         break;
       }
     }
@@ -424,16 +429,16 @@ void drawTree(Game_Node *root, int n)
     for(int j = 0; j < n; j++)
       cout << "| ";
     cout << "|";
-    cout << "-- " << root->evaluation << " kind:" << +root->pre_act.kind << ", direc" << +root->pre_act.kind << endl; 
+    cout << "-- " << root->evaluation << " kind:" << +root->pre_act.kind << ", direc" << +root->pre_act.direc << endl; 
     return;
   }
 
   for(int j = 0; j < n; j++)
     cout << "| ";
   cout << "|";
-  cout << "-- " << root->evaluation << " next:" << root->board->next_turn << ", kind:" << +root->pre_act.kind << ", direc" << +root->pre_act.kind << endl; 
-  for(int i = 0; i < (int)root->childrenNode.size(); i++) {
-    Game_Node *node = root->childrenNode[i];
+  cout << "-- " << root->evaluation << " next:" << root->board->next_turn << ", kind:" << +root->pre_act.kind << ", direc" << +root->pre_act.direc << endl; 
+  for(auto itr = root->childrenNode.begin(); itr != root->childrenNode.end(); itr++) {
+    Game_Node *node = *itr;
     drawTree(node, n + 1);
   }
 }
@@ -442,8 +447,8 @@ void drawTree(Game_Node *root)
 {
   cout << "root:" << root->evaluation << " next:" << root->board->next_turn << endl;
 
-  for(int i = 0; i < (int)root->childrenNode.size(); i++) {
-    Game_Node *node = root->childrenNode[i];
+  for(auto itr = root->childrenNode.begin(); itr != root->childrenNode.end(); itr++) {
+    Game_Node *node = *itr;
     drawTree(node, 0);
   }
 }

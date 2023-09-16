@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
         //   cout << "  " << "子供" << j << "のスコア:" << root_node[i]->childrenNode[j]->evaluation << endl;
         // }
       }
-      // drawTree(root_node[0]);
+      drawTree(root_node[0]);
       for(int i = 0; i < info->agent; i++) {
         deleteTree(root_node[i]);
       }
@@ -175,8 +175,8 @@ int main(int argc, char *argv[])
       delete root_node;
     }
     match.next_turn = !match.next_turn;
-    // cout << "press enter to continue\n";
-    // getchar();
+    cout << "press enter to continue\n";
+    getchar();
   }
 
   cout << "ゲーム終了時の盤面" << endl;
