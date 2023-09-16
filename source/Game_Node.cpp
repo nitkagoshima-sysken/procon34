@@ -386,11 +386,15 @@ void TreeSearch(Game_Node *root, int backnumber, bool belong, bool first_node)
 
     if(root->board->next_turn == belong) { // ベータカット
       if(root->parentNode->evaluation <= root->childrenNode[i]->evaluation){//親＜子ども
+        for(int k = i+1; k < root->childrenNode.size(); k++)
+          deleteTree(root->childrenNode[k]);
         root->childrenNode.erase(root->childrenNode.begin() + i+1, root->childrenNode.end());
         break;
       }
     } else { // アルファカット
       if(root->parentNode->evaluation >= root->childrenNode[i]->evaluation) { // 親 > 子供
+        for(int k = i+1; k < root->childrenNode.size(); k++)
+          deleteTree(root->childrenNode[k]);
         root->childrenNode.erase(root->childrenNode.begin() + i+1, root->childrenNode.end());
         break;
       }
