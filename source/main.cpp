@@ -25,13 +25,19 @@ int main(int argc, char *argv[])
   int turn_num = TURN_NUM;
   int depth = 3;
   char *path = (char*)"../Field_Data/B11.csv";
+  bool first_player = Player1;
   switch(argc) {
     case 1:
-      cout << "競技フィールド: B11, 探索深度: 3, ターン数: " << TURN_NUM << "で試合を開始します．\n";
-      cout << "引数を設定したい場合は次のようにしてください 例: ./procon ../Field_Data/B11 3 " << TURN_NUM << endl;
+      cout << "競技フィールド: B11, 探索深度: 3, ターン数: " << TURN_NUM << ", 先手: Player1で試合を開始します．\n";
+      cout << "引数を設定したい場合は次のようにしてください 例: ./procon ../Field_Data/B11 3 1" << TURN_NUM << endl;
       cout << "press enter\n";
       getchar();
       break;
+    case 5:
+      if(atoi(argv[4]) == 1)
+        first_player = Player1;
+      else
+        first_player = Player2;
     case 4:
       turn_num = atoi(argv[3]);
     case 3:
@@ -52,6 +58,12 @@ int main(int argc, char *argv[])
 
   Board match(fieldmap, info);
   match.next_turn = Player1;
+
+  if(first_player == Player2) {
+    Agent *tmp = match.agent1;
+    match.agent1 = match.agent2;
+    match.agent2 = tmp;
+  }
 
   // Connect request("/matches");
   // request.fetch();
