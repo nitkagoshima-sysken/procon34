@@ -9,6 +9,9 @@ Connect::Connect(string path)
 
 int Connect::fetch()
 {
+  struct hostent *host;
+  host = gethostbyname(HOST_NAME);
+
   if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
     cerr << "socket error\n";
     return 1;
@@ -39,7 +42,7 @@ int Connect::fetch()
     }
   }
 
-  memcpy(&(addr.sin_addr.s_addr), addr_arr, sizeof addr_arr);
+  memcpy(&(addr.sin_addr.s_addr), host->h_addr_list[0], sizeof addr_arr);
   std::string str = "connect to " + to_string(addr_arr[0]) + "." + to_string(addr_arr[1]) + "." 
                 + to_string(addr_arr[2]) + "." + to_string(addr_arr[3]) + "\n";
   cout << str << endl;
@@ -55,7 +58,7 @@ int Connect::get()
   // リクエストメッセージの作成
   string request = "GET http://";
   request += IP_ADDRESS + std::string(":") + std::to_string(SEREVR_PORT) + path + "?token=" + TOKEN + " HTTP/1.0";
-  string header = "Host: localhost\r\nContent-Type: application/json";
+  string header = "Host: localhost";
 
   string request_message = request + "\r\n" + header + "\r\n\r\n";
 
