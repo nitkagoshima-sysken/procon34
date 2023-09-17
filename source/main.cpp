@@ -7,6 +7,7 @@
 #include "Evaluation_func.hpp"
 #include <assert.h>
 #include "http.hpp"
+#include <fstream>
 using namespace std;
 
 int main(int argc, char *argv[])
@@ -54,6 +55,14 @@ int main(int argc, char *argv[])
   Board match(fieldmap, info);
   match.next_turn = Player1;
 
+  char *log_name = "./log.txt";
+
+  FILE *fp = fopen(log_name, "w");
+  if(!fp) {
+    cout << "ファイルが開けません\n";
+    return 1;
+  }
+
   // Connect request("/matches");
   // request.fetch();
   // request.get();
@@ -62,7 +71,7 @@ int main(int argc, char *argv[])
 
   // メインループ
   for(int count = 1; count <= turn_num; count++) {
-    // system("clear");
+    system("clear");
     cout << "turn:" << count << endl;
     cout << "current_:" << ((match.next_turn == Player1) ? "Player1" : "Player2") << endl;
     match.draw();
@@ -71,11 +80,11 @@ int main(int argc, char *argv[])
       Game_Node **root_node = new Game_Node*[info->agent]();
 
       cout << ((match.next_turn == Player1) ? "player1" : "player2") << endl;
-      for(int i = 0; i < info->agent; i++) {
-        std::vector<Action> action;
-        match.getLegalAct(match.next_turn, action ,i);
-        cout << "職人" << i << "の合法手数:" << action.size() << endl;
-      }
+      // for(int i = 0; i < info->agent; i++) {
+      //   std::vector<Action> action;
+      //   match.getLegalAct(match.next_turn, action ,i);
+      // cout << "職人" << i << "の合法手数:" << action.size() << endl;
+      // }
       cout << endl;
       
       int lastdepth = ((turn_num - count) < depth) ? (turn_num - count + 1) : depth ;
@@ -86,8 +95,8 @@ int main(int argc, char *argv[])
         root_node[i]->board = init_board;
         root_node[i]->ev_function = evaluate_current_board;
         root_node[i]->parentNode = nullptr;
-        root_node[i]->target_belong = Player1;
-        cout << "職人" << i << "(" << +root_node[i]->board->agent1[i].x << ", " << +root_node[i]->board->agent1[i].y << ")" << "のゲーム木構築中..." << endl;
+        root_node[i]->target_belong = match.next_turn;
+        // cout << "職人" << i << "(" << +root_node[i]->board->agent1[i].x << ", " << +root_node[i]->board->agent1[i].y << ")" << "のゲーム木構築中..." << endl;
         expandChildren_by_num(root_node[i], lastdepth, i);
         // TreeSearch(root_node[i], i, Player1);
         for(auto itr = root_node[i]->childrenNode.begin(); itr != root_node[i]->childrenNode.end(); itr++) {
@@ -136,13 +145,13 @@ int main(int argc, char *argv[])
       Game_Node **root_node = new Game_Node*[info->agent]();
 
       cout << ((match.next_turn == Player1) ? "player1" : "player2") << endl;
-      for(int i = 0; i < info->agent; i++) {
-        std::vector<Action> action;
-        match.getLegalAct(match.next_turn, action ,i);
-        cout << "職人" << i << "の合法手数:" << action.size() << endl;
-        // for(auto itr = action.begin(); itr != action.end(); itr++)
-        //   cout << "kind: " << +(*itr).kind << ", direc: " << +(*itr).direc <<  endl;
-      }
+      // for(int i = 0; i < info->agent; i++) {
+      //   std::vector<Action> action;
+      //   match.getLegalAct(match.next_turn, action ,i);
+      //   // cout << "職人" << i << "の合法手数:" << action.size() << endl;
+      //   // for(auto itr = action.begin(); itr != action.end(); itr++)
+      //   cout << "kind: " << +(*itr).kind << ", direc: " << +(*itr).direc <<  endl;
+      // }
       cout << endl;
       
       int lastdepth = ((turn_num - count) < depth) ? (turn_num - count + 1) : depth ;
@@ -153,14 +162,14 @@ int main(int argc, char *argv[])
         root_node[i]->board = init_board;
         root_node[i]->ev_function = ev_diff_score;
         root_node[i]->parentNode = nullptr;
-        root_node[i]->target_belong = Player2;
-        cout << "職人" << i << "(" << +root_node[i]->board->agent2[i].x << ", " << +root_node[i]->board->agent2[i].y << ")" << "のゲーム木構築中..." << endl;
+        root_node[i]->target_belong = match.next_turn;
+        // cout << "職人" << i << "(" << +root_node[i]->board->agent2[i].x << ", " << +root_node[i]->board->agent2[i].y << ")" << "のゲーム木構築中..." << endl;
         expandChildren_by_num(root_node[i], lastdepth, i);
         // TreeSearch(root_node[i], i, Player2);
         for(auto itr = root_node[i]->childrenNode.begin(); itr != root_node[i]->childrenNode.end(); itr++) {
-          cout << "kind:" << +(*itr)->pre_act.kind << ", direc:" << +(*itr)->pre_act.direc << endl;
-          cout << "ev_value:" << (*itr)->evaluation << endl;
+          // cout << "ev_value:" << (*itr)->evaluation << endl;
           if(root_node[i]->evaluation == (*itr)->evaluation) {
+            // cout << "kind:" << +(*itr)->pre_act.kind << ", direc:" << +(*itr)->pre_act.direc << endl;
             // cout << "j:" << j << endl;
             root_node[i]->pre_act = (*itr)->pre_act;
             break;
@@ -170,14 +179,14 @@ int main(int argc, char *argv[])
         match.ActionAnAgent(match.next_turn, i, root_node[i]->pre_act);
       }
 
-      for(int i = 0; i < info->agent; i++) {
-        cout << "職人" << i << "のスコア: " << root_node[i]->evaluation << endl;
-        // for(int j = 0; j < root_node[i]->childrenNode.size(); j++) {
-        //   cout << "  " << "子供" << j << "のスコア:" << root_node[i]->childrenNode[j]->evaluation << endl;
-        // }
-      }
+      // for(int i = 0; i < info->agent; i++) {
+      //   cout << "職人" << i << "のスコア: " << root_node[i]->evaluation << endl;
+      //   // for(int j = 0; j < root_node[i]->childrenNode.size(); j++) {
+      //   //   cout << "  " << "子供" << j << "のスコア:" << root_node[i]->childrenNode[j]->evaluation << endl;
+      //   // }
+      // }
 
-      drawTree(root_node[1]);
+      // drawTree(root_node[1]);
       // for(int i = 0; i < info->agent; i++) {
       //   deleteTree(root_node[i]);
       // }
