@@ -15,7 +15,7 @@
 #define coefficient_encamp    5
 #define coefficient_conect    100
 #define coefficient_wall      1
-#define coefficient_score     2
+#define coefficient_score     3
 #define coefficient_agent     1
 #define coefficient_adva      1
 
