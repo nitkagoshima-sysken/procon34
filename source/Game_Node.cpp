@@ -5,6 +5,11 @@
 #include <string.h>
 using namespace std;
 
+// Game_Node::Game_Node(Board *board)
+// {
+//   this->board = board;
+// }
+
 Game_Node::~Game_Node()
 {
   if(board)
@@ -17,35 +22,89 @@ void Game_Node::expandChildren(int backnumber)
 {
   std::vector<Action> action;
   board->getLegalAct(board->next_turn, action, backnumber);
-  
+
   for(auto itr = action.begin(); itr != action.end(); itr++) {
     Game_Node *child = new Game_Node;
-    child->parentNode = this;
     child->pre_act = *itr;
+    child->parentNode = this;
     child->ev_function = this->ev_function;
 
-    // 実際の盤面はメモリを消費するので，実際に評価するときに生成する
     childrenNode.push_back(child);
   }
 }
 
 // 普通の外部関数
-void expandChildren_by_num(Game_Node *root, int n, int backnumber)
+void expandChildren_by_num(Game_Node *root, int n, int backnumber, bool belong, bool first_node)
 {
   if(root->childrenNode.empty()) // 子供がいないときは生成
     root->expandChildren(backnumber);
   
-  if(n == 1)
+  if(n == 1) {
+    root->evaluation = root->ev_function(root->board, belong);
     return;
+  }
 
   // cout << "子供の数: " << (int)root->childrenNode.size() << endl;
-  for(int i = 0; i < (int)root->childrenNode.size(); i++) {
-    Game_Node *node = root->childrenNode[i];
-    // cout << "i = " << i << endl;
-    // node->board->draw();
-    node->board->next_turn = !root->board->next_turn;
-    expandChildren_by_num(node, n - 1, backnumber);
+  for(auto itr = root->childrenNode.begin(); itr != root->childrenNode.end(); itr++) {
+    Board *new_board = new Board(*(root->board));
+    new_board->ActionAnAgent(root->board->next_turn, backnumber, (*itr)->pre_act);
+    (*itr)->board = new_board;
+    (*itr)->board->next_turn = !root->board->next_turn;
+    if(itr == root->childrenNode.begin())
+      expandChildren_by_num(*itr, n - 1, backnumber, belong);
+    else
+      expandChildren_by_num(*itr, n - 1, backnumber, belong, false);
+    delete new_board;
+
+    int max_score = root->childrenNode[0]->evaluation;
+    int min_score = root->childrenNode[0]->evaluation;
+
+    for(auto iterator = root->childrenNode.begin(); iterator != itr; iterator++) {
+      if((*iterator)->evaluation > max_score) {
+        max_score = (*iterator)->evaluation;
+      }
+      if((*iterator)->evaluation < min_score) {
+        min_score = (*iterator)->evaluation;
+      }
+    }
+
+    // ループ毎に更新
+    //親の評価値がループごとに更新されるようにする
+    if(root->board->next_turn == belong){
+      root->evaluation = max_score;
+    }
+    else{
+      root->evaluation = min_score;
+    }
+
+    //親と子の評価値を比べて子どもの方が大きかったらブレイク
+    if(first_node) // 最初は親のノードに暫定的な点数がついていないのでパス
+      continue;
+
+    if(root->parentNode == nullptr)
+      continue;
+
+    if(root->board->next_turn == belong) { // ベータカット
+      if(root->parentNode->evaluation <= (*itr)->evaluation) {//親＜子ども
+        for(auto iterator = itr + 1; iterator != root->childrenNode.end(); iterator++)
+          deleteTree(*iterator);
+        // for(int k = i+1; k < root->childrenNode.size(); k++)
+        //   deleteTree(root->childrenNode[k]);
+        root->childrenNode.erase(itr+1, root->childrenNode.end());
+        break;
+      }
+    } else { // アルファカット
+      if(root->parentNode->evaluation >= (*itr)->evaluation) { // 親 > 子供
+        for(auto iterator = itr + 1; iterator != root->childrenNode.end(); iterator++)
+          deleteTree(*iterator);
+        // for(int k = i+1; k < root->childrenNode.size(); k++)
+        //   deleteTree(root->childrenNode[k]);
+        root->childrenNode.erase(itr+1, root->childrenNode.end());
+        break;
+      }
+    }
   }
+
 }
 
 void TreeSearch(Game_Node *root, int backnumber, bool belong, bool first_node)

@@ -27,6 +27,7 @@ public:
   std::vector<Game_Node*> childrenNode;
   Action pre_act;
   
+  // Game_Node(Board *board);
   ~Game_Node();
 
   void expandChildren(int backnumber);
@@ -41,7 +42,7 @@ public:
 
 };
 
-void expandChildren_by_num(Game_Node *root, int n, int backnumber);
+void expandChildren_by_num(Game_Node *root, int n, int backnumber, bool belong, bool first_node = true);
 void TreeSearch(Game_Node *root, int backnumber, bool belong, bool first_node = true);
 void drawTree(Game_Node *root);
 void deleteTree(Game_Node* root);
