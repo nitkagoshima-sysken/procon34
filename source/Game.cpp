@@ -366,7 +366,7 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
   cerr << "Act failed: " << (int)backnumber << endl; 
   cerr << "detail: kind:" << +act.kind << ", direc:" << +act.direc << endl;
   cout << "\x1b[49m";
-  exit(1);
+  // exit(1);
   return ACT_FAILED;
 }
 

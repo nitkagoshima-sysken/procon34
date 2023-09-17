@@ -28,21 +28,22 @@ void Game_Node::expandChildren(int backnumber)
     child->pre_act = *itr;
     child->parentNode = this;
     child->ev_function = this->ev_function;
+    child->target_belong = this->target_belong;
 
     childrenNode.push_back(child);
   }
 }
 
 // 普通の外部関数
-void expandChildren_by_num(Game_Node *root, int n, int backnumber, bool belong, bool first_node)
+void expandChildren_by_num(Game_Node *root, int n, int backnumber, bool first_node)
 {
-  if(root->childrenNode.empty()) // 子供がいないときは生成
-    root->expandChildren(backnumber);
-  
-  if(n == 1) {
-    root->evaluation = root->ev_function(root->board, belong);
+  if(n <= 0) {
+    root->evaluation = root->ev_function(root->board, root->target_belong);
     return;
   }
+
+  if(root->childrenNode.empty()) // 子供がいないときは生成
+    root->expandChildren(backnumber);
 
   // cout << "子供の数: " << (int)root->childrenNode.size() << endl;
   for(auto itr = root->childrenNode.begin(); itr != root->childrenNode.end(); itr++) {
@@ -51,9 +52,9 @@ void expandChildren_by_num(Game_Node *root, int n, int backnumber, bool belong, 
     (*itr)->board = new_board;
     (*itr)->board->next_turn = !root->board->next_turn;
     if(itr == root->childrenNode.begin())
-      expandChildren_by_num(*itr, n - 1, backnumber, belong);
+      expandChildren_by_num(*itr, n - 1, backnumber);
     else
-      expandChildren_by_num(*itr, n - 1, backnumber, belong, false);
+      expandChildren_by_num(*itr, n - 1, backnumber, false);
     delete new_board;
 
     int max_score = root->childrenNode[0]->evaluation;
@@ -70,7 +71,7 @@ void expandChildren_by_num(Game_Node *root, int n, int backnumber, bool belong, 
 
     // ループ毎に更新
     //親の評価値がループごとに更新されるようにする
-    if(root->board->next_turn == belong){
+    if(root->board->next_turn == root->target_belong){
       root->evaluation = max_score;
     }
     else{
@@ -84,7 +85,7 @@ void expandChildren_by_num(Game_Node *root, int n, int backnumber, bool belong, 
     if(root->parentNode == nullptr)
       continue;
 
-    if(root->board->next_turn == belong) { // ベータカット
+    if(root->board->next_turn == root->target_belong) { // ベータカット
       if(root->parentNode->evaluation <= (*itr)->evaluation) {//親＜子ども
         for(auto iterator = itr + 1; iterator != root->childrenNode.end(); iterator++)
           deleteTree(*iterator);

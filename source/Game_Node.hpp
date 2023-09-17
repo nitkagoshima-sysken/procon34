@@ -21,6 +21,7 @@
 
 class Game_Node {
 public:
+  bool target_belong;
   int evaluation;
   Game_Node *parentNode;
   Board *board;
@@ -42,7 +43,7 @@ public:
 
 };
 
-void expandChildren_by_num(Game_Node *root, int n, int backnumber, bool belong, bool first_node = true);
+void expandChildren_by_num(Game_Node *root, int n, int backnumber, bool first_node = true);
 void TreeSearch(Game_Node *root, int backnumber, bool belong, bool first_node = true);
 void drawTree(Game_Node *root);
 void deleteTree(Game_Node* root);

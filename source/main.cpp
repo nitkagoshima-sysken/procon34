@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
   // cout << response << endl;
 
   // メインループ
-  for(int count = 0; count < turn_num; count++) {
+  for(int count = 1; count <= turn_num; count++) {
     // system("clear");
     cout << "turn:" << count << endl;
     cout << "current_:" << ((match.next_turn == Player1) ? "Player1" : "Player2") << endl;
@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
       }
       cout << endl;
       
-      int lastdepth = ((TURN_NUM - count) < depth) ? (TURN_NUM - count) : depth ;
+      int lastdepth = ((turn_num - count) < depth) ? (turn_num - count + 1) : depth ;
 
       for(int i = 0; i < info->agent; i++) {
         Board *init_board = new Board(match);
@@ -86,9 +86,9 @@ int main(int argc, char *argv[])
         root_node[i]->board = init_board;
         root_node[i]->ev_function = evaluate_current_board;
         root_node[i]->parentNode = nullptr;
+        root_node[i]->target_belong = Player1;
         cout << "職人" << i << "(" << +root_node[i]->board->agent1[i].x << ", " << +root_node[i]->board->agent1[i].y << ")" << "のゲーム木構築中..." << endl;
-        expandChildren_by_num(root_node[i], lastdepth, i, Player1);
-        cout << "職人" << i << "の盤面評価中..." << endl;
+        expandChildren_by_num(root_node[i], lastdepth, i);
         // TreeSearch(root_node[i], i, Player1);
         for(auto itr = root_node[i]->childrenNode.begin(); itr != root_node[i]->childrenNode.end(); itr++) {
           if(root_node[i]->evaluation == (*itr)->evaluation) {
@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
         //   cout << "  " << "子供" << j << "のスコア:" << root_node[i]->childrenNode[j]->evaluation << endl;
         // }
       }
-      // drawTree(root_node[0]);
+      drawTree(root_node[0]);
         // for(int i = 0; i < info->agent; i++) {
         //   deleteTree(root_node[i]);
         // }
@@ -140,10 +140,12 @@ int main(int argc, char *argv[])
         std::vector<Action> action;
         match.getLegalAct(match.next_turn, action ,i);
         cout << "職人" << i << "の合法手数:" << action.size() << endl;
+        // for(auto itr = action.begin(); itr != action.end(); itr++)
+        //   cout << "kind: " << +(*itr).kind << ", direc: " << +(*itr).direc <<  endl;
       }
       cout << endl;
       
-      int lastdepth = ((TURN_NUM - count) < depth) ? (TURN_NUM - count) : depth ;
+      int lastdepth = ((turn_num - count) < depth) ? (turn_num - count + 1) : depth ;
 
       for(int i = 0; i < info->agent; i++) {
         Board *init_board = new Board(match);
@@ -151,15 +153,16 @@ int main(int argc, char *argv[])
         root_node[i]->board = init_board;
         root_node[i]->ev_function = ev_diff_score;
         root_node[i]->parentNode = nullptr;
-        cout << "職人" << i << "(" << +root_node[i]->board->agent1[i].x << ", " << +root_node[i]->board->agent1[i].y << ")" << "のゲーム木構築中..." << endl;
-        expandChildren_by_num(root_node[i], lastdepth, i, Player2);
-        cout << "職人" << i << "の盤面評価中..." << endl;
+        root_node[i]->target_belong = Player2;
+        cout << "職人" << i << "(" << +root_node[i]->board->agent2[i].x << ", " << +root_node[i]->board->agent2[i].y << ")" << "のゲーム木構築中..." << endl;
+        expandChildren_by_num(root_node[i], lastdepth, i);
         // TreeSearch(root_node[i], i, Player2);
         for(auto itr = root_node[i]->childrenNode.begin(); itr != root_node[i]->childrenNode.end(); itr++) {
+          cout << "kind:" << +(*itr)->pre_act.kind << ", direc:" << +(*itr)->pre_act.direc << endl;
+          cout << "ev_value:" << (*itr)->evaluation << endl;
           if(root_node[i]->evaluation == (*itr)->evaluation) {
             // cout << "j:" << j << endl;
             root_node[i]->pre_act = (*itr)->pre_act;
-            cout << "kind:" << +(*itr)->pre_act.kind << ", direc:" << +(*itr)->pre_act.direc << endl;
             break;
           }
         }
@@ -174,7 +177,7 @@ int main(int argc, char *argv[])
         // }
       }
 
-      // drawTree(root_node[0]);
+      drawTree(root_node[1]);
       // for(int i = 0; i < info->agent; i++) {
       //   deleteTree(root_node[i]);
       // }
