@@ -10,13 +10,13 @@ using namespace std;
 //   this->board = board;
 // }
 
-Game_Node::~Game_Node()
-{
-  if(board)
-    delete board;
-  if(!childrenNode.empty())
-    childrenNode.clear();
-}
+// Game_Node::~Game_Node()
+// {
+//   if(board)
+//     delete board;
+//   if(!childrenNode.empty())
+//     childrenNode.clear();
+// }
 
 void Game_Node::expandChildren(int backnumber)
 {
@@ -68,14 +68,6 @@ void expandChildren_by_num(Game_Node *root, int n, int backnumber, bool first_no
       max_score = (*itr)->evaluation;
     if((*itr)->evaluation < min_score)
       min_score = (*itr)->evaluation;
-    // for(auto iterator = root->childrenNode.begin(); iterator != itr+1; iterator++) {
-    //   if((*iterator)->evaluation > max_score) {
-    //     max_score = (*iterator)->evaluation;
-    //   }
-    //   if((*iterator)->evaluation < min_score) {
-    //     min_score = (*iterator)->evaluation;
-    //   }
-    // }
 
     // ループ毎に更新
     //親の評価値がループごとに更新されるようにする
@@ -159,11 +151,15 @@ void deleteTree(Game_Node *root)
   if(root->childrenNode.empty())
     return;
 
-  for(int i = 0; i < (int)root->childrenNode.size(); i++) {
-    Game_Node *node = root->childrenNode[i];
-    deleteTree(node);
-    delete node;
+  for(auto itr = root->childrenNode.begin(); itr != root->childrenNode.end(); itr++) {
+    deleteTree(*itr);
+    delete *itr;
   }
+  // for(int i = 0; i < (int)root->childrenNode.size(); i++) {
+  //   Game_Node *node = root->childrenNode[i];
+  //   deleteTree(node);
+  //   delete node;
+  // }
 }
 
 // void TreeSearch(Game_Node *root, int backnumber, bool belong, bool first_node)

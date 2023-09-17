@@ -29,7 +29,7 @@ public:
   Action pre_act;
   
   // Game_Node(Board *board);
-  ~Game_Node();
+  // ~Game_Node();
 
   void expandChildren(int backnumber);
   void deleteChildren();

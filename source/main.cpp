@@ -60,34 +60,34 @@ int main(int argc, char *argv[])
   bool is_out_file = false;
   bool is_print_game_tree = false;
   bool is_pause = false;
-  cout << "ゲーム木を出力しますか?(y/n):";
-  char c, d, e;
-  cin >> c;
-  if(c == 'y') {
-    is_print_game_tree = true;
-    cout << "ゲーム木の出力先をファイル(log.txt)にしますか?(※ファイル容量がとても多くなることが予想されます)(y/n):";
-    cin >> d;
-    if(d == 'y')
-      is_out_file = true;
-  }
+  // cout << "ゲーム木を出力しますか?(y/n):";
+  // char c, d, e;
+  // cin >> c;
+  // if(c == 'y') {
+  //   is_print_game_tree = true;
+  //   cout << "ゲーム木の出力先をファイル(log.txt)にしますか?(※ファイル容量がとても多くなることが予想されます)(y/n):";
+  //   cin >> d;
+  //   if(d == 'y')
+  //     is_out_file = true;
+  // }
   FILE *fp;
-  if(is_out_file) {
-    fp = fopen(log_name, "w");
-    if(!fp) {
-      cout << "ファイルが開けません\n";
-      return 1;
-    }
-  } else {
+  // if(is_out_file) {
+  //   fp = fopen(log_name, "w");
+  //   if(!fp) {
+  //     cout << "ファイルが開けません\n";
+  //     return 1;
+  //   }
+  // } else {
     fp = stdout;
-  }
-  cout << "1ターン毎に実行を一時停止しますか?(y/n):";
-  cin >> e;
-  if(e == 'y') {
-    is_pause = true;
-  }
+  // }
+  // cout << "1ターン毎に実行を一時停止しますか?(y/n):";
+  // cin >> e;
+  // if(e == 'y') {
+  //   is_pause = true;
+  // }
 
-  cout << "press enter\n";
-  getchar();
+  // cout << "press enter\n";
+  // getchar();
 
   // Connect request("/matches");
   // request.fetch();
@@ -145,9 +145,12 @@ int main(int argc, char *argv[])
       }
       if(is_print_game_tree)
         drawTree(root_node[0], fp);
-        // for(int i = 0; i < info->agent; i++) {
-        //   deleteTree(root_node[i]);
-        // }
+      for(int i = 0; i < info->agent; i++) {
+        for(auto itr = root_node[i]->childrenNode.begin(); itr != root_node[i]->childrenNode.end(); itr++) {
+          deleteTree(*itr);
+        }
+        // deleteTree(root_node[i]);
+      }
         for(int i = 0; i < info->agent; i++)
           delete root_node[i];
         delete root_node;
@@ -215,9 +218,12 @@ int main(int argc, char *argv[])
 
       if(is_print_game_tree)
         drawTree(root_node[1], fp);
-      // for(int i = 0; i < info->agent; i++) {
-      //   deleteTree(root_node[i]);
-      // }
+      for(int i = 0; i < info->agent; i++) {
+        for(auto itr = root_node[i]->childrenNode.begin(); itr != root_node[i]->childrenNode.end(); itr++) {
+          deleteTree(*itr);
+        }
+        // deleteTree(root_node[i]);
+      }
       for(int i = 0; i < info->agent; i++)
         delete root_node[i];
       delete root_node;
