@@ -57,11 +57,37 @@ int main(int argc, char *argv[])
 
   char *log_name = "./log.txt";
 
-  FILE *fp = fopen(log_name, "w");
-  if(!fp) {
-    cout << "ファイルが開けません\n";
-    return 1;
+  bool is_out_file = false;
+  bool is_print_game_tree = false;
+  bool is_pause = false;
+  cout << "ゲーム木を出力しますか?(y/n):";
+  char c, d, e;
+  cin >> c;
+  if(c == 'y') {
+    is_print_game_tree = true;
+    cout << "ゲーム木の出力先をファイル(log.txt)にしますか?(※ファイル容量がとても多くなることが予想されます)(y/n):";
+    cin >> d;
+    if(d == 'y')
+      is_out_file = true;
   }
+  FILE *fp;
+  if(is_out_file) {
+    fp = fopen(log_name, "w");
+    if(!fp) {
+      cout << "ファイルが開けません\n";
+      return 1;
+    }
+  } else {
+    fp = stdout;
+  }
+  cout << "1ターン毎に実行を一時停止しますか?(y/n):";
+  cin >> e;
+  if(e == 'y') {
+    is_pause = true;
+  }
+
+  cout << "press enter\n";
+  getchar();
 
   // Connect request("/matches");
   // request.fetch();
@@ -71,7 +97,7 @@ int main(int argc, char *argv[])
 
   // メインループ
   for(int count = 1; count <= turn_num; count++) {
-    system("clear");
+    // system("clear");
     cout << "turn:" << count << endl;
     cout << "current_:" << ((match.next_turn == Player1) ? "Player1" : "Player2") << endl;
     match.draw();
@@ -117,7 +143,8 @@ int main(int argc, char *argv[])
         //   cout << "  " << "子供" << j << "のスコア:" << root_node[i]->childrenNode[j]->evaluation << endl;
         // }
       }
-      // drawTree(root_node[0], fp);
+      if(is_print_game_tree)
+        drawTree(root_node[0], fp);
         // for(int i = 0; i < info->agent; i++) {
         //   deleteTree(root_node[i]);
         // }
@@ -186,7 +213,8 @@ int main(int argc, char *argv[])
       //   // }
       // }
 
-      // drawTree(root_node[1]);
+      if(is_print_game_tree)
+        drawTree(root_node[1], fp);
       // for(int i = 0; i < info->agent; i++) {
       //   deleteTree(root_node[i]);
       // }
@@ -195,8 +223,10 @@ int main(int argc, char *argv[])
       delete root_node;
     }
     match.next_turn = !match.next_turn;
-    // cout << "press enter to continue\n";
-    // getchar();
+    if(is_pause) {
+      cout << "press enter to continue\n";
+      getchar();
+    }
   }
 
   cout << "ゲーム終了時の盤面" << endl;
@@ -210,6 +240,8 @@ int main(int argc, char *argv[])
 
   cout << "勝利: " << ((score1 > score2) ? "プレイヤー1" : "プレイヤー2") << endl;
 
-  fclose(fp);
+  if(is_out_file) {
+    fclose(fp);
+  }
   return 0;
 }
