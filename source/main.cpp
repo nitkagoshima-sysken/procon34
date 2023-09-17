@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
         //   cout << "  " << "子供" << j << "のスコア:" << root_node[i]->childrenNode[j]->evaluation << endl;
         // }
       }
-      drawTree(root_node[0]);
+      // drawTree(root_node[0], fp);
         // for(int i = 0; i < info->agent; i++) {
         //   deleteTree(root_node[i]);
         // }
@@ -209,5 +209,7 @@ int main(int argc, char *argv[])
   cout << "プレイヤー2の点数: " << score2 << endl;
 
   cout << "勝利: " << ((score1 > score2) ? "プレイヤー1" : "プレイヤー2") << endl;
+
+  fclose(fp);
   return 0;
 }

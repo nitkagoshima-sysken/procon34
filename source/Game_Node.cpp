@@ -116,30 +116,31 @@ void expandChildren_by_num(Game_Node *root, int n, int backnumber, bool first_no
 
 }
 
-void drawTree(Game_Node *root, int n)
+void drawTree(Game_Node *root, FILE *fp, int n)
 {
   if(n == -1) {
-    cout << "root: " << root->evaluation << " next:" << root->board->next_turn << endl;
+    fprintf(fp, "root: %d next: %s\n", root->evaluation, (root->board->next_turn == Player1) ? "player1" : "player2");
+    // cout << "root: " << root->evaluation << " next:" << root->board->next_turn << endl;
     for(auto itr = root->childrenNode.begin(); itr != root->childrenNode.end(); itr++) {
-      drawTree(*itr, n + 1);
+      drawTree(*itr, fp, n + 1);
     }
     return;
   }
   if(root->childrenNode.empty()) { // 子供がいなければ
     for(int j = 0; j < n; j++)
-      cout << "| ";
-    cout << "|";
-    cout << "-- " << root->evaluation << " kind:" << +root->pre_act.kind << ", direc" << +root->pre_act.direc << endl; 
+      fprintf(fp, "| ");
+    fprintf(fp, "|");
+    fprintf(fp, "-- %d kind: %d, direc: %d\n", root->evaluation, root->pre_act.kind, root->pre_act.direc);
     return;
   }
 
   for(int j = 0; j < n; j++)
-    cout << "| ";
-  cout << "|";
-  cout << "-- " << root->evaluation << " next:" << root->board->next_turn << ", kind:" << +root->pre_act.kind << ", direc" << +root->pre_act.direc << endl; 
+    fprintf(fp, "| ");
+  fprintf(fp, "|");
+  fprintf(fp, "-- %d next: %s kind: %d, direc: %d\n", root->evaluation, (root->board->next_turn == Player1) ? "player1" : "player2", root->pre_act.kind, root->pre_act.direc);
   for(auto itr = root->childrenNode.begin(); itr != root->childrenNode.end(); itr++) {
     Game_Node *node = *itr;
-    drawTree(node, n + 1);
+    drawTree(node, fp, n + 1);
   }
 }
 

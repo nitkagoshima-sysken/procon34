@@ -45,7 +45,7 @@ public:
 
 void expandChildren_by_num(Game_Node *root, int n, int backnumber, bool first_node = true);
 void TreeSearch(Game_Node *root, int backnumber, bool belong, bool first_node = true);
-void drawTree(Game_Node *root, int n = -1);
+void drawTree(Game_Node *root, FILE *fp, int n = -1);
 void deleteTree(Game_Node* root);
 
 #endif
