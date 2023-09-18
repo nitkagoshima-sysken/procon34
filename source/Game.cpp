@@ -127,33 +127,24 @@ void Board::getLegalAct(bool belong, vector<Action> &action, uint8_t b_nomber)
   // cout << "x: " << (int)x << " y: " << (int)y << endl;
 
   // 4方向(左右上下)を探索
+  act.kind = ACT_BUILD;
   for(int direc = 0; direc < Direction_Max; direc+=2) {
     
     uint8_t mx = x + round(cos(direc * PI/4));
     uint8_t my = y + round(sin(direc * PI/4));
     
-    if(isIgnoreCoord(mx, my)) {
+    if(isIgnoreCoord(mx, my) || ! (build_enable(mx,my, belong))) {
       // cout << "is ignore Coord" << endl;
       continue;
     }
+    
     act.direc = direc;
-    if(map[my][mx] & (BIT_WALL1 | BIT_WALL2)){
-      act.kind = ACT_DEMOLISH;
-      action.push_back(act);
-    }
-    if(build_enable(mx,my, belong)){
-      act.kind = ACT_BUILD;
-      action.push_back(act);
-    }
-    if(move_enable(mx,my, belong)){
-      act.kind = ACT_MOVE;
-      action.push_back(act);
-    }
+    action.push_back(act);
   }
 
   // 残りの4方向を探索
   act.kind = ACT_MOVE;
-  for(int direc = 1; direc < Direction_Max; direc += 2) {
+  for(int direc = 0; direc < Direction_Max; direc ++) {
     uint8_t mx = x + round(cos(direc * PI/4));
     uint8_t my = y + round(sin(direc * PI/4));
 
@@ -166,6 +157,20 @@ void Board::getLegalAct(bool belong, vector<Action> &action, uint8_t b_nomber)
     action.push_back(act);
   }
 
+  act.kind = ACT_DEMOLISH;
+  for(int direc = 0; direc < Direction_Max; direc+=2) {
+    
+    uint8_t mx = x + round(cos(direc * PI/4));
+    uint8_t my = y + round(sin(direc * PI/4));
+    
+    if(isIgnoreCoord(mx, my) || ! (map[my][mx] & (BIT_WALL1 | BIT_WALL2))) {
+      // cout << "is ignore Coord" << endl;
+      continue;
+    }
+    
+    act.direc = direc;
+    action.push_back(act);
+  }
   // cout << "size: " << action.size() << endl;
 
 }
