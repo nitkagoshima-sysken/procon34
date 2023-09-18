@@ -100,7 +100,7 @@ void feild_advantage(Board *board, int *point1, int *point2){
                   uint8_t advantagepoint=0;
 
                   for(int m=0; m < board->info->agent; m++){
-                    Agent *target_agent = belong ? board->agent2: board->agent2;
+                    Agent *target_agent = belong ? board->agent2: board->agent1;
 
                     uint8_t dx = (target_agent[m].x > mx) ? target_agent[m].x - mx : mx - target_agent[m].x ;
                     uint8_t dy = (target_agent[m].y > my) ? target_agent[m].y - my : my - target_agent[m].y ;
@@ -124,7 +124,7 @@ void feild_advantage(Board *board, int *point1, int *point2){
             uint8_t advantagepoint=0;
 
             for(int m=0; m < board->info->agent; m++){
-              Agent *target_agent = belong ? board->agent2: board->agent2;
+              Agent *target_agent = belong ? board->agent2: board->agent1;
 
               uint8_t dx = (target_agent[m].x > mx) ? target_agent[m].x - mx : mx - target_agent[m].x ;
               uint8_t dy = (target_agent[m].y > my) ? target_agent[m].y - my : my - target_agent[m].y ;
