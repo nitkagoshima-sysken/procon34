@@ -8,41 +8,66 @@ bool is_same(char *s1, char *s2, int n)
   return (strncmp(s1, s2, n) == 0);
 }
 
-Board *json_analysis(char *contents)
+bool is_alpha(char c)
 {
-  char *p = contents;
+  return ('a' <= c && c <= 'z') ||
+         ('A' <= c && c <= 'Z');
+}
 
-  while(*p != '{') {
-    p++;
-  }
+JSON::JSON(string str)
+{
+  json_str = str;
+  parse();
+}
 
-  while(*p != '}') {
-    if(*p == '\n' | *p == ' ') {
+void JSON::parse()
+{
+
+}
+
+Token *JSON::add_token(token_kind kind, Token *cur, const char *name, int size, int num)
+{
+  Token *tok = new Token;
+  tok->kind = kind;
+  tok->name = name;
+  tok->size = size;
+  tok->num  = num;
+
+  cur->next = tok;
+  return tok;
+}
+
+void JSON::tokenize()
+{
+  const char *p = json_str.c_str();
+
+  Token *cur = &token;
+  while(*p) {
+    if(*p == '\n' || *p == ' ') {
       p++;
       continue;
     }
-    if(*p == '\"') {
+    if(strchr("\"{}[],:", *p)) {
+      cur = add_token(token_kind::reserverd, cur, p, 1, 0);
       p++;
-      char *q = p;
-      while(*p != '\"') {
-        p++;
+      continue;
+    }
+    if(isdigit(*p)) {
+      char *end;
+      int num = strtol(p, &end, 10);
+      cur = add_token(token_kind::num, cur, p, end - p, num);
+      p += end - p;
+      continue;
+    }
+    // ここまで来たなら変数名
+    if(is_alpha(*p)) {
+      const char *q = p;
+      while(is_alpha(*q)) {
+        q++;
       }
-      if(!is_same(q, "board", p - q - 1)) {
-        continue;
-      }
-      while(*p != '\"') {
-        char *r = p;
-        while(*p != '\"') {
-          p++;
-        }
-        if(is_same(r, "structures", p - r- 1)) {
-          break;
-        }
-      }
-
-      
-
+      cur = add_token(token_kind::name, cur, p, q - p, 0);
+      p += q - p;
+      continue;
     }
   }
-
 }

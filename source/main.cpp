@@ -54,24 +54,26 @@ int main(int argc, char *argv[])
   Board match(fieldmap, info);
   match.next_turn = Player1;
 
-  Connect request;
-  request.path = "/matches";
-  request.fetch();
-  request.get();
-  char *response;
-  // cout << response << endl;
+  JSON str = JSON("{\"arg\"}");
 
-  // json_analysis(response);
+  // Connect request;
+  // request.path = "/matches";
+  // request.fetch();
+  // request.get();
+  // char *response;
+  // // cout << response << endl;
+
+  // // json_analysis(response);
 
 
-  // // メインループ
-  for(int count = 1; count <= turn_num; count++) {
-    string act_plan = "{\"turn\":" + std::to_string(count) + ",\"actions\":[{\"type\":1,\"dir\":7},{\"type\":1, \"dir\":7}]}";
+  // // // メインループ
+  // for(int count = 1; count <= turn_num; count++) {
+  //   string act_plan = "{\"turn\":" + std::to_string(count) + ",\"actions\":[{\"type\":1,\"dir\":7},{\"type\":1, \"dir\":7}]}";
 
-    request.path += "/10";
-    request.post(act_plan);
-    response = request.res();
-    cout << response << endl;
+  //   request.path += "/10";
+  //   request.post(act_plan);
+  //   response = request.res();
+  //   cout << response << endl;
   //   // system("clear");
   //   cout << "turn:" << count << endl;
   //   cout << "current_:" << ((match.next_turn == Player1) ? "Player1" : "Player2") << endl;
@@ -187,11 +189,11 @@ int main(int argc, char *argv[])
   //   match.next_turn = !match.next_turn;
   //   // cout << "press enter to continue\n";
   //   // getchar();
-    sleep(4);
-    request.get();
-    response = request.res();
-    cout << response << endl;
-  }
+  //   sleep(4);
+  //   request.get();
+  //   response = request.res();
+  //   cout << response << endl;
+  // }
 
   // cout << "ゲーム終了時の盤面" << endl;
   // match.draw();
