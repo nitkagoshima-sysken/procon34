@@ -1,16 +1,9 @@
 #include "http.hpp"
+#include <errno.h>
 using namespace std;
-
-Connect::Connect(string path)
-{
-  this->path = path;
-  this->sockfd = 0;
-}
 
 int Connect::fetch()
 {
-  struct hostent *host;
-  host = gethostbyname(HOST_NAME);
 
   if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
     cerr << "socket error\n";
@@ -42,7 +35,7 @@ int Connect::fetch()
     }
   }
 
-  memcpy(&(addr.sin_addr.s_addr), host->h_addr_list[0], sizeof addr_arr);
+  memcpy(&(addr.sin_addr.s_addr), addr_arr, sizeof addr_arr);
   std::string str = "connect to " + to_string(addr_arr[0]) + "." + to_string(addr_arr[1]) + "." 
                 + to_string(addr_arr[2]) + "." + to_string(addr_arr[3]) + "\n";
   cout << str << endl;
@@ -57,14 +50,33 @@ int Connect::get()
 {
   // リクエストメッセージの作成
   string request = "GET http://";
-  request += IP_ADDRESS + std::string(":") + std::to_string(SEREVR_PORT) + path + "?token=" + TOKEN + " HTTP/1.0";
+  request += IP_ADDRESS + std::string(":") + std::to_string(SEREVR_PORT) + path + "?token=" + TOKEN + " HTTP/1.1";
   string header = "Host: localhost";
 
   string request_message = request + "\r\n" + header + "\r\n\r\n";
 
   cout << request_message << endl;
-  if(send(sockfd, request_message.c_str(), request_message.length(), 0) < 0)
+  if(send(sockfd, request_message.c_str(), request_message.length(), 0) < 0) {
+    strerror(errno);
     return 1;
+  }
+
+  return 0;
+}
+
+int Connect::post(string str)
+{
+  string request = "POST http://";
+  request += IP_ADDRESS + std::string(":") + std::to_string(SEREVR_PORT) + path + "?token=" + TOKEN + " HTTP/1.1";
+  string header = "Host: localhost\r\nContent-Type: application/json";
+
+  string request_message = request + "\r\n" + header + "\r\n\r\n" + str + "\r\n\r\n";
+  cout << request_message << endl;
+
+  if(send(sockfd, request_message.c_str(), request_message.length(), 0) < 0) {
+    strerror(errno);
+    return 1;
+  }
 
   return 0;
 }

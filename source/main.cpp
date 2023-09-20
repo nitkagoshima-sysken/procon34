@@ -7,6 +7,7 @@
 #include "Evaluation_func.hpp"
 #include <assert.h>
 #include "http.hpp"
+#include "json.hpp"
 using namespace std;
 
 int main(int argc, char *argv[])
@@ -53,14 +54,24 @@ int main(int argc, char *argv[])
   Board match(fieldmap, info);
   match.next_turn = Player1;
 
-  Connect request("/matches");
+  Connect request;
+  request.path = "/matches";
   request.fetch();
   request.get();
-  char *response = request.res();
-  cout << response << endl;
+  char *response;
+  // cout << response << endl;
+
+  // json_analysis(response);
+
 
   // // メインループ
-  // for(int count = 0; count < turn_num; count++) {
+  for(int count = 1; count <= turn_num; count++) {
+    string act_plan = "{\"turn\":" + std::to_string(count) + ",\"actions\":[{\"type\":1,\"dir\":7},{\"type\":1, \"dir\":7}]}";
+
+    request.path += "/10";
+    request.post(act_plan);
+    response = request.res();
+    cout << response << endl;
   //   // system("clear");
   //   cout << "turn:" << count << endl;
   //   cout << "current_:" << ((match.next_turn == Player1) ? "Player1" : "Player2") << endl;
@@ -176,7 +187,11 @@ int main(int argc, char *argv[])
   //   match.next_turn = !match.next_turn;
   //   // cout << "press enter to continue\n";
   //   // getchar();
-  // }
+    sleep(4);
+    request.get();
+    response = request.res();
+    cout << response << endl;
+  }
 
   // cout << "ゲーム終了時の盤面" << endl;
   // match.draw();
