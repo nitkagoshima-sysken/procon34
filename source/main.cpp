@@ -143,8 +143,10 @@ int main(int argc, char *argv[])
         //   cout << "  " << "子供" << j << "のスコア:" << root_node[i]->childrenNode[j]->evaluation << endl;
         // }
       }
-      if(is_print_game_tree)
-        drawTree(root_node[0], fp);
+      if(is_print_game_tree){
+        fprintf(fp, "\n\nturn: %d", count);
+        drawTree(root_node[2], fp);
+      }
         // for(int i = 0; i < info->agent; i++) {
         //   deleteTree(root_node[i]);
         // }
@@ -213,8 +215,8 @@ int main(int argc, char *argv[])
       //   // }
       // }
 
-      if(is_print_game_tree)
-        drawTree(root_node[1], fp);
+      // if(is_print_game_tree)
+      //   drawTree(root_node[1], fp);
       // for(int i = 0; i < info->agent; i++) {
       //   deleteTree(root_node[i]);
       // }

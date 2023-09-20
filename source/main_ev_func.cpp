@@ -42,7 +42,7 @@ int playerpoint(Board *board, bool belong, uint8_t b_number)
   // }
   return p;
 }
-void feild_advantage(Board *board, int *point1, int *point2){
+void feild_advantage(Board *board, int *point1, int *point2, int *p){
   char pmap[board->info->length][board->info->length][2];
 
   memset(pmap, 0, (size_t)(sizeof(pmap[0][0][0]) * board->info->length * board->info->length * 2));
@@ -69,6 +69,7 @@ void feild_advantage(Board *board, int *point1, int *point2){
         bool flg1=false, flg2=false;
         uint8_t x= j-1, y= i-1;
         uint8_t mx, my;
+        bool flgp =false;
 
         if(board->isIgnoreCoord(x,y)){
           flg2 = true;
@@ -86,6 +87,21 @@ void feild_advantage(Board *board, int *point1, int *point2){
               flg2 = true;
               continue;
             }
+
+            if((board->map[y][x] & BIT_CASTLE) && (l==0)){
+              *p += WALL_POINT * coefficient_score * 5 / 2 ;
+            }
+
+            if((board->map[y][x] & BIT_POND) && (l==0)){
+              if(flgp){
+                *p += WALL_POINT * coefficient_score /2 ;
+                flgp = false;
+              }else{
+                if((k==3) && !(board->map[y][x+2] & BIT_POND) && (board->map[y-1][x+1] & BIT_POND))
+                  *p += WALL_POINT * coefficient_score /2 ;
+                flgp = true;
+              }
+            }else flgp = false;
             
             if(board->map[y][x] & tagetwall){
               flg1 = true;
@@ -165,7 +181,7 @@ int evaluate_current_board(Board *board, bool belong)
 
   p +=coefficient_score * (a_score - b_score);  //スコアポイント加算
 
-  feild_advantage(board, &adp1, &adp2);
+  feild_advantage(board, &adp1, &adp2, &p);
 
   p +=coefficient_adva * (adp1 - adp2);
 
