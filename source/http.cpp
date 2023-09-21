@@ -81,14 +81,14 @@ int Connect::post(string str)
   return 0;
 }
 
-char *Connect::res()
+int Connect::res(char *buf, int size)
 {
-  char *response = new char[RESPONSE_MAX];
-
-  if(recv(sockfd, response, RESPONSE_MAX, 0) < 0) {
+  int recv_size;
+  if((recv_size = recv(sockfd, buf, sizeof(char) * size, 0)) < 0) {
     cerr << "recv error\n";
-    return nullptr;
+    return 1;
   }
-  
-  return response;
+  cout << "recv_size:" << recv_size << endl;
+
+  return 0;
 }

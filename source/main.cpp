@@ -7,8 +7,9 @@
 #include "Evaluation_func.hpp"
 #include <assert.h>
 #include "http.hpp"
-#include "json.hpp"
+#include "nlohmann/json.hpp"
 using namespace std;
+using namespace nlohmann;
 
 int main(int argc, char *argv[])
 {
@@ -54,17 +55,25 @@ int main(int argc, char *argv[])
   Board match(fieldmap, info);
   match.next_turn = Player1;
 
-  JSON str = JSON("{\"arg\"}");
 
-  // Connect request;
-  // request.path = "/matches";
-  // request.fetch();
-  // request.get();
-  // char *response;
-  // // cout << response << endl;
 
-  // // json_analysis(response);
+  Connect request;
+  request.path = "/matches/10";
+  request.fetch();
+  request.get();
+  char *response = new char[RESPONSE_MAX]();
+  request.res(response, RESPONSE_MAX);
 
+  response = strchr(response, '{');
+  char *p = response;
+  p = strchr(p, '\n');
+  if(p) {
+    *p = '\0';
+  }
+  cout << response << endl;
+
+  auto jobj = json::parse(response);
+  cout << jobj["structures"] << endl;
 
   // // // メインループ
   // for(int count = 1; count <= turn_num; count++) {
