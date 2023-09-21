@@ -37,8 +37,8 @@ Board::Board(Bitmap_t **fieldmap, FieldInfo *info, Agent *age1, Agent *age2)
 {
   this->map = fieldmap;
   this->info = info;
-  this->agent1 = agent1;
-  this->agent2 = agent2;
+  this->agent1 = age1;
+  this->agent2 = age2;
 
   next_turn = Player1;
   turn = 1;

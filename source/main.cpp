@@ -15,6 +15,9 @@ int main(int argc, char *argv[])
 {
   srand((unsigned)time(NULL));
 
+  cout << "press enter\n";
+  getchar();
+
   Connect request;
   request.path = "/matches/10";
   request.fetch();
@@ -34,7 +37,7 @@ int main(int argc, char *argv[])
 
   FieldInfo *info = new FieldInfo;
   info->length = jobj["board"]["height"];
-  info->agent  = jobj["board"]["masons"];
+  info->agent  = jobj["board"]["mason"];
 
   Bitmap_t **map = new Bitmap_t*[info->length]();
   for(auto i = 0; i < info->length; i++)
@@ -52,9 +55,6 @@ int main(int argc, char *argv[])
         case 2:
           map[i][j] |= BIT_CASTLE;
           break;
-        case 0:
-        default:
-          cerr << "structures error\n";
       }
       
       if((int)jobj["board"]["masons"][i][j] > 0) { // 先手職人
@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
         agent1[num].y = i;
       } else if((int)jobj["board"]["masons"][i][j] < 0) { // 後手職人
         map[i][j] |= BIT_AGENT2;
-        int num = (int)jobj["board"]["masons"][i][j] - 1;
+        int num = -(int)jobj["board"]["masons"][i][j] - 1;
         agent2[num].backnumber = num;
         agent2[num].x = j;
         agent2[num].y = i;
@@ -74,7 +74,9 @@ int main(int argc, char *argv[])
   }
 
   Board match(map, info, agent1, agent2);
+  match.draw();
 
+  return 0;
   // // // メインループ
   // for(int count = 1; count <= turn_num; count++) {
   //   string act_plan = "{\"turn\":" + std::to_string(count) + ",\"actions\":[{\"type\":1,\"dir\":7},{\"type\":1, \"dir\":7}]}";
@@ -214,5 +216,4 @@ int main(int argc, char *argv[])
   // cout << "プレイヤー2の点数: " << score2 << endl;
 
   // cout << "勝利: " << ((score1 > score2) ? "プレイヤー1" : "プレイヤー2") << endl;
-  return 0;
 }
