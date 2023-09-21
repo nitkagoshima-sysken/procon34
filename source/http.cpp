@@ -83,12 +83,10 @@ int Connect::post(string str)
 
 int Connect::res(char *buf, int size)
 {
-  int recv_size;
-  if((recv_size = recv(sockfd, buf, sizeof(char) * size, 0)) < 0) {
+  if(recv(sockfd, buf, sizeof(char) * size, 0) < 0) {
     cerr << "recv error\n";
     return 1;
   }
-  cout << "recv_size:" << recv_size << endl;
 
   return 0;
 }

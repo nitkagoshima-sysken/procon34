@@ -15,53 +15,12 @@ int main(int argc, char *argv[])
 {
   srand((unsigned)time(NULL));
 
-  // static int evaluate_current_board(Board *board, bool belong);
-  // static int ev_diff_score(Board *board, bool belong);
-  // static int ev_destroy(Board *board, bool belong);
-
-  // if(argc < 2) {
-  //   cerr << "競技フィールドを指定してください．";
-  //   return 1;
-  // }
-
-  int turn_num = TURN_NUM;
-  int depth = 3;
-  char *path = (char*)"../Field_Data/B11.csv";
-  switch(argc) {
-    case 1:
-      cout << "競技フィールド: B11, 探索深度: 3, ターン数: " << TURN_NUM << "で試合を開始します．\n";
-      cout << "引数を設定したい場合は次のようにしてください 例: ./procon ../Field_Data/B11 3 " << TURN_NUM << endl;
-      cout << "press enter\n";
-      getchar();
-      break;
-    case 4:
-      turn_num = atoi(argv[3]);
-    case 3:
-      depth = atoi(argv[2]);
-    case 2:
-      path = argv[1];
-  }
-
-  Map map(path);
-  
-  Bitmap_t **fieldmap;
-  FieldInfo *info;
-
-  if(map.readMapFile() < 0) {
-    return 1;
-  }
-  map.AnalyzeFile(&info, &fieldmap); // フィールド読み込み
-
-  Board match(fieldmap, info);
-  match.next_turn = Player1;
-
-
-
   Connect request;
   request.path = "/matches/10";
   request.fetch();
   request.get();
   char *response = new char[RESPONSE_MAX]();
+  sleep(1);
   request.res(response, RESPONSE_MAX);
 
   response = strchr(response, '{');
@@ -70,10 +29,51 @@ int main(int argc, char *argv[])
   if(p) {
     *p = '\0';
   }
-  cout << response << endl;
 
   auto jobj = json::parse(response);
-  cout << jobj["structures"] << endl;
+
+  FieldInfo *info = new FieldInfo;
+  info->length = jobj["board"]["height"];
+  info->agent  = jobj["board"]["masons"];
+
+  Bitmap_t **map = new Bitmap_t*[info->length]();
+  for(auto i = 0; i < info->length; i++)
+    map[i] = new Bitmap_t[info->length]();
+
+  Agent *agent1 = new Agent[info->agent]();
+  Agent *agent2 = new Agent[info->agent]();
+  
+  for(auto i = 0; i < info->length; i++) {
+    for(auto j = 0; j < info->length; j++) {
+      switch((int)jobj["board"]["structures"][i][j]) {
+        case 1:
+          map[i][j] |= BIT_POND;
+          break;
+        case 2:
+          map[i][j] |= BIT_CASTLE;
+          break;
+        case 0:
+        default:
+          cerr << "structures error\n";
+      }
+      
+      if((int)jobj["board"]["masons"][i][j] > 0) { // 先手職人
+        map[i][j] |= BIT_AGENT1;
+        int num = (int)jobj["board"]["masons"][i][j] - 1;
+        agent1[num].backnumber = num;
+        agent1[num].x = j;
+        agent1[num].y = i;
+      } else if((int)jobj["board"]["masons"][i][j] < 0) { // 後手職人
+        map[i][j] |= BIT_AGENT2;
+        int num = (int)jobj["board"]["masons"][i][j] - 1;
+        agent2[num].backnumber = num;
+        agent2[num].x = j;
+        agent2[num].y = i;
+      }
+    }
+  }
+
+  Board match(map, info, agent1, agent2);
 
   // // // メインループ
   // for(int count = 1; count <= turn_num; count++) {

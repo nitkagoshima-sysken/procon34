@@ -33,34 +33,15 @@ bool UnionFind::same(Cell cell_1, Cell cell_2)
   return root_1 == root_2;
 }
 
-Board::Board(Bitmap_t **fieldmap, FieldInfo *info)
+Board::Board(Bitmap_t **fieldmap, FieldInfo *info, Agent *age1, Agent *age2)
 {
   this->map = fieldmap;
   this->info = info;
+  this->agent1 = agent1;
+  this->agent2 = agent2;
 
-  agent1 = new Agent[info->agent];
-  agent2 = new Agent[info->agent];
-
-  for(int i = 0; i < info->agent; i++) {
-    int cnt1 = 0, cnt2 = 0;
-    for(int j = 0; j < info->length; j++) {
-      for(int k = 0; k < info->length; k++) {
-        if(map[j][k] & BIT_AGENT1) {
-          agent1[cnt1].x = k;
-          agent1[cnt1].y = j;
-          cnt1++;
-          continue;
-        }
-        if(map[j][k] & BIT_AGENT2) {
-          agent2[cnt2].x = k;
-          agent2[cnt2].y = j;
-          cnt2++;
-        }
-      }
-    }
-  }
-
-  turn = 0;
+  next_turn = Player1;
+  turn = 1;
 }
 
 Board::Board(const Board &board)

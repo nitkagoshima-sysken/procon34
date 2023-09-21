@@ -109,7 +109,7 @@ public:
 
   bool next_turn;
 
-  Board(Bitmap_t **fieldmap, FieldInfo *info);
+  Board(Bitmap_t **fieldmap, FieldInfo *info, Agent *agent1, Agent *agent2);
   Board(const Board &board);
   ~Board();
 
