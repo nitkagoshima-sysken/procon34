@@ -6,7 +6,7 @@
 #include <vector>
 
 #define wall_search_max  2
-#define agent_search_max 4
+#define agent_search_max 2
 #define coefficient_act       1
 #define coefficient_castle_p  30
 #define coefficient_castle_w1 20
