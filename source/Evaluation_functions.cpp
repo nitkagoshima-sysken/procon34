@@ -77,3 +77,17 @@ int ev_destroy(Board *board, bool belong) {
   return score;
 
 }
+
+int castleget (Board *board, bool belong){
+  //城の座標陣地加点
+  //なってなかったら置く
+  for(int i = 0; i < board->info->length; i++){
+    for(int j = 0; j < board->info->length; j++){
+  if(map[i][i] & BIT_CASTLE){
+    //城があったら
+    int a = 100;
+  }
+
+    }
+  }
+}
