@@ -19,6 +19,8 @@
 #define coefficient_agent     1
 #define coefficient_adva      1
 
+typedef int (*ev_function)(Board *board, bool belong);
+
 class Game_Node {
 public:
   int evaluation;
@@ -36,7 +38,7 @@ public:
   //char wallpoint(uint8_t x, uint8_t y , char beforepoint,int *point);
   // int playerpoint(bool belong, uint8_t b_number);
   // void feild_advantage(int *p1, int *p2);
-  int (*ev_function)(Board *board, bool belong);
+  ev_function ev_func;
 
   // int evaluate_current_board();
 

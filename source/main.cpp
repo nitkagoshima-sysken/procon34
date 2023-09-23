@@ -11,30 +11,8 @@
 using namespace std;
 using namespace nlohmann;
 
-int main(int argc, char *argv[])
+Board *getInfobyJson(json jobj)
 {
-  srand((unsigned)time(NULL));
-
-  cout << "press enter\n";
-  getchar();
-
-  Connect request;
-  request.path = "/matches/10";
-  request.fetch();
-  request.get();
-  char *response = new char[RESPONSE_MAX]();
-  sleep(1);
-  request.res(response, RESPONSE_MAX);
-
-  response = strchr(response, '{');
-  char *p = response;
-  p = strchr(p, '\n');
-  if(p) {
-    *p = '\0';
-  }
-
-  auto jobj = json::parse(response);
-
   FieldInfo *info = new FieldInfo;
   info->length = jobj["board"]["height"];
   info->agent  = jobj["board"]["mason"];
@@ -73,147 +51,159 @@ int main(int argc, char *argv[])
     }
   }
 
-  Board match(map, info, agent1, agent2);
-  match.draw();
+  // 返却するオブジェクト
+  Board *match = new Board(map, info, agent1, agent2);
+  match->turn = jobj["turn"];
+  return match;
+}
+
+Action *getActplan(Board *match, ev_function act_plan, int depth)
+{
+  if(match == nullptr) {
+    cout << "error: matchがnullです\n";
+    return nullptr;
+  }
+  // 変数宣言
+  FieldInfo *info = match->info;
+  bool target_player = match->next_turn;
+  int turn = match->turn;
+  Game_Node **root_node = new Game_Node*[info->agent]();
+
+  cout << ((target_player == Player1) ? "player1" : "player2") << endl;
+  
+  // 最後の数ターンのみ，探索深度を調整する
+  int lastdepth = ((TURN_NUM - turn) < depth) ? (TURN_NUM - turn) : depth;
+
+  // 生成した最善手を格納するためのオブジェクト
+  Action *act = new Action[info->agent]();
+
+  // 職人の数だけ最善手を探索する
+  for(int i = 0; i < info->agent; i++) {
+    Board *init_board = new Board(*match);
+    root_node[i] = new Game_Node(init_board);
+    root_node[i]->ev_func = act_plan;
+
+    cout << "職人" << i << "(" << +root_node[i]->board->agent1[i].x << ", " << +root_node[i]->board->agent1[i].y << ")" << "のゲーム木構築中..." << endl;
+    expandChildren_by_num(root_node[i], lastdepth, i);
+    TreeSearch(root_node[i], i, Player1);
+    
+    auto itr = root_node[i]->childrenNode.begin();
+    // 子供の評価値と自身の評価値が一致したゲームノードの行動を最善手として選択
+    for(; itr != root_node[i]->childrenNode.end(); itr++) {
+      if(root_node[i]->evaluation == (*itr)->evaluation) {
+        act[i] = (*itr)->pre_act;
+        break;
+      }
+    }
+    if(itr == root_node[i]->childrenNode.end() + 1) {
+      cout << "error: ゲーム木が正常に評価・構築されていません\n";
+      return nullptr;
+    }
+  }
+
+  for(int i = 0; i < info->agent; i++) {
+    cout << "職人" << i << "のスコア: " << root_node[i]->evaluation << endl;
+  }
+  // メモリ開放
+  for(int i = 0; i < info->agent; i++) {
+    deleteTree(root_node[i]);
+  }
+  delete root_node;
+
+  return act;
+}
+
+json getJsonByRes(char *res)
+{
+  res = strchr(res, '{');
+  char *p = res;
+  p = strchr(p, '\n');
+  if(p) {
+    *p = '\0';
+  }
+
+  auto jobj = json::parse(res);
+  return jobj;
+}
+
+/**
+ * @brief 行動プランを競技サーバに送る
+ * 
+ * @param act 職人全員分の行動計画
+ * @param request fetch済みのConnect
+ * @param cur 現在の盤面状態
+ * @return int 成功なら0，レスポンスのエラー(400)などの場合は-1を返却
+ */
+int SendActPlan(Action *act, Connect request, Board *cur)
+{
+  json post_json;
+  post_json["turn"] = cur->turn + 1;
+  for(auto i = 0; i < cur->info->agent; i++)
+    post_json["actions"][i] = {{"type", +act[i].kind}, {"dir", +act[i].direc}};
+
+  request.post(post_json.dump());
+  char post_recv[RESPONSE_MAX];
+
+  if(request.res(post_recv, RESPONSE_MAX) < 0) {
+    return -1;
+  }
 
   return 0;
-  // // // メインループ
-  // for(int count = 1; count <= turn_num; count++) {
-  //   string act_plan = "{\"turn\":" + std::to_string(count) + ",\"actions\":[{\"type\":1,\"dir\":7},{\"type\":1, \"dir\":7}]}";
+}
 
-  //   request.path += "/10";
-  //   request.post(act_plan);
-  //   response = request.res();
-  //   cout << response << endl;
-  //   // system("clear");
-  //   cout << "turn:" << count << endl;
-  //   cout << "current_:" << ((match.next_turn == Player1) ? "Player1" : "Player2") << endl;
-  //   match.draw();
+int main(int argc, char *argv[])
+{
+  srand((unsigned)time(NULL));
 
-  //   if(match.next_turn == Player1) {
-  //     Game_Node **root_node = new Game_Node*[info->agent]();
+  cout << "press enter\n";
+  getchar();
 
-  //     cout << ((match.next_turn == Player1) ? "player1" : "player2") << endl;
-  //     for(int i = 0; i < info->agent; i++) {
-  //       std::vector<Action> action;
-  //       match.getLegalAct(match.next_turn, action ,i);
-  //       cout << "職人" << i << "の合法手数:" << action.size() << endl;
-  //     }
-  //     cout << endl;
-      
-  //     int lastdepth = ((TURN_NUM - count) < depth) ? (TURN_NUM - count) : depth ;
+  Connect request;
+  request.fetch();
 
-  //     for(int i = 0; i < info->agent; i++) {
-  //       Board *init_board = new Board(match);
-  //       root_node[i] = new Game_Node(init_board);
-  //       root_node[i]->ev_function = evaluate_current_board;
-  //       cout << "職人" << i << "(" << +root_node[i]->board->agent1[i].x << ", " << +root_node[i]->board->agent1[i].y << ")" << "のゲーム木構築中..." << endl;
-  //       expandChildren_by_num(root_node[i], lastdepth, i);
-  //       cout << "職人" << i << "の盤面評価中..." << endl;
-  //       TreeSearch(root_node[i], i, Player1);
-  //       for(auto itr = root_node[i]->childrenNode.begin(); itr != root_node[i]->childrenNode.end(); itr++) {
-  //         if(root_node[i]->evaluation == (*itr)->evaluation) {
-  //           // cout << "j:" << j << endl;
-  //           root_node[i]->pre_act = (*itr)->pre_act;
-  //           // cout << "kind:" << +(*itr)->pre_act.kind << ", direc:" << +(*itr)->pre_act.direc << endl;
-  //           break;
-  //         }
-  //       }
-  //       // match.draw();
-  //       match.ActionAnAgent(match.next_turn, i, root_node[i]->pre_act);
-  //     }
+  request.path = "/matches";
+  request.get();
+  char res[RESPONSE_MAX];
+  request.res(res, RESPONSE_MAX);
+  cout << res << endl;
 
-  //     for(int i = 0; i < info->agent; i++) {
-  //       cout << "職人" << i << "のスコア: " << root_node[i]->evaluation << endl;
-  //       // for(int j = 0; j < root_node[i]->childrenNode.size(); j++) {
-  //       //   cout << "  " << "子供" << j << "のスコア:" << root_node[i]->childrenNode[j]->evaluation << endl;
-  //       // }
-  //     }
-  //     // drawTree(root_node[0]);
-  //     for(int i = 0; i < info->agent; i++) {
-  //       deleteTree(root_node[i]);
-  //     }
-  //     delete root_node;
-  //   } else {
-  //     assert(match.next_turn == Player2);
-  //     // Action *act;
-  //     // act = new Action[info->agent];
-  //     // for(int i = 0; i < info->agent; i++) {
-  //     //   vector<Action> legal_act;
-  //     //   match.getLegalAct(match.next_turn, legal_act, i);
-  //     //   int rand_act = rand()%legal_act.size();
-  //     //   act[i] = legal_act[rand_act];
-  //     //   // cout << "select: " << (int)act[i].kind << ", " << (int)act[i].direc << endl;
-  //     //   match.ActionAnAgent(match.next_turn, i, act[i]);
+  request.path = "/matches/10";
+  request.get();
+  char *response = new char[RESPONSE_MAX]();
+  request.res(response, RESPONSE_MAX);
 
-  //     // // 陣地ができたかどうかを確認し，更新する
-  //     // // game.Encamp_Update();
+  auto jobj = getJsonByRes(response);
 
-  //     // uint8_t x, y;
-  //     // }
-  //     // delete act;
-  //     Game_Node **root_node = new Game_Node*[info->agent]();
+  delete response;
 
-  //     cout << ((match.next_turn == Player1) ? "player1" : "player2") << endl;
-  //     for(int i = 0; i < info->agent; i++) {
-  //       std::vector<Action> action;
-  //       match.getLegalAct(match.next_turn, action ,i);
-  //       cout << "職人" << i << "の合法手数:" << action.size() << endl;
-  //     }
-  //     cout << endl;
-      
-  //     int lastdepth = ((TURN_NUM - count) < depth) ? (TURN_NUM - count) : depth ;
+  Board *match = getInfobyJson(jobj);
+  cout << +match->turn << endl;
+  match->draw();
 
-  //     for(int i = 0; i < info->agent; i++) {
-  //       Board *init_board = new Board(match);
-  //       root_node[i] = new Game_Node(init_board);
-  //       root_node[i]->ev_function = ev_diff_score;
-  //       cout << "職人" << i << "(" << +root_node[i]->board->agent1[i].x << ", " << +root_node[i]->board->agent1[i].y << ")" << "のゲーム木構築中..." << endl;
-  //       expandChildren_by_num(root_node[i], lastdepth, i);
-  //       cout << "職人" << i << "の盤面評価中..." << endl;
-  //       TreeSearch(root_node[i], i, Player2);
-  //       for(auto itr = root_node[i]->childrenNode.begin(); itr != root_node[i]->childrenNode.end(); itr++) {
-  //         if(root_node[i]->evaluation == (*itr)->evaluation) {
-  //           // cout << "j:" << j << endl;
-  //           root_node[i]->pre_act = (*itr)->pre_act;
-  //           cout << "kind:" << +(*itr)->pre_act.kind << ", direc:" << +(*itr)->pre_act.direc << endl;
-  //           break;
-  //         }
-  //       }
-  //       // match.draw();
-  //       match.ActionAnAgent(match.next_turn, i, root_node[i]->pre_act);
-  //     }
+  Action *act = getActplan(match, evaluate_current_board, 3);
 
-  //     for(int i = 0; i < info->agent; i++) {
-  //       cout << "職人" << i << "のスコア: " << root_node[i]->evaluation << endl;
-  //       // for(int j = 0; j < root_node[i]->childrenNode.size(); j++) {
-  //       //   cout << "  " << "子供" << j << "のスコア:" << root_node[i]->childrenNode[j]->evaluation << endl;
-  //       // }
-  //     }
+  json post_json;
+  post_json["turn"] = match->turn + 1;
+  for(auto i = 0; i < match->info->agent; i++)
+    post_json["actions"][i] = {{"type", 0}, {"dir", 0}};
 
-  //     // drawTree(root_node[0]);
-  //     for(int i = 0; i < info->agent; i++) {
-  //       deleteTree(root_node[i]);
-  //     }
-  //     delete root_node;
-  //   }
-  //   match.next_turn = !match.next_turn;
-  //   // cout << "press enter to continue\n";
-  //   // getchar();
-  //   sleep(4);
-  //   request.get();
-  //   response = request.res();
-  //   cout << response << endl;
-  // }
+  request.post(post_json.dump());
+  char post_recv[RESPONSE_MAX];
 
-  // cout << "ゲーム終了時の盤面" << endl;
-  // match.draw();
+  if(request.res(post_recv, RESPONSE_MAX) < 0) {
+    return 1;
+  }
 
-  // int score1 = 0, score2 = 0;
-  // match.score(score1, score2);
+  request.get();
+  response = new char[RESPONSE_MAX]();
+  sleep(1);
+  request.res(response, RESPONSE_MAX);
 
-  // cout << "プレイヤー1の点数: " << score1 << endl;
-  // cout << "プレイヤー2の点数: " << score2 << endl;
+  json jobj2 = getJsonByRes(response);
+  delete response;
 
-  // cout << "勝利: " << ((score1 > score2) ? "プレイヤー1" : "プレイヤー2") << endl;
+  match = getInfobyJson(jobj2);
+  match->draw();
+
+  return 0;
 }

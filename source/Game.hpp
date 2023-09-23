@@ -15,14 +15,14 @@ typedef enum {
 } ActionKind;
 
 typedef enum {
+  UpLEFT,
+  UP,
+  UpRIGHT,
   RIGHT,
   DownRIGHT,
   DOWN,
   DownLEFT,
   LEFT,
-  UpLEFT,
-  UP,
-  UpRIGHT,
   Direction_Max,
 } Direction;
 

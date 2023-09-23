@@ -1,6 +1,12 @@
 #include "http.hpp"
 #include <errno.h>
+#include <regex>
 using namespace std;
+
+Connect::~Connect()
+{
+  http_close();
+}
 
 int Connect::fetch()
 {
@@ -58,7 +64,7 @@ int Connect::get()
   cout << request_message << endl;
   if(send(sockfd, request_message.c_str(), request_message.length(), 0) < 0) {
     strerror(errno);
-    return 1;
+    return -1;
   }
 
   return 0;
@@ -68,14 +74,14 @@ int Connect::post(string str)
 {
   string request = "POST http://";
   request += IP_ADDRESS + std::string(":") + std::to_string(SEREVR_PORT) + path + "?token=" + TOKEN + " HTTP/1.1";
-  string header = "Host: localhost\r\nContent-Type: application/json";
+  string header = "Host: localhost\r\nContent-Type: application/json\r\nContent-Length: " + to_string(str.length()) + "\r\nConnection: Keep-Alive";
 
   string request_message = request + "\r\n" + header + "\r\n\r\n" + str + "\r\n\r\n";
   cout << request_message << endl;
 
   if(send(sockfd, request_message.c_str(), request_message.length(), 0) < 0) {
     strerror(errno);
-    return 1;
+    return -1;
   }
 
   return 0;
@@ -83,10 +89,43 @@ int Connect::post(string str)
 
 int Connect::res(char *buf, int size)
 {
-  if(recv(sockfd, buf, sizeof(char) * size, 0) < 0) {
+  int recv_size;
+  char chunk[4096] = {0};
+  struct timeval tv;
+  fd_set readfds;
+  int ret_select;
+  int ret_recv;
+
+  tv.tv_sec = TIMEOUT_SEC;
+  tv.tv_usec = TIMEOUT_SEC * 1000;
+  if((recv_size = recv(sockfd, chunk, sizeof chunk, 0)) < 0) {
     cerr << "recv error\n";
-    return 1;
+    return -1;
+  }
+  while(recv_size) {
+    cout << recv_size << endl;
+    memcpy(buf, chunk, sizeof chunk);
+    buf += sizeof chunk;
+    memset(chunk, 0, sizeof chunk);
+    if((recv_size = recv(sockfd, chunk, sizeof chunk, 0)) < 0) {
+      cerr << "recv error\n";
+      return -1;
+    }
+  }
+  string str(buf);
+  if(str.find("200") != string::npos) {
+    cout << "成功(200)\n";
+  } else {
+    cout << "成功(200)を受け取りませんでした\n";
+    cout << buf << endl;
+    return -1;
   }
 
+  return 0;
+}
+
+int Connect::http_close()
+{
+  close(sockfd);
   return 0;
 }

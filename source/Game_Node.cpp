@@ -29,7 +29,7 @@ void Game_Node::expandChildren(int backnumber)
     Game_Node *child = new Game_Node(legal_board[i]);
     child->pre_act = action[i];
     child->parentNode = this;
-    child->ev_function = this->ev_function;
+    child->ev_func = this->ev_func;
 
     childrenNode.push_back(child);
   }
@@ -331,11 +331,11 @@ void expandChildren_by_num(Game_Node *root, int n, int backnumber)
 void TreeSearch(Game_Node *root, int backnumber, bool belong)
 {
   if(root->childrenNode.empty()) { // 子供がいなければ
-    if(root->ev_function) {
+    if(root->ev_func) {
       // root->ev_function = evaluate_current_board;
       // printf("p: %p\n", root->ev_function);
       // root->board->draw();
-      root->evaluation =  root->ev_function(root->board, belong);
+      root->evaluation =  root->ev_func(root->board, belong);
       // cout << root->evaluation << endl;
     } else {
       cerr << "error: 評価関数が設定されていません\n";
