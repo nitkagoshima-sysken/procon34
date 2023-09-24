@@ -87,22 +87,29 @@ int Connect::post(string str)
   return 0;
 }
 
-int Connect::res(char *buf, int size)
+int Connect::res(char *buf, int size, unsigned int sec, unsigned int usec)
 {
-  if((recv(sockfd, buf, RESPONSE_MAX, 0)) < 0) {
-    cerr << "recv error\n";
-    return -1;
-  }
-  string str(buf);
-  if(str.find("200") != string::npos) {
-    cout << "成功(200)\n";
-  } else {
-    cout << "成功(200)を受け取りませんでした\n";
-    cout << buf << endl;
-    return -1;
+  struct timeval tv;
+  fd_set readfds;
+  int ret_select;
+  int ret_recv;
+
+  tv.tv_sec = sec;
+  tv.tv_usec = usec;
+
+  FD_SET(sockfd, &readfds);
+
+  if((ret_select = select(sockfd + 1, &readfds, NULL, NULL, &tv)) < 0) {
+    cout << "select error\n";
   }
 
-  return 0;
+  if(ret_select == 0) {
+    return 0;
+  }
+
+  ret_recv = recv(sockfd, buf, size, 0);
+  
+  return ret_recv;
 }
 
 int Connect::http_close()

@@ -27,6 +27,6 @@ public:
   int fetch();
   int get();
   int post(std::string str);
-  int res(char *buf, int size);
+  int res(char *buf, int size, unsigned int sec, unsigned int usec);
   int http_close();
 };

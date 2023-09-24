@@ -145,11 +145,52 @@ json getJsonByRes(char *res)
   return jobj;
 }
 
+int getCurBoard(Connect request, char *buf, int size)
+{
+
+  request.get();
+
+   // ここから受信処理
+
+  char chunk[4096];
+  int recv_size;
+
+  if((recv_size = request.res(chunk, sizeof chunk, 0.1, 0)) < 0) {
+    return -1;
+  }
+  while(recv_size == 0) { // 最初のレスポンスがくるまで繰返しrecv
+    if((recv_size = request.res(chunk, sizeof chunk, 0.1, 0)) < 0) {
+      return -1;
+    }
+  }
+  char *p = buf;
+  while(recv_size) {
+    memcpy(buf, chunk, sizeof chunk);
+    memset(chunk, 0, sizeof chunk);
+    buf += sizeof chunk;
+    if((recv_size = request.res(chunk, sizeof chunk, 0.1, 0)) < 0) {
+      return -1;
+    }
+  }
+  *buf = '\0';
+
+  string str(p);
+  if(str.find("200") != string::npos) {
+    cout << "成功(200)\n";
+  } else {
+    cout << "成功(200)を受け取りませんでした\n";
+    cout << p << endl;
+    return -1;
+  }
+
+  return 0;
+}
+
 /**
  * @brief 行動プランを競技サーバに送る
  * 
  * @param act 職人全員分の行動計画
- * @param request fetch済みのConnect
+ * @param request fetch，パス設定済みのConnect
  * @param cur 現在の盤面状態
  * @return int 成功なら0，レスポンスのエラー(400)などの場合は-1を返却
  */
@@ -161,9 +202,40 @@ int SendActPlan(Action *act, Connect request, Board *cur)
     post_json["actions"][i] = {{"type", +act[i].kind}, {"dir", +act[i].direc}};
 
   request.post(post_json.dump());
+
+  // ここから受信処理
+
   char post_recv[RESPONSE_MAX];
 
-  if(request.res(post_recv, RESPONSE_MAX) < 0) {
+  char *p = post_recv;
+  char chunk[4096];
+  int recv_size;
+
+  if((recv_size = request.res(chunk, sizeof chunk, 0.1, 0)) < 0) {
+    return -1;
+  }
+  while(recv_size == 0) { // 最初のレスポンスがくるまで繰返しrecv
+    if((recv_size = request.res(chunk, sizeof chunk, 0.1, 0)) < 0) {
+      return -1;
+    }
+  }
+
+  while(recv_size) {
+    memcpy(p, chunk, sizeof chunk);
+    memset(chunk, 0, sizeof chunk);
+    p += sizeof chunk;
+    if((recv_size = request.res(chunk, sizeof chunk, 0.1, 0)) < 0) {
+      return -1;
+    }
+  }
+  *p = '\0';
+
+  string str(post_recv);
+  if(str.find("200") != string::npos) {
+    cout << "成功(200)\n";
+  } else {
+    cout << "成功(200)を受け取りませんでした\n";
+    cout << post_recv << endl;
     return -1;
   }
 
@@ -184,22 +256,19 @@ int main(int argc, char *argv[])
   request.path = "/matches";
   request.get();
   char res[RESPONSE_MAX];
-  request.res(res, RESPONSE_MAX);
+  request.res(res, RESPONSE_MAX, 1, 0);
   cout << res << endl;
 
   // 初期状態をget
   request.path = "/matches/10";
-  request.get();
+
   char *response = new char[RESPONSE_MAX]();
 
-  sleep(1);
-
-  request.res(response, RESPONSE_MAX);
+  getCurBoard(request, response, sizeof response);
 
   cout << response << endl;
 
   auto jobj = getJsonByRes(response);
-
   delete response;
 
   Board *match = getInfobyJson(jobj);
@@ -209,25 +278,17 @@ int main(int argc, char *argv[])
   // 現在の盤面から最善手を計算，取得
   Action *act = getActplan(match, evaluate_current_board, 3);
 
-  json post_json;
-  post_json["turn"] = match->turn + 1;
-  for(auto i = 0; i < match->info->agent; i++)
-    post_json["actions"][i] = {{"type", +act[i].kind}, {"dir", +act[i].direc}};
+  // 送信
+  SendActPlan(act, request, match);
 
-  request.post(post_json.dump());
-  char post_recv[RESPONSE_MAX];
-
-  sleep(1);
-
-  if(request.res(post_recv, RESPONSE_MAX) < 0) {
-    return 1;
-  }
-
-  request.get();
   char *response2 = new char[RESPONSE_MAX]();
-  sleep(2);
-  request.res(response2, RESPONSE_MAX);
 
+  // 更新が反映されるまで待つ
+  sleep(4);
+
+  // 更新された分を確認
+  getCurBoard(request, response2, sizeof response2);
+  
   cout << response2 << endl;
 
   json jobj2 = getJsonByRes(response2);
