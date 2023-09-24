@@ -143,14 +143,13 @@ int main(int argc, char *argv[])
         //   cout << "  " << "子供" << j << "のスコア:" << root_node[i]->childrenNode[j]->evaluation << endl;
         // }
       }
-      if(is_print_game_tree)
-        drawTree(root_node[0], fp);
-      for(int i = 0; i < info->agent; i++) {
-        for(auto itr = root_node[i]->childrenNode.begin(); itr != root_node[i]->childrenNode.end(); itr++) {
-          deleteTree(*itr);
-        }
-        // deleteTree(root_node[i]);
+      if(is_print_game_tree){
+        fprintf(fp, "\n\nturn: %d", count);
+        drawTree(root_node[2], fp);
       }
+        // for(int i = 0; i < info->agent; i++) {
+        //   deleteTree(root_node[i]);
+        // }
         for(int i = 0; i < info->agent; i++)
           delete root_node[i];
         delete root_node;
