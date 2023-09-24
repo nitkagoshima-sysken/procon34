@@ -34,6 +34,25 @@ Board *getInfobyJson(json jobj)
           map[i][j] |= BIT_CASTLE;
           break;
       }
+      switch((int)jobj["board"]["walls"][i][j]) {
+        case 1:
+          map[i][j] |= BIT_WALL1;
+          break;
+        case 2:
+          map[i][j] |= BIT_WALL2;
+          break;
+      }
+      switch((int)jobj["board"]["territories"][i][j]) {
+        case 1:
+          map[i][j] |= BIT_ENCAMP1;
+          break;
+        case 2:
+          map[i][j] |= BIT_ENCAMP2;
+          break;
+        case 3:
+          map[i][j] |= (BIT_ENCAMP1 | BIT_ENCAMP2);
+          break;
+      }
       
       if((int)jobj["board"]["masons"][i][j] > 0) { // 先手職人
         map[i][j] |= BIT_AGENT1;
@@ -206,13 +225,13 @@ int main(int argc, char *argv[])
 
   request.get();
   char *response2 = new char[RESPONSE_MAX]();
-  sleep(1);
+  sleep(2);
   request.res(response2, RESPONSE_MAX);
 
-  cout << response2;
+  cout << response2 << endl;
 
   json jobj2 = getJsonByRes(response2);
-  delete response;
+  delete response2;
 
   Board *match2 = getInfobyJson(jobj2);
   match2->draw();
