@@ -57,7 +57,7 @@ int Connect::get()
   // リクエストメッセージの作成
   string request = "GET http://";
   request += IP_ADDRESS + std::string(":") + std::to_string(SEREVR_PORT) + path + "?token=" + TOKEN + " HTTP/1.1";
-  string header = "Host: localhost";
+  string header = "Host: localhost\r\nConnection: Keep-Alive";
 
   string request_message = request + "\r\n" + header + "\r\n\r\n";
 
@@ -97,13 +97,16 @@ int Connect::res(char *buf, int size, unsigned int sec, unsigned int usec)
   tv.tv_sec = sec;
   tv.tv_usec = usec;
 
+  FD_ZERO(&readfds);
   FD_SET(sockfd, &readfds);
 
   if((ret_select = select(sockfd + 1, &readfds, NULL, NULL, &tv)) < 0) {
+    strerror(errno);
     cout << "select error\n";
   }
 
   if(ret_select == 0) {
+    cout << "timeout!\n";
     return 0;
   }
 

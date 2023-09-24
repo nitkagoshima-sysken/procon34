@@ -155,11 +155,11 @@ int getCurBoard(Connect request, char *buf, int size)
   char chunk[4096];
   int recv_size;
 
-  if((recv_size = request.res(chunk, sizeof chunk, 0.1, 0)) < 0) {
+  if((recv_size = request.res(chunk, sizeof chunk, 0.2, 0)) < 0) {
     return -1;
   }
   while(recv_size == 0) { // 最初のレスポンスがくるまで繰返しrecv
-    if((recv_size = request.res(chunk, sizeof chunk, 0.1, 0)) < 0) {
+    if((recv_size = request.res(chunk, sizeof chunk, 0.2, 0)) < 0) {
       return -1;
     }
   }
@@ -168,7 +168,7 @@ int getCurBoard(Connect request, char *buf, int size)
     memcpy(buf, chunk, sizeof chunk);
     memset(chunk, 0, sizeof chunk);
     buf += sizeof chunk;
-    if((recv_size = request.res(chunk, sizeof chunk, 0.1, 0)) < 0) {
+    if((recv_size = request.res(chunk, sizeof chunk, 0.2, 0)) < 0) {
       return -1;
     }
   }
@@ -211,11 +211,12 @@ int SendActPlan(Action *act, Connect request, Board *cur)
   char chunk[4096];
   int recv_size;
 
-  if((recv_size = request.res(chunk, sizeof chunk, 0.1, 0)) < 0) {
+  if((recv_size = request.res(chunk, sizeof chunk, 0.2, 0)) < 0) {
+    cout << "error\n";
     return -1;
   }
   while(recv_size == 0) { // 最初のレスポンスがくるまで繰返しrecv
-    if((recv_size = request.res(chunk, sizeof chunk, 0.1, 0)) < 0) {
+    if((recv_size = request.res(chunk, sizeof chunk, 0.2, 0)) < 0) {
       return -1;
     }
   }
@@ -283,19 +284,19 @@ int main(int argc, char *argv[])
 
   char *response2 = new char[RESPONSE_MAX]();
 
-  // 更新が反映されるまで待つ
-  sleep(4);
+  // // 更新が反映されるまで待つ
+  // sleep(4);
 
-  // 更新された分を確認
-  getCurBoard(request, response2, sizeof response2);
+  // // 更新された分を確認
+  // getCurBoard(request, response2, sizeof response2);
   
-  cout << response2 << endl;
+  // cout << response2 << endl;
 
-  json jobj2 = getJsonByRes(response2);
-  delete response2;
+  // json jobj2 = getJsonByRes(response2);
+  // delete response2;
 
-  Board *match2 = getInfobyJson(jobj2);
-  match2->draw();
+  // Board *match2 = getInfobyJson(jobj2);
+  // match2->draw();
 
   return 0;
 }
