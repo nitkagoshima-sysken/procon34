@@ -89,28 +89,9 @@ int Connect::post(string str)
 
 int Connect::res(char *buf, int size)
 {
-  int recv_size;
-  char chunk[4096] = {0};
-  struct timeval tv;
-  fd_set readfds;
-  int ret_select;
-  int ret_recv;
-
-  tv.tv_sec = TIMEOUT_SEC;
-  tv.tv_usec = TIMEOUT_SEC * 1000;
-  if((recv_size = recv(sockfd, chunk, sizeof chunk, 0)) < 0) {
+  if((recv(sockfd, buf, RESPONSE_MAX, 0)) < 0) {
     cerr << "recv error\n";
     return -1;
-  }
-  while(recv_size) {
-    cout << recv_size << endl;
-    memcpy(buf, chunk, sizeof chunk);
-    buf += sizeof chunk;
-    memset(chunk, 0, sizeof chunk);
-    if((recv_size = recv(sockfd, chunk, sizeof chunk, 0)) < 0) {
-      cerr << "recv error\n";
-      return -1;
-    }
   }
   string str(buf);
   if(str.find("200") != string::npos) {

@@ -161,16 +161,23 @@ int main(int argc, char *argv[])
   Connect request;
   request.fetch();
 
+  // 現在行われている試合の一覧をget
   request.path = "/matches";
   request.get();
   char res[RESPONSE_MAX];
   request.res(res, RESPONSE_MAX);
   cout << res << endl;
 
+  // 初期状態をget
   request.path = "/matches/10";
   request.get();
   char *response = new char[RESPONSE_MAX]();
+
+  sleep(1);
+
   request.res(response, RESPONSE_MAX);
+
+  cout << response << endl;
 
   auto jobj = getJsonByRes(response);
 
@@ -180,30 +187,35 @@ int main(int argc, char *argv[])
   cout << +match->turn << endl;
   match->draw();
 
+  // 現在の盤面から最善手を計算，取得
   Action *act = getActplan(match, evaluate_current_board, 3);
 
   json post_json;
   post_json["turn"] = match->turn + 1;
   for(auto i = 0; i < match->info->agent; i++)
-    post_json["actions"][i] = {{"type", 0}, {"dir", 0}};
+    post_json["actions"][i] = {{"type", +act[i].kind}, {"dir", +act[i].direc}};
 
   request.post(post_json.dump());
   char post_recv[RESPONSE_MAX];
+
+  sleep(1);
 
   if(request.res(post_recv, RESPONSE_MAX) < 0) {
     return 1;
   }
 
   request.get();
-  response = new char[RESPONSE_MAX]();
+  char *response2 = new char[RESPONSE_MAX]();
   sleep(1);
-  request.res(response, RESPONSE_MAX);
+  request.res(response2, RESPONSE_MAX);
 
-  json jobj2 = getJsonByRes(response);
+  cout << response2;
+
+  json jobj2 = getJsonByRes(response2);
   delete response;
 
-  match = getInfobyJson(jobj2);
-  match->draw();
+  Board *match2 = getInfobyJson(jobj2);
+  match2->draw();
 
   return 0;
 }
