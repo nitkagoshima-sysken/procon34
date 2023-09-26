@@ -101,7 +101,7 @@ Action *getActplan(Board *match, ev_function act_plan, int depth)
     root_node[i] = new Game_Node(init_board);
     root_node[i]->ev_func = act_plan;
 
-    cout << "職人" << i << "(" << +root_node[i]->board->agent1[i].x << ", " << +root_node[i]->board->agent1[i].y << ")" << "のゲーム木構築中..." << endl;
+    // cout << "職人" << i << "(" << +root_node[i]->board->agent1[i].x << ", " << +root_node[i]->board->agent1[i].y << ")" << "のゲーム木構築中..." << endl;
     expandChildren_by_num(root_node[i], lastdepth, i);
     TreeSearch(root_node[i], i, Player1);
     
@@ -119,9 +119,9 @@ Action *getActplan(Board *match, ev_function act_plan, int depth)
     }
   }
 
-  for(int i = 0; i < info->agent; i++) {
-    cout << "職人" << i << "のスコア: " << root_node[i]->evaluation << endl;
-  }
+  // for(int i = 0; i < info->agent; i++) {
+  //   cout << "職人" << i << "のスコア: " << root_node[i]->evaluation << endl;
+  // }
   // メモリ開放
   for(int i = 0; i < info->agent; i++) {
     deleteTree(root_node[i]);
@@ -131,123 +131,13 @@ Action *getActplan(Board *match, ev_function act_plan, int depth)
   return act;
 }
 
-// json getJsonByRes(char *res)
-// {
-//   res = strchr(res, '{');
-//   char *p = res;
-//   p = strchr(p, '\n');
-//   if(p) {
-//     *p = '\0';
-//   }
+#include <chrono>
+#include <thread>
+using namespace chrono;
 
-//   auto jobj = json::parse(res);
-//   return jobj;
-// }
-
-// int getCurBoard(Connect request, char *buf, int size)
-// {
-
-//   request.get();
-
-//    // ここから受信処理
-
-//   char chunk[4096];
-//   int recv_size;
-
-//   if((recv_size = request.res(chunk, sizeof chunk, 0.2, 0)) < 0) {
-//     return -1;
-//   }
-//   while(recv_size == 0) { // 最初のレスポンスがくるまで繰返しrecv
-//     if((recv_size = request.res(chunk, sizeof chunk, 0.2, 0)) < 0) {
-//       return -1;
-//     }
-//   }
-//   char *p = buf;
-//   while(recv_size) {
-//     memcpy(buf, chunk, sizeof chunk);
-//     memset(chunk, 0, sizeof chunk);
-//     buf += sizeof chunk;
-//     if((recv_size = request.res(chunk, sizeof chunk, 0.2, 0)) < 0) {
-//       return -1;
-//     }
-//   }
-//   *buf = '\0';
-
-//   string str(p);
-//   if(str.find("200") != string::npos) {
-//     cout << "成功(200)\n";
-//   } else {
-//     cout << "成功(200)を受け取りませんでした\n";
-//     cout << p << endl;
-//     return -1;
-//   }
-
-//   return 0;
-// }
-
-/**
- * @brief 行動プランを競技サーバに送る
- * 
- * @param act 職人全員分の行動計画
- * @param request fetch，パス設定済みのConnect
- * @param cur 現在の盤面状態
- * @return int 成功なら0，レスポンスのエラー(400)などの場合は-1を返却
- */
-// int SendActPlan(Action *act, Connect request, Board *cur)
-// {
-//   json post_json;
-//   post_json["turn"] = cur->turn + 1;
-//   for(auto i = 0; i < cur->info->agent; i++)
-//     post_json["actions"][i] = {{"type", +act[i].kind}, {"dir", +act[i].direc}};
-
-//   request.post(post_json.dump());
-
-//   // ここから受信処理
-
-//   char post_recv[RESPONSE_MAX];
-
-//   char *p = post_recv;
-//   char chunk[4096];
-//   int recv_size;
-
-//   if((recv_size = request.res(chunk, sizeof chunk, 0.2, 0)) < 0) {
-//     cout << "error\n";
-//     return -1;
-//   }
-//   while(recv_size == 0) { // 最初のレスポンスがくるまで繰返しrecv
-//     if((recv_size = request.res(chunk, sizeof chunk, 0.2, 0)) < 0) {
-//       return -1;
-//     }
-//   }
-
-//   while(recv_size) {
-//     memcpy(p, chunk, sizeof chunk);
-//     memset(chunk, 0, sizeof chunk);
-//     p += sizeof chunk;
-//     if((recv_size = request.res(chunk, sizeof chunk, 0.1, 0)) < 0) {
-//       return -1;
-//     }
-//   }
-//   *p = '\0';
-
-//   string str(post_recv);
-//   if(str.find("200") != string::npos) {
-//     cout << "成功(200)\n";
-//   } else {
-//     cout << "成功(200)を受け取りませんでした\n";
-//     cout << post_recv << endl;
-//     return -1;
-//   }
-
-//   return 0;
-// }
-
-int main(int argc, char *argv[])
+void calc(int msec)
 {
-  srand((unsigned)time(NULL));
-
-  cout << "press enter\n";
-  getchar();
+  auto time1 = chrono::high_resolution_clock::now();
 
   string HOST = "http://localhost:3000";
   string PATH = "/matches/10";
@@ -268,74 +158,44 @@ int main(int argc, char *argv[])
   cout << +match->turn << endl;
   match->draw();
 
-  Action *act = getActplan(match, evaluate_current_board, 3);
+  auto time2 = high_resolution_clock::now();
+  auto ms = duration_cast<chrono::milliseconds>(time2 - time1);
+  auto calc_time = milliseconds(msec) - ms;
+  for(auto depth = 1; depth <= 5; depth++) {
+    auto time3 = high_resolution_clock::now();
+    Action *act = getActplan(match, evaluate_current_board, depth);
 
-  json post_json;
-  post_json["turn"] = match->turn + 1;
-  for(auto i = 0; i < match->info->agent; i++)
-    post_json["actions"][i] = {{"type", +act[i].kind}, {"dir", +act[i].direc}};
-  string cmd("curl -X POST -H \"Content-Type: application/json\" -d '");
-  cmd += post_json.dump();
-  cmd += "' localhost:8080";
+    json post_json;
+    post_json["turn"] = match->turn + 1;
+    for(auto i = 0; i < match->info->agent; i++)
+      post_json["actions"][i] = {{"type", +act[i].kind}, {"dir", +act[i].direc}};
+    string cmd("curl -X POST -H \"Content-Type: application/json\" -d '");
+    cmd += post_json.dump();
+    cmd += "' localhost:8080";
 
-  cout << cmd << endl;
-  system(cmd.c_str());
+    // cout << cmd << endl;
+    system(cmd.c_str());
+    auto time4 = high_resolution_clock::now();
+    calc_time -= duration_cast<chrono::milliseconds>(time4 - time3);
+  }
+  std::this_thread::sleep_for(calc_time);
+}
 
-  // Connect request;
-  // request.fetch();
+int main(int argc, char *argv[])
+{
+  srand((unsigned)time(NULL));
 
-  // // 現在行われている試合の一覧をget
-  // request.path = "/matches";
-  // request.get();
-  // char res[RESPONSE_MAX];
-  // request.res(res, RESPONSE_MAX, 1, 0);
-  // cout << res << endl;
+  cout << "press enter\n";
+  getchar();
 
-  // // 初期状態をget
-  // request.path = "/matches/10";
+  int msec = 3000;
+  int turn_num = 60;
 
-  // char *response = new char[RESPONSE_MAX]();
-
-  // getCurBoard(request, response, sizeof response);
-
-  // cout << response << endl;
-
-  // auto jobj = getJsonByRes(response);
-  // delete response;
-
-  // Board *match = getInfobyJson(jobj);
-  // cout << +match->turn << endl;
-  // match->draw();
-
-  // // 現在の盤面から最善手を計算，取得
-  // Action *act = getActplan(match, evaluate_current_board, 3);
-
-  // json post_json;
-  // post_json["turn"] = match->turn + 1;
-  // for(auto i = 0; i < match->info->agent; i++)
-  //   post_json["actions"][i] = {{"type", +act[i].kind}, {"dir", +act[i].direc}};
-  // string cmd("curl -X POST -H \"Content-Type: application/json\" -d ");
-  // cmd += post_json.dump();
-  // cmd += " localhost:8080";
-
-  // cout << cmd << endl;
-  // system(cmd.c_str());
-
-  // // 送信
-
-  // // // 更新が反映されるまで待つ
-  // // sleep(4);
-
-  // // // 更新された分を確認
-  // // getCurBoard(request, response2, sizeof response2);
-  
-  // // cout << response2 << endl;
-
-  // // json jobj2 = getJsonByRes(response2);
-  // // delete response2;
-
-  // // Board *match2 = getInfobyJson(jobj2);
-  // // match2->draw();
+  for(auto i = 0; i < turn_num / 2; i++) {
+    calc(msec);
+    std::this_thread::sleep_for(milliseconds(msec));
+  }
 
   return 0;
+
 }
