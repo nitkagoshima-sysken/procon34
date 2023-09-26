@@ -139,7 +139,7 @@ void calc(int msec)
 {
   auto time1 = chrono::high_resolution_clock::now();
 
-  string HOST = "http://localhost:3000";
+  string HOST = "http://192.168.10.4:3000";
   string PATH = "/matches/10";
   string TOKEN = "kagoshimaf9e9e019877b0b3d212cf1dec665e9e9b45c99f1062779a73c5d3b1";
   string OUT_FILE = "res.txt";
@@ -171,7 +171,54 @@ void calc(int msec)
       post_json["actions"][i] = {{"type", +act[i].kind}, {"dir", +act[i].direc}};
     string cmd("curl -X POST -H \"Content-Type: application/json\" -d '");
     cmd += post_json.dump();
-    cmd += "' localhost:8080";
+    cmd += "' 192.168.10.3:8080";
+
+    // cout << cmd << endl;
+    system(cmd.c_str());
+    auto time4 = high_resolution_clock::now();
+    calc_time -= duration_cast<chrono::milliseconds>(time4 - time3);
+  }
+  std::this_thread::sleep_for(calc_time);
+}
+
+void score(int msec)
+{
+  auto time1 = chrono::high_resolution_clock::now();
+
+  string HOST = "http://192.168.10.4:3000";
+  string PATH = "/matches/10";
+  string TOKEN = "kagoshimaf9e9e019877b0b3d212cf1dec665e9e9b45c99f1062779a73c5d3b1";
+  string OUT_FILE = "res.txt";
+  string get_cmd("curl ");
+  get_cmd += HOST + PATH + "?token=" + TOKEN + " > " + OUT_FILE;
+
+  system(get_cmd.c_str());
+
+  ifstream ifs;
+  ifs.open(OUT_FILE, ios::in);
+  string reading_buffer;
+  getline(ifs, reading_buffer);
+
+  auto jobj = json::parse(reading_buffer);
+  Board *match = getInfobyJson(jobj);
+  cout << +match->turn << endl;
+  match->draw();
+  match->next_turn = Player2;
+
+  auto time2 = high_resolution_clock::now();
+  auto ms = duration_cast<chrono::milliseconds>(time2 - time1);
+  auto calc_time = milliseconds(msec) - ms;
+  for(auto depth = 1; depth <= 5; depth++) {
+    auto time3 = high_resolution_clock::now();
+    Action *act = getActplan(match, ev_diff_score, depth);
+
+    json post_json;
+    post_json["turn"] = match->turn + 1;
+    for(auto i = 0; i < match->info->agent; i++)
+      post_json["actions"][i] = {{"type", +act[i].kind}, {"dir", +act[i].direc}};
+    string cmd("curl -X POST -H \"Content-Type: application/json\" -d '");
+    cmd += post_json.dump();
+    cmd += "' 192.168.10.3:8080";
 
     // cout << cmd << endl;
     system(cmd.c_str());
@@ -193,7 +240,7 @@ int main(int argc, char *argv[])
 
   for(auto i = 0; i < turn_num / 2; i++) {
     calc(msec);
-    std::this_thread::sleep_for(milliseconds(msec));
+    score(msec);
   }
 
   return 0;
