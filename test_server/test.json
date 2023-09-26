@@ -1,12 +1,12 @@
 {
   "teams": [
-    {"name": "先攻チーム", "token": "先攻チームのトークン"},
-    {"name": "後攻チーム", "token": "後攻チームのトークン"}
+    {"name": "チェストブラザーズ", "token": "kagoshimaf9e9e019877b0b3d212cf1dec665e9e9b45c99f1062779a73c5d3b1"},
+    {"name": "都立東京工業専門学校", "token": "tokyo1234"}
   ],
   "match": {
     "id": 10,
-    "turns": 30,
-    "turnSeconds": 3,
+    "turns": 200,
+    "turnSeconds": 5,
     "bonus": {
       "wall": 10,
       "territory": 30,

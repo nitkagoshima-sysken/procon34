@@ -5,9 +5,8 @@
 #include <vector>
 #include "main_ev_func.hpp"
 #include "Evaluation_func.hpp"
-#include <assert.h>
-#include "http.hpp"
 #include "nlohmann/json.hpp"
+#include <fstream>
 using namespace std;
 using namespace nlohmann;
 
@@ -132,59 +131,59 @@ Action *getActplan(Board *match, ev_function act_plan, int depth)
   return act;
 }
 
-json getJsonByRes(char *res)
-{
-  res = strchr(res, '{');
-  char *p = res;
-  p = strchr(p, '\n');
-  if(p) {
-    *p = '\0';
-  }
+// json getJsonByRes(char *res)
+// {
+//   res = strchr(res, '{');
+//   char *p = res;
+//   p = strchr(p, '\n');
+//   if(p) {
+//     *p = '\0';
+//   }
 
-  auto jobj = json::parse(res);
-  return jobj;
-}
+//   auto jobj = json::parse(res);
+//   return jobj;
+// }
 
-int getCurBoard(Connect request, char *buf, int size)
-{
+// int getCurBoard(Connect request, char *buf, int size)
+// {
 
-  request.get();
+//   request.get();
 
-   // ここから受信処理
+//    // ここから受信処理
 
-  char chunk[4096];
-  int recv_size;
+//   char chunk[4096];
+//   int recv_size;
 
-  if((recv_size = request.res(chunk, sizeof chunk, 0.2, 0)) < 0) {
-    return -1;
-  }
-  while(recv_size == 0) { // 最初のレスポンスがくるまで繰返しrecv
-    if((recv_size = request.res(chunk, sizeof chunk, 0.2, 0)) < 0) {
-      return -1;
-    }
-  }
-  char *p = buf;
-  while(recv_size) {
-    memcpy(buf, chunk, sizeof chunk);
-    memset(chunk, 0, sizeof chunk);
-    buf += sizeof chunk;
-    if((recv_size = request.res(chunk, sizeof chunk, 0.2, 0)) < 0) {
-      return -1;
-    }
-  }
-  *buf = '\0';
+//   if((recv_size = request.res(chunk, sizeof chunk, 0.2, 0)) < 0) {
+//     return -1;
+//   }
+//   while(recv_size == 0) { // 最初のレスポンスがくるまで繰返しrecv
+//     if((recv_size = request.res(chunk, sizeof chunk, 0.2, 0)) < 0) {
+//       return -1;
+//     }
+//   }
+//   char *p = buf;
+//   while(recv_size) {
+//     memcpy(buf, chunk, sizeof chunk);
+//     memset(chunk, 0, sizeof chunk);
+//     buf += sizeof chunk;
+//     if((recv_size = request.res(chunk, sizeof chunk, 0.2, 0)) < 0) {
+//       return -1;
+//     }
+//   }
+//   *buf = '\0';
 
-  string str(p);
-  if(str.find("200") != string::npos) {
-    cout << "成功(200)\n";
-  } else {
-    cout << "成功(200)を受け取りませんでした\n";
-    cout << p << endl;
-    return -1;
-  }
+//   string str(p);
+//   if(str.find("200") != string::npos) {
+//     cout << "成功(200)\n";
+//   } else {
+//     cout << "成功(200)を受け取りませんでした\n";
+//     cout << p << endl;
+//     return -1;
+//   }
 
-  return 0;
-}
+//   return 0;
+// }
 
 /**
  * @brief 行動プランを競技サーバに送る
@@ -194,54 +193,54 @@ int getCurBoard(Connect request, char *buf, int size)
  * @param cur 現在の盤面状態
  * @return int 成功なら0，レスポンスのエラー(400)などの場合は-1を返却
  */
-int SendActPlan(Action *act, Connect request, Board *cur)
-{
-  json post_json;
-  post_json["turn"] = cur->turn + 1;
-  for(auto i = 0; i < cur->info->agent; i++)
-    post_json["actions"][i] = {{"type", +act[i].kind}, {"dir", +act[i].direc}};
+// int SendActPlan(Action *act, Connect request, Board *cur)
+// {
+//   json post_json;
+//   post_json["turn"] = cur->turn + 1;
+//   for(auto i = 0; i < cur->info->agent; i++)
+//     post_json["actions"][i] = {{"type", +act[i].kind}, {"dir", +act[i].direc}};
 
-  request.post(post_json.dump());
+//   request.post(post_json.dump());
 
-  // ここから受信処理
+//   // ここから受信処理
 
-  char post_recv[RESPONSE_MAX];
+//   char post_recv[RESPONSE_MAX];
 
-  char *p = post_recv;
-  char chunk[4096];
-  int recv_size;
+//   char *p = post_recv;
+//   char chunk[4096];
+//   int recv_size;
 
-  if((recv_size = request.res(chunk, sizeof chunk, 0.2, 0)) < 0) {
-    cout << "error\n";
-    return -1;
-  }
-  while(recv_size == 0) { // 最初のレスポンスがくるまで繰返しrecv
-    if((recv_size = request.res(chunk, sizeof chunk, 0.2, 0)) < 0) {
-      return -1;
-    }
-  }
+//   if((recv_size = request.res(chunk, sizeof chunk, 0.2, 0)) < 0) {
+//     cout << "error\n";
+//     return -1;
+//   }
+//   while(recv_size == 0) { // 最初のレスポンスがくるまで繰返しrecv
+//     if((recv_size = request.res(chunk, sizeof chunk, 0.2, 0)) < 0) {
+//       return -1;
+//     }
+//   }
 
-  while(recv_size) {
-    memcpy(p, chunk, sizeof chunk);
-    memset(chunk, 0, sizeof chunk);
-    p += sizeof chunk;
-    if((recv_size = request.res(chunk, sizeof chunk, 0.1, 0)) < 0) {
-      return -1;
-    }
-  }
-  *p = '\0';
+//   while(recv_size) {
+//     memcpy(p, chunk, sizeof chunk);
+//     memset(chunk, 0, sizeof chunk);
+//     p += sizeof chunk;
+//     if((recv_size = request.res(chunk, sizeof chunk, 0.1, 0)) < 0) {
+//       return -1;
+//     }
+//   }
+//   *p = '\0';
 
-  string str(post_recv);
-  if(str.find("200") != string::npos) {
-    cout << "成功(200)\n";
-  } else {
-    cout << "成功(200)を受け取りませんでした\n";
-    cout << post_recv << endl;
-    return -1;
-  }
+//   string str(post_recv);
+//   if(str.find("200") != string::npos) {
+//     cout << "成功(200)\n";
+//   } else {
+//     cout << "成功(200)を受け取りませんでした\n";
+//     cout << post_recv << endl;
+//     return -1;
+//   }
 
-  return 0;
-}
+//   return 0;
+// }
 
 int main(int argc, char *argv[])
 {
@@ -250,53 +249,93 @@ int main(int argc, char *argv[])
   cout << "press enter\n";
   getchar();
 
-  Connect request;
-  request.fetch();
+  string HOST = "http://localhost:3000";
+  string PATH = "/matches/10";
+  string TOKEN = "kagoshimaf9e9e019877b0b3d212cf1dec665e9e9b45c99f1062779a73c5d3b1";
+  string OUT_FILE = "res.txt";
+  string get_cmd("curl ");
+  get_cmd += HOST + PATH + "?token=" + TOKEN + " > " + OUT_FILE;
 
-  // 現在行われている試合の一覧をget
-  request.path = "/matches";
-  request.get();
-  char res[RESPONSE_MAX];
-  request.res(res, RESPONSE_MAX, 1, 0);
-  cout << res << endl;
+  system(get_cmd.c_str());
 
-  // 初期状態をget
-  request.path = "/matches/10";
+  ifstream ifs;
+  ifs.open(OUT_FILE, ios::in);
+  string reading_buffer;
+  getline(ifs, reading_buffer);
 
-  char *response = new char[RESPONSE_MAX]();
-
-  getCurBoard(request, response, sizeof response);
-
-  cout << response << endl;
-
-  auto jobj = getJsonByRes(response);
-  delete response;
-
+  auto jobj = json::parse(reading_buffer);
   Board *match = getInfobyJson(jobj);
   cout << +match->turn << endl;
   match->draw();
 
-  // 現在の盤面から最善手を計算，取得
   Action *act = getActplan(match, evaluate_current_board, 3);
 
-  // 送信
-  SendActPlan(act, request, match);
+  json post_json;
+  post_json["turn"] = match->turn + 1;
+  for(auto i = 0; i < match->info->agent; i++)
+    post_json["actions"][i] = {{"type", +act[i].kind}, {"dir", +act[i].direc}};
+  string cmd("curl -X POST -H \"Content-Type: application/json\" -d '");
+  cmd += post_json.dump();
+  cmd += "' localhost:8080";
 
-  char *response2 = new char[RESPONSE_MAX]();
+  cout << cmd << endl;
+  system(cmd.c_str());
 
-  // // 更新が反映されるまで待つ
-  // sleep(4);
+  // Connect request;
+  // request.fetch();
 
-  // // 更新された分を確認
-  // getCurBoard(request, response2, sizeof response2);
+  // // 現在行われている試合の一覧をget
+  // request.path = "/matches";
+  // request.get();
+  // char res[RESPONSE_MAX];
+  // request.res(res, RESPONSE_MAX, 1, 0);
+  // cout << res << endl;
+
+  // // 初期状態をget
+  // request.path = "/matches/10";
+
+  // char *response = new char[RESPONSE_MAX]();
+
+  // getCurBoard(request, response, sizeof response);
+
+  // cout << response << endl;
+
+  // auto jobj = getJsonByRes(response);
+  // delete response;
+
+  // Board *match = getInfobyJson(jobj);
+  // cout << +match->turn << endl;
+  // match->draw();
+
+  // // 現在の盤面から最善手を計算，取得
+  // Action *act = getActplan(match, evaluate_current_board, 3);
+
+  // json post_json;
+  // post_json["turn"] = match->turn + 1;
+  // for(auto i = 0; i < match->info->agent; i++)
+  //   post_json["actions"][i] = {{"type", +act[i].kind}, {"dir", +act[i].direc}};
+  // string cmd("curl -X POST -H \"Content-Type: application/json\" -d ");
+  // cmd += post_json.dump();
+  // cmd += " localhost:8080";
+
+  // cout << cmd << endl;
+  // system(cmd.c_str());
+
+  // // 送信
+
+  // // // 更新が反映されるまで待つ
+  // // sleep(4);
+
+  // // // 更新された分を確認
+  // // getCurBoard(request, response2, sizeof response2);
   
-  // cout << response2 << endl;
+  // // cout << response2 << endl;
 
-  // json jobj2 = getJsonByRes(response2);
-  // delete response2;
+  // // json jobj2 = getJsonByRes(response2);
+  // // delete response2;
 
-  // Board *match2 = getInfobyJson(jobj2);
-  // match2->draw();
+  // // Board *match2 = getInfobyJson(jobj2);
+  // // match2->draw();
 
   return 0;
 }
