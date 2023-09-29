@@ -10,6 +10,11 @@
 using namespace std;
 using namespace nlohmann;
 
+#define SERVER_IP "192.168.10.4"
+#define SERVER_PORT 3000
+#define PY_SERVER_IP "192.168.10.4"
+#define PY_SERVER_PORT 8080
+
 Board *getInfobyJson(json jobj)
 {
   FieldInfo *info = new FieldInfo;
@@ -139,12 +144,14 @@ void calc(int msec)
 {
   auto time1 = chrono::high_resolution_clock::now();
 
-  string HOST = "http://192.168.10.4:3000";
+  string HOST = "http://";
+  HOST += SERVER_IP;
+  HOST += ":" + to_string(SERVER_PORT);
   string PATH = "/matches/10";
   string TOKEN = "kagoshimaf9e9e019877b0b3d212cf1dec665e9e9b45c99f1062779a73c5d3b1";
   string OUT_FILE = "res.txt";
   string get_cmd("curl ");
-  get_cmd += HOST + PATH + "?token=" + TOKEN + " > " + OUT_FILE;
+  get_cmd += "'" + HOST + PATH + "?token=" + TOKEN + "' > " + OUT_FILE;
 
   system(get_cmd.c_str());
 
@@ -171,7 +178,9 @@ void calc(int msec)
       post_json["actions"][i] = {{"type", +act[i].kind}, {"dir", +act[i].direc}};
     string cmd("curl -X POST -H \"Content-Type: application/json\" -d '");
     cmd += post_json.dump();
-    cmd += "' 192.168.10.3:8080";
+    cmd += "' ";
+    cmd += PY_SERVER_IP;
+    cmd += ":" + to_string(PY_SERVER_PORT);
 
     // cout << cmd << endl;
     system(cmd.c_str());
@@ -185,12 +194,14 @@ void score(int msec)
 {
   auto time1 = chrono::high_resolution_clock::now();
 
-  string HOST = "http://192.168.10.4:3000";
+  string HOST = "http://";
+  HOST += SERVER_IP;
+  HOST += ":" + to_string(SERVER_PORT);
   string PATH = "/matches/10";
   string TOKEN = "kagoshimaf9e9e019877b0b3d212cf1dec665e9e9b45c99f1062779a73c5d3b1";
   string OUT_FILE = "res.txt";
   string get_cmd("curl ");
-  get_cmd += HOST + PATH + "?token=" + TOKEN + " > " + OUT_FILE;
+  get_cmd += "'" + HOST + PATH + "?token=" + TOKEN + "' > " + OUT_FILE;
 
   system(get_cmd.c_str());
 
@@ -218,7 +229,9 @@ void score(int msec)
       post_json["actions"][i] = {{"type", +act[i].kind}, {"dir", +act[i].direc}};
     string cmd("curl -X POST -H \"Content-Type: application/json\" -d '");
     cmd += post_json.dump();
-    cmd += "' 192.168.10.3:8080";
+    cmd += "' ";
+    cmd += PY_SERVER_IP;
+    cmd += ":" + to_string(PY_SERVER_PORT);
 
     // cout << cmd << endl;
     system(cmd.c_str());
