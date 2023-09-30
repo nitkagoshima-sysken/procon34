@@ -1,8 +1,8 @@
 *~
 *.o
 procon
-*.md
 *.json
 *.s
 *.zip
-.vscode
+.vscode/
+memo.md
