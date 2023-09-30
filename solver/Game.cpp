@@ -328,6 +328,7 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
     }
 
     uint8_t ax[4] = {0}, ay[4] = {0}, cnt = 0, special_cnt = 0;
+    Encamp_Update(belong, mx, my);
     for(int direc = 0; direc < Direction_Max; direc++) {
       uint8_t mmx = mx + round(cos(direc * PI/4));
       uint8_t mmy = my + round(sin(direc * PI/4));

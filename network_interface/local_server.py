@@ -23,9 +23,6 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         res = requests.get(HOST + path + '?token=' + TOKEN)
 
     def do_POST(self):
-        self.send_response(200)
-        self.send_header('Content-Type', 'text/plain; charset=utf-8')
-        self.end_headers()
         data = self.rfile.read(int(self.headers['content-length'])).decode('utf-8')
 
         HEADER = {
@@ -37,10 +34,11 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         data_encode = json.dumps(json.loads(data))
         print(data_encode)
         res = requests.post(HOST + path + '?token=' + TOKEN, headers=HEADER, data=data_encode)
-        print(res.content)
+        print(res.status_code)
         # post_num += 1
-        html_context = '深さを追加!'
-        self.wfile.write(html_context.encode())
+        self.send_response(res.status_code)
+        self.send_header('Content-Type', 'text/plain; charset=utf-8')
+        self.end_headers()
         
 server_address = ('localhost', 8080)
 httpd = HTTPServer(server_address, CustomHTTPRequestHandler)
