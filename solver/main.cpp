@@ -140,7 +140,7 @@ Action *getActplan(Board *match, ev_function act_plan, int depth)
 #include <thread>
 using namespace chrono;
 
-void calc(int msec, ev_function ev_func)
+void calc(int msec, ev_function ev_func, bool belong)
 {
   auto time1 = chrono::high_resolution_clock::now();
 
@@ -172,7 +172,15 @@ void calc(int msec, ev_function ev_func)
   }
 
   auto jobj = json::parse(reading_buffer);
+
   Board *match = getInfobyJson(jobj);
+
+  if((belong == Player1 && match->turn % 2 != 0) || 
+     (belong == Player2 && match->turn % 2 == 0)) {
+    cout << "このターンでは行動計画を送信できません．\n";
+    return;
+  }
+  
   cout << +match->turn << endl;
   match->draw();
 
@@ -214,8 +222,8 @@ int main(int argc, char *argv[])
   int turn_num = 60;
 
   for(auto i = 0; i < turn_num / 2; i++) {
-    calc(msec, evaluate_current_board);
-    calc(msec, ev_diff_score);
+    calc(msec, evaluate_current_board, Player1);
+    calc(msec, ev_diff_score, Player2);
   }
 
   return 0;
