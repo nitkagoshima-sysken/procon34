@@ -6,7 +6,7 @@
 #include <vector>
 
 #define wall_search_max  2
-#define agent_search_max 4
+#define agent_search_max 2
 #define coefficient_act       1
 #define coefficient_castle_p  30
 #define coefficient_castle_w1 20
@@ -23,14 +23,15 @@ typedef int (*ev_function)(Board *board, bool belong);
 
 class Game_Node {
 public:
+  bool target_belong;
   int evaluation;
   Game_Node *parentNode;
   Board *board;
   std::vector<Game_Node*> childrenNode;
   Action pre_act;
   
-  Game_Node(Board *board);
-  ~Game_Node();
+  // Game_Node(Board *board);
+  // ~Game_Node();
 
   void expandChildren(int backnumber);
   void deleteChildren();
@@ -44,9 +45,9 @@ public:
 
 };
 
-void expandChildren_by_num(Game_Node *root, int n, int backnumber);
-void TreeSearch(Game_Node *root, int backnumber, bool belong);
-void drawTree(Game_Node *root);
+void expandChildren_by_num(Game_Node *root, int n, int backnumber, bool first_node = true);
+void TreeSearch(Game_Node *root, int backnumber, bool belong, bool first_node = true);
+void drawTree(Game_Node *root, FILE *fp, int n = -1);
 void deleteTree(Game_Node* root);
 
 #endif

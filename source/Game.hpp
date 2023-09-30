@@ -44,6 +44,7 @@ enum {
 typedef struct {
   uint8_t x, y;
   uint8_t backnumber;
+  // uint8_t bx, by, bbx, bby;
 } Agent;
 
 typedef struct Cell Cell;

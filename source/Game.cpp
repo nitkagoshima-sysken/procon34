@@ -37,11 +37,34 @@ Board::Board(Bitmap_t **fieldmap, FieldInfo *info, Agent *age1, Agent *age2)
 {
   this->map = fieldmap;
   this->info = info;
-  this->agent1 = age1;
-  this->agent2 = age2;
 
-  next_turn = Player1;
-  turn = 1;
+  agent1 = new Agent[info->agent];
+  agent2 = new Agent[info->agent];
+
+  for(int i = 0; i < info->agent; i++) {
+    int cnt1 = 0, cnt2 = 0;
+    for(int j = 0; j < info->length; j++) {
+      for(int k = 0; k < info->length; k++) {
+        if(map[j][k] & BIT_AGENT1) {
+          agent1[cnt1].x = k;
+          agent1[cnt1].y = j;
+          cnt1++;
+          continue;
+        }
+        if(map[j][k] & BIT_AGENT2) {
+          agent2[cnt2].x = k;
+          agent2[cnt2].y = j;
+          cnt2++;
+        }
+      }
+    }
+    // agent1[i].bx  =0;
+    // agent1[i].by  =0;
+    // agent1[i].bbx =0;
+    // agent1[i].bby =0;
+  }
+
+  turn = 0;
 }
 
 Board::Board(const Board &board)
@@ -108,33 +131,24 @@ void Board::getLegalAct(bool belong, vector<Action> &action, uint8_t b_nomber)
   // cout << "x: " << (int)x << " y: " << (int)y << endl;
 
   // 4方向(左右上下)を探索
+  act.kind = ACT_BUILD;
   for(int direc = 0; direc < Direction_Max; direc+=2) {
     
     uint8_t mx = x + round(cos(direc * PI/4));
     uint8_t my = y + round(sin(direc * PI/4));
     
-    if(isIgnoreCoord(mx, my)) {
+    if(isIgnoreCoord(mx, my) || ! (build_enable(mx,my, belong))) {
       // cout << "is ignore Coord" << endl;
       continue;
     }
+    
     act.direc = direc;
-    if(map[my][mx] & (BIT_WALL1 | BIT_WALL2)){
-      act.kind = ACT_DEMOLISH;
-      action.push_back(act);
-    }
-    if(build_enable(mx,my, belong)){
-      act.kind = ACT_BUILD;
-      action.push_back(act);
-    }
-    if(move_enable(mx,my, belong)){
-      act.kind = ACT_MOVE;
-      action.push_back(act);
-    }
+    action.push_back(act);
   }
 
   // 残りの4方向を探索
   act.kind = ACT_MOVE;
-  for(int direc = 1; direc < Direction_Max; direc += 2) {
+  for(int direc = 0; direc < Direction_Max; direc ++) {
     uint8_t mx = x + round(cos(direc * PI/4));
     uint8_t my = y + round(sin(direc * PI/4));
 
@@ -147,6 +161,20 @@ void Board::getLegalAct(bool belong, vector<Action> &action, uint8_t b_nomber)
     action.push_back(act);
   }
 
+  act.kind = ACT_DEMOLISH;
+  for(int direc = 0; direc < Direction_Max; direc+=2) {
+    
+    uint8_t mx = x + round(cos(direc * PI/4));
+    uint8_t my = y + round(sin(direc * PI/4));
+    
+    if(isIgnoreCoord(mx, my) || ! (map[my][mx] & (BIT_WALL1 | BIT_WALL2))) {
+      // cout << "is ignore Coord" << endl;
+      continue;
+    }
+    
+    act.direc = direc;
+    action.push_back(act);
+  }
   // cout << "size: " << action.size() << endl;
 
 }
@@ -242,6 +270,12 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
   if(kind == ACT_MOVE && move_enable(mx, my, belong)) {
     map[my][mx] |= (target_agent_bit & map[y][x]); // Agentを移動
     map[y][x] &= ~target_agent_bit;
+
+    // target_agent[backnumber].bbx = target_agent[backnumber].bx ;
+    // target_agent[backnumber].bby = target_agent[backnumber].by ;
+    // target_agent[backnumber].bx  = target_agent[backnumber].x ;
+    // target_agent[backnumber].by  = target_agent[backnumber].y ;
+    
     target_agent[backnumber].x = mx;
     target_agent[backnumber].y = my; // Agent構造体のx, y座標も移動させて帳尻合わせ
 
@@ -347,7 +381,7 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
   cerr << "Act failed: " << (int)backnumber << endl; 
   cerr << "detail: kind:" << +act.kind << ", direc:" << +act.direc << endl;
   cout << "\x1b[49m";
-  exit(1);
+  // exit(1);
   return ACT_FAILED;
 }
 

@@ -11,21 +11,27 @@ int playerpoint(Board *board, bool belong, uint8_t b_number)
   int p = 0;
   uint8_t x, y;
 
+  Bitmap_t tagetencamp = (belong == Player1) ? BIT_ENCAMP1 : BIT_ENCAMP2 ;
   Agent *target_agent = (belong == Player1) ? board->agent1: board->agent2;
-  Bitmap_t ally_wall      = (belong == Player1) ? BIT_WALL1    : BIT_WALL2;
+  // Bitmap_t ally_wall      = (belong == Player1) ? BIT_WALL1    : BIT_WALL2;
 
   vector<Action> action;
 
   x = target_agent[b_number].x;
   y = target_agent[b_number].y;
 
+  // if((target_agent[b_number].x == target_agent[b_number].bbx) && (target_agent[b_number].y == target_agent[b_number].bby)) p--;
+
   board->getLegalAct(belong, action, b_number);
   act =action.size();
 
   p += coefficient_act * act;      //合法手のポイント加算
 
-  // if(board->map[y][x] & BIT_CASTLE)    p += coefficient_castle_p *20;
-  // if(board->map[y][x] & ally_wall)     p +=(pmap[y][x] = wallpoint(x, y, pmap[y][x], point)) *20;
+  // if((board->map[y][x] & BIT_CASTLE) && (! (board->map[y][x] & tagetencamp))){
+  //   p += WALL_POINT * coefficient_score  *2;
+  // //   return p;
+  // }
+  // // if(board->map[y][x] & ally_wall)     p +=(pmap[y][x] = wallpoint(x, y, pmap[y][x], point)) *20;
   // for(int i=1; i <= agent_search_max; i++){
   //   x -= 1;  y -= 1;
   //   for(int j=0; j < 4; j++){
@@ -35,8 +41,11 @@ int playerpoint(Board *board, bool belong, uint8_t b_number)
   //       x += round(cos(j * PI/2));
 
   //       if(board->isIgnoreCoord(x,y))continue;
-  //       if(board->map[y][x] & BIT_CASTLE)    p += coefficient_castle_p *(20- i*i);                             //城ポイント加算
-  //       if(board->map[y][x] & ally_wall)     p +=(pmap[y][x] = wallpoint(x, y, pmap[y][x], point)) *(20- i*i); //壁ポイント加算
+  //       if((board->map[y][x] & BIT_CASTLE) && (! (board->map[y][x] & tagetencamp))){
+  //         p += (WALL_POINT * coefficient_score +5) * (3 - i);
+  //         return p;
+  //       }                             //城ポイント加算
+  // //       if(board->map[y][x] & ally_wall)     p +=(pmap[y][x] = wallpoint(x, y, pmap[y][x], point)) *(20- i*i); //壁ポイント加算
   //     }
   //   }
   // }
@@ -64,11 +73,21 @@ void feild_advantage(Board *board, int *point1, int *point2){
   for(uint8_t i=0; i < board->info->length ;i++){
     for(uint8_t j=0; j < board->info->length ;j++){
       if(board->map[i][j] & (BIT_WALL1 | BIT_WALL2)){
-        Bitmap_t tagetwall= (board->map[i][j] & BIT_WALL1) ? BIT_WALL1 : BIT_WALL2;
-        uint8_t  belong =   (board->map[i][j] & BIT_WALL1) ? 0:1;
+        Bitmap_t tagetencamp, tagetwall;
+        uint8_t  belong;
+        if(board->map[i][j] & BIT_WALL1){
+          tagetencamp = BIT_ENCAMP1;
+          tagetwall   = BIT_WALL1;
+          belong      = 0;
+        }else{
+          tagetencamp = BIT_ENCAMP2;
+          tagetwall   = BIT_WALL2;
+          belong      = 1;
+        }
         bool flg1=false, flg2=false;
         uint8_t x= j-1, y= i-1;
         uint8_t mx, my;
+        bool flgp=false, flgc=false;
 
         if(board->isIgnoreCoord(x,y)){
           flg2 = true;
@@ -84,8 +103,34 @@ void feild_advantage(Board *board, int *point1, int *point2){
             if(board->isIgnoreCoord(x,y)){
               flg1 = false;
               flg2 = true;
+              flgp = false;
               continue;
             }
+
+            if((!flgc) && (board->map[y][x] & BIT_CASTLE) && (l==0) /*&& (! (board->map[y][x] & tagetencamp))*/){
+              belong ? p2 += WALL_POINT * coefficient_score * ((board->map[y][x] & tagetencamp) ? 3 : 6) : p1 += WALL_POINT * coefficient_score * ((board->map[y][x] & tagetencamp) ? 3 : 6);
+              flgc=true;
+            }
+
+            if((! (board->map[i][j] & BIT_POND)) && (board->map[y][x] & BIT_POND) && (l==0)){
+              if(flgp){
+                belong ? p2 += WALL_POINT * coefficient_score / 2 : p1 += WALL_POINT * coefficient_score / 2;
+                flgp = false;
+              }else{
+                if(k==3){
+                  if(! board->isIgnoreCoord(x+1,y-1)){
+                    if(board->map[y-1][x+1] & BIT_POND){
+                      if(board->isIgnoreCoord(x+2,y)){
+                        belong ? p2 += WALL_POINT * coefficient_score / 2 : p1 += WALL_POINT * coefficient_score / 2;
+                      }else if(! (board->map[y][x+2] & BIT_POND)){
+                        belong ? p2 += WALL_POINT * coefficient_score / 2 : p1 += WALL_POINT * coefficient_score / 2;
+                      }
+                    }
+                  }
+                }
+                flgp = true;
+              }
+            }else flgp = false;
             
             if(board->map[y][x] & tagetwall){
               flg1 = true;
@@ -96,7 +141,21 @@ void feild_advantage(Board *board, int *point1, int *point2){
 
             }else{
               if(! flg2){
-                if((pmap[my][mx][belong] > 1) && (k!=0 || l!=0)) belong ? p2++ : p1++;
+                if((pmap[my][mx][belong] > 1) && (k!=0 || l!=0)) {
+                  uint8_t advantagepoint=0;
+
+                  for(int m=0; m < board->info->agent; m++){
+                    Agent *target_agent = belong ? board->agent2: board->agent1;
+
+                    uint8_t dx = (target_agent[m].x > mx) ? target_agent[m].x - mx : mx - target_agent[m].x ;
+                    uint8_t dy = (target_agent[m].y > my) ? target_agent[m].y - my : my - target_agent[m].y ;
+                    uint8_t dst = (dx==dy) ? ((dx==0) ? 2 : dx+1) :((dx>dy) ? dx : dy);
+
+                    if(advantagepoint < dst)advantagepoint = dst ;
+                  }
+                  uint8_t advp= (advantagepoint == 1)? 5: ((advantagepoint <5)? 3 : 1);
+                  belong ? p2+= advp : p1+= advp;
+                }
               }else flg2 = false;
 
               if(! flg1){
@@ -106,7 +165,21 @@ void feild_advantage(Board *board, int *point1, int *point2){
           }
         }
         if(! flg2){
-          if(pmap[y][x][belong] > 1) belong ? p2++ : p1++;
+          if(pmap[y][x][belong] > 1){
+            uint8_t advantagepoint=0;
+
+            for(int m=0; m < board->info->agent; m++){
+              Agent *target_agent = belong ? board->agent2: board->agent1;
+
+              uint8_t dx = (target_agent[m].x > mx) ? target_agent[m].x - mx : mx - target_agent[m].x ;
+              uint8_t dy = (target_agent[m].y > my) ? target_agent[m].y - my : my - target_agent[m].y ;
+              uint8_t dst = (dx==dy) ? ((dx==0) ? 2 : dx+1) :((dx>dy) ? dx : dy);
+
+              if(advantagepoint < dst)advantagepoint = dst ;
+            }
+            uint8_t advp= (advantagepoint == 1)? 5: ((advantagepoint <5)? 3 : 1);
+            belong ? p2+= advp : p1+= advp;
+          }
         }
       }
     }
