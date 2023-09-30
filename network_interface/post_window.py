@@ -8,6 +8,9 @@ TOKEN = "kagoshimaf9e9e019877b0b3d212cf1dec665e9e9b45c99f1062779a73c5d3b1"
 
 path = "/matches/10"
 
+file = "res.json"
+old_file = "res.json.old"
+
 # post_num = 0
 
 class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
@@ -49,6 +52,6 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         self.send_header('Content-Type', 'text/plain; charset=utf-8')
         self.end_headers()
         
-server_address = ('localhost', 8080)
+server_address = ('0.0.0.0', 8080)
 httpd = HTTPServer(server_address, CustomHTTPRequestHandler)
 httpd.serve_forever()
