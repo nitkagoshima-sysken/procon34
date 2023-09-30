@@ -1,5 +1,5 @@
-#include "solver/procon2023.hpp"
-#include "solver/Game.hpp"
+#include "procon2023.hpp"
+#include "Game.hpp"
 #include "FieldMap.hpp"
 #include "Game_Node.hpp"
 #include <vector>
