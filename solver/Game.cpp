@@ -313,6 +313,7 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
   }
 
   if(kind == ACT_DEMOLISH) {
+
     // if(getwall(belong, mx, my) == 1)
     //   cout << "getwall:エラー\n";
 
@@ -327,9 +328,8 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
       target_wall   = BIT_WALL2;
     }
 
-    uint8_t ax[4] = {0}, ay[4] = {0}, cnt = 0, special_cnt = 0;
-    Encamp_Update(belong, mx, my);
-    for(int direc = 0; direc < Direction_Max; direc++) {
+    uint8_t cnt = 0;
+    for(int direc = 0; direc < Direction_Max; direc+=2) {
       uint8_t mmx = mx + round(cos(direc * PI/4));
       uint8_t mmy = my + round(sin(direc * PI/4));
 
@@ -344,33 +344,24 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
       //   }
       // }
 
-      Encamp_Update(belong, mmx, mmy);
+      Encamp_Update(target_belong, mmx, mmy);
 
-      if(direc%2 || (map[mmy][mmx] & BIT_OPENED_ENCAMP))
-        continue;
-
+      if(!(map[mmy][mmx] & target_encamp) && !(map[mmy][mmx] & target_wall)) {
+        for(int direc = 0; direc < Direction_Max; direc+=2) {
+          uint8_t mmmx = mx + round(cos(direc * PI/4));
+          uint8_t mmmy = my + round(sin(direc * PI/4));
+          Encamp_Opened(target_belong, mmmx, mmmy);
+        }
+      }
       if(map[mmy][mmx] & target_encamp) {
-        ax[cnt] = mmx;
-        ay[cnt] = mmy;
         cnt++;
       }
-      if(map[mmy][mmx] & target_wall)
-        special_cnt++;
+    }
+    if(cnt == 3) { // 周りが全て陣地の場合
+      map[mx][my] |= target_encamp;
     }
     // uni_tree[belong].ancestor.erase((Cell){mx,my});
     // uni_tree[belong].par.erase((Cell){mx,my});
-    
-    if(cnt == 4) {
-      Bitmap_t tmp = (map[my+1][mx] & BIT_ENCAMP1) ? BIT_ENCAMP1 : BIT_ENCAMP2;
-      map[my][mx] |= tmp;
-    } else if(special_cnt == 4) {
-      Bitmap_t tmp = (map[my+1][mx] & BIT_WALL1) ? BIT_ENCAMP1 : BIT_ENCAMP2;
-      map[my][mx] |= tmp;
-    } else {
-      for(int i = 0; i < cnt; i++) {
-        Encamp_Opened(target_belong, ax[i], ay[i]);
-      }
-    }
 
     if(map[my][mx] & (BIT_WALL1 | BIT_WALL2))
         map[my][mx] &= ~(BIT_WALL1 | BIT_WALL2);
@@ -385,20 +376,6 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
   // exit(1);
   return ACT_FAILED;
 }
-
-// int Board::ActionAgent(bool belong, Action *act)
-// {
-
-//   int offset;
-//   offset = (belong == Player1) ? FILD_AGENT11 : FILD_AGENT21;
-//   for(int i = 0; i < info->agent; i++) {
-//     if(ActionAnAgent(nullptr, FieldKIND(i+offset), act[i]) == ACT_FAILED) {
-//       act[i].kind = ACT_NONE;
-//       return ACT_FAILED;
-//     }
-//   }
-//   return ACT_SUCCESS;
-// }
 
 void Board::pushCell(Cell *stack, short &sp, uint8_t x, uint8_t y)
 {
@@ -421,28 +398,234 @@ int Board::popCell(Cell *stack, short &sp, uint8_t &x, uint8_t &y)
   return 0;
 }
 
-void Board::pushSegment(Segment *stack, short &sp, uint8_t y, uint8_t xl, uint8_t xr)
+
+void Board::Encamp_Update(bool belong, uint8_t seed_x, uint8_t seed_y)
 {
-  // cout << "push:" << +y << endl;
-  stack[sp].y = y;
-  stack[sp].xl = xl;
-  stack[sp].xr = xr;
-  sp++;
+  if(isIgnoreCoord(seed_x, seed_y))
+    return;
+
+  bool bitmap[info->length][info->length];
+  Cell stack[STACK_MAX_NUM] = {0};
+  short sp = 0;
+
+  Bitmap_t target_wall = (belong == Player1) ? BIT_WALL1 : BIT_WALL2;
+  Bitmap_t target_encamp = (belong == Player1) ? BIT_ENCAMP1 : BIT_ENCAMP2;
+
+  for(uint8_t i = 0; i < info->length; i++) {
+    for(uint8_t j = 0; j < info->length; j++) {
+      bitmap[i][j] = false;
+    }
+  }
+
+  if(map[seed_y][seed_x] & target_wall) { // シード座標が城壁ならストップ
+    return;
+  }
+  pushCell(stack, sp, seed_x, seed_y);
+
+  while(sp >= 0) {
+    uint8_t x, y;
+    if(popCell(stack, sp, x, y)) // popするデータがなくなった
+      break;
+
+    if(map[y][x] & target_wall) {
+      continue;
+    }
+
+    bitmap[y][x] = true;
+
+    for(int direc = 0; direc < Direction_Max; direc+=2) { // 上下左右を調べる
+      uint8_t mx = x + round(cos(direc * PI/4));
+      uint8_t my = y + round(sin(direc * PI/4));
+
+      if(isIgnoreCoord(mx, my)) { // 途中でフィールド外枠に到達したということは陣地形成していない
+        // cout << "ignore coord: " << "(" << (int)mx << ", " << (int)my << ")\n";
+        return;
+      }
+      if(!(map[my][mx] & target_wall)) { // 城壁じゃなければ(陣地になる可能性があれば)
+        if(bitmap[my][mx]) { // 訪れたことがあればスキップ
+          // cout << "it has done.\n";
+          continue;
+        }
+        pushCell(stack, sp, mx, my);
+        bitmap[my][mx] = true;
+      }
+    }
+  }
+  // ここまで来たということは陣地形成されている
+  for(uint8_t i = 0; i < info->length; i++) {
+    for(uint8_t j = 0; j < info->length; j++) {
+      if(bitmap[i][j]) {
+        map[i][j] |= target_encamp;
+        map[i][j] &= ~BIT_OPENED_ENCAMP; // 解放された陣地ではなくなる
+      }
+    }
+  }
+
 }
 
-int Board::popSegment(Segment *stack, short &sp, uint8_t &y, uint8_t &xl, uint8_t &xr)
+void Board::Encamp_Opened(bool belong, uint8_t seed_x, uint8_t seed_y)
 {
-  sp--;
-  if(sp < 0)
-    return 1;
+  if(isIgnoreCoord(seed_x, seed_y))
+    return;
 
-  y = stack[sp].y;
-  xl = stack[sp].xl;
-  xr = stack[sp].xr;
-  // cout << "pop:" << +y << endl;
+  Bitmap_t target_encamp = (belong == Player1) ? BIT_ENCAMP1 : BIT_ENCAMP2;
+  Bitmap_t target_wall   = (belong == Player2) ? BIT_WALL1 : BIT_WALL2;
 
-  return 0;
+  if(!(map[seed_y][seed_x] & target_encamp)) { // シード座標が自陣の陣地でなければストップ
+    return;
+  }
+
+  Cell stack[STACK_MAX_NUM] = {0};
+  short sp = 0;
+
+  pushCell(stack, sp, seed_x, seed_y);
+
+  while(sp >= 0) {
+    uint8_t x, y;
+    if(popCell(stack, sp, x, y)) // popするデータがなくなった
+      break;
+
+    map[y][x] |= BIT_OPENED_ENCAMP;
+
+    for(int direc = 0; direc < Direction_Max; direc+=2) { // 上下左右を調べる
+      uint8_t mx = x + round(cos(direc * PI/4));
+      uint8_t my = y + round(sin(direc * PI/4));
+
+      if(isIgnoreCoord(mx, my)) {
+        return;
+      }
+      if(map[my][mx] & target_encamp) { // 解放された陣地になる可能性があれば
+        if(map[my][mx] & BIT_OPENED_ENCAMP) { // 訪れたことがあればスキップ
+          continue;
+        }
+        pushCell(stack, sp, mx, my);
+        map[my][mx] |= BIT_OPENED_ENCAMP;
+      }
+    }
+  }
 }
+
+void Board::score(int &score1, int &score2)
+{
+  score1 = 0;
+  score2 = 0; 
+  for(int i=0 ; i < info->length ; i++){
+    for(int j=0 ; j < info->length ; j++){
+      if(map[i][j] & BIT_WALL1){
+        score1 += WALL_POINT;
+      }else if(map[i][j] & BIT_ENCAMP1){
+        score1 += POSITION_POINT;
+        if(map[i][j] & BIT_CASTLE){
+          score1 += CASTLE_POINT;
+        }
+      }
+      if(map[i][j] & BIT_WALL2){
+        score2 += WALL_POINT;
+      }else if(map[i][j] & BIT_ENCAMP2){
+        score2 += POSITION_POINT;
+        if(map[i][j] & BIT_CASTLE){
+          score2 += CASTLE_POINT;
+        }
+      }
+    }
+  }
+}
+
+bool Board::isIgnoreCoord(uint8_t x, uint8_t y)
+{
+  if(x < 0 || x > info->length - 1 || y < 0 || y > info->length - 1) {
+    return true;
+  }
+  return false;
+}
+
+bool Board::move_enable(uint8_t x, uint8_t y, bool belong)
+{
+  Bitmap_t target_wall = (belong == Player1) ? BIT_WALL2 : BIT_WALL1;
+  if(map[y][x] & (BIT_AGENT1 | BIT_AGENT2 | target_wall | BIT_POND) || ((x==0 || x==info->length-1) && (y==0 || y==info->length-1)))
+    return false;
+  return true;
+}
+
+bool Board::build_enable(uint8_t x, uint8_t y, bool belong)
+{
+  Bitmap_t target_agent = (belong == Player1) ? BIT_AGENT2 : BIT_AGENT1;
+  if((map[y][x] & (target_agent | BIT_CASTLE | BIT_WALL2 | BIT_WALL1)) || ((x==0 || x==info->length-1) && (y==0 || y==info->length-1)))
+    return false;
+  return true;
+}
+
+void Board::draw()
+{
+  for(Length_t i = 0; i < info->length; i++) {
+    for(Length_t j = 0; j < info->length; j++) {
+
+      switch(map[i][j] & (Bitmap_t)(BIT_ENCAMP1 | BIT_ENCAMP2)) {
+        case FILD_POSITION_AND : cout << "\x1b[45m"; break;
+        case FILD_POSITION_RED : cout << "\x1b[41m"; break;
+        case FILD_POSIITON_BLUE: cout << "\x1b[44m"; break;
+        case FILD_POSITION_NONE: 
+          if(i % 2) {
+            if(j % 2)
+              cout << "\x1b[48;5;242m";
+            else
+              cout << "\x1b[49m";
+          } else {
+            if((j % 2) == 0)
+              cout << "\x1b[48;5;242m";
+            else
+              cout << "\x1b[49m";
+          }
+      }
+
+      if(map[i][j] & BIT_OPENED_ENCAMP)
+        cout << "\x1b[48;5;178m";
+
+      switch (map[i][j] & (BIT_AGENT1 | BIT_AGENT2 | BIT_POND))
+      {
+        case FILD_AGENT1 : cout << "\x1b[36m" << '1' << "\x1b[37m"; break;
+        case FILD_AGENT2 : cout << "\x1b[32m" << '2' << "\x1b[37m"; break;
+        case FILD_POND   : cout << "P"; break;
+        
+        default          : cout << '-'; break;
+      }
+      switch (map[i][j] & (BIT_CASTLE | BIT_WALL1 | BIT_WALL2))
+      {
+        case FILD_CASL   : cout << '@'; break;
+        case FILD_WALL1  : cout << "\x1b[33m" << 'A' << "\x1b[37m"; break;
+        case FILD_WALL2  : cout << "\x1b[34m" << 'B' << "\x1b[37m"; break;
+        
+        default          : cout << '-'; break;
+      }
+    }
+    cout << "\x1b[49m";
+    cout << "\x1b[39m\n";
+  }
+  cout << "\n";
+}
+
+// void Board::pushSegment(Segment *stack, short &sp, uint8_t y, uint8_t xl, uint8_t xr)
+// {
+//   // cout << "push:" << +y << endl;
+//   stack[sp].y = y;
+//   stack[sp].xl = xl;
+//   stack[sp].xr = xr;
+//   sp++;
+// }
+
+// int Board::popSegment(Segment *stack, short &sp, uint8_t &y, uint8_t &xl, uint8_t &xr)
+// {
+//   sp--;
+//   if(sp < 0)
+//     return 1;
+
+//   y = stack[sp].y;
+//   xl = stack[sp].xl;
+//   xr = stack[sp].xr;
+//   // cout << "pop:" << +y << endl;
+
+//   return 0;
+// }
 
 // void Board::Encamp_Update(bool belong, uint8_t seed_x, uint8_t seed_y)
 // {
@@ -519,348 +702,4 @@ int Board::popSegment(Segment *stack, short &sp, uint8_t &y, uint8_t &xl, uint8_
 //       }
 //     }
 //   }
-// }
-
-void Board::Encamp_Update(bool belong, uint8_t seed_x, uint8_t seed_y)
-{
-  if(isIgnoreCoord(seed_x, seed_y))
-    return;
-
-  bool bitmap[info->length][info->length];
-  Cell stack[STACK_MAX_NUM] = {0};
-  short sp = 0;
-
-  Bitmap_t target_wall = (belong == Player1) ? BIT_WALL1 : BIT_WALL2;
-  Bitmap_t target_encamp = (belong == Player1) ? BIT_ENCAMP1 : BIT_ENCAMP2;
-
-  for(uint8_t i = 0; i < info->length; i++) {
-    for(uint8_t j = 0; j < info->length; j++) {
-      bitmap[i][j] = false;
-    }
-  }
-
-  if(map[seed_y][seed_x] & target_wall) { // シード座標が城壁ならストップ
-    return;
-  }
-  pushCell(stack, sp, seed_x, seed_y);
-
-  while(sp >= 0) {
-    uint8_t x, y;
-    if(popCell(stack, sp, x, y)) // popするデータがなくなった
-      break;
-
-    if(map[y][x] & target_wall) {
-      continue;
-    }
-
-    bitmap[y][x] = true;
-
-    for(int direc = 0; direc < Direction_Max; direc+=2) { // 上下左右を調べる
-      uint8_t mx = x + round(cos(direc * PI/4));
-      uint8_t my = y + round(sin(direc * PI/4));
-
-      if(isIgnoreCoord(mx, my)) { // 途中でフィールド外枠に到達したということは陣地形成していない
-        // cout << "ignore coord: " << "(" << (int)mx << ", " << (int)my << ")\n";
-        return;
-      }
-      if(!(map[my][mx] & target_wall)) { // 城壁じゃなければ(陣地になる可能性があれば)
-        if(bitmap[my][mx]) { // 訪れたことがあればスキップ
-          // cout << "it has done.\n";
-          continue;
-        }
-        pushCell(stack, sp, mx, my);
-        bitmap[my][mx] = true;
-      }
-    }
-  }
-  // ここまで来たということは陣地形成されている
-  for(uint8_t i = 0; i < info->length; i++) {
-    for(uint8_t j = 0; j < info->length; j++) {
-      if(bitmap[i][j]) {
-        map[i][j] &= ~(BIT_ENCAMP1 | BIT_ENCAMP2); // 一度陣地情報をクリア
-        map[i][j] |= target_encamp;
-        map[i][j] &= ~BIT_OPENED_ENCAMP; // 解放された陣地ではなくなる
-      }
-    }
-  }
-
-}
-
-void Board::Encamp_Opened(bool belong, uint8_t seed_x, uint8_t seed_y)
-{
-  if(isIgnoreCoord(seed_x, seed_y))
-    return;
-
-  bool bitmap[info->length][info->length];
-  Cell stack[STACK_MAX_NUM] = {0};
-  short sp = 0;
-
-  Bitmap_t target_wall = (belong == Player1) ? BIT_WALL1 : BIT_WALL2;
-
-  for(uint8_t i = 0; i < info->length; i++) {
-    for(uint8_t j = 0; j < info->length; j++) {
-      bitmap[i][j] = false;
-    }
-  }
-
-  if(map[seed_y][seed_x] & target_wall) { // シード座標が城壁ならストップ
-    return;
-  }
-  pushCell(stack, sp, seed_x, seed_y);
-
-  while(sp >= 0) {
-    uint8_t x, y;
-    if(popCell(stack, sp, x, y)) // popするデータがなくなった
-      break;
-
-    if(map[y][x] & target_wall) {
-      continue;
-    }
-
-    map[y][x] |= BIT_OPENED_ENCAMP;
-    bitmap[y][x] = true;
-
-    for(int direc = 0; direc < Direction_Max; direc+=2) { // 上下左右を調べる
-      uint8_t mx = x + round(cos(direc * PI/4));
-      uint8_t my = y + round(sin(direc * PI/4));
-
-      if(isIgnoreCoord(mx, my)) { // 途中でフィールド外枠に到達したということは陣地形成していない
-        // cout << "ignore coord: " << "(" << (int)mx << ", " << (int)my << ")\n";
-        return;
-      }
-      if(!(map[my][mx] & target_wall)) { // 城壁じゃなければ(解放された陣地になる可能性があれば)
-        if(bitmap[my][mx]) { // 訪れたことがあればスキップ
-          // cout << "it has done.\n";
-          continue;
-        }
-        pushCell(stack, sp, mx, my);
-        map[y][x] |= BIT_OPENED_ENCAMP;
-        bitmap[my][mx] = true;
-      }
-    }
-  }
-}
-
-// void Board::addLog(Log *act_log)
-// {
-//   this->log[turn] = act_log;
-//   turn++;
-//   this->log[turn] = nullptr;
-// }
-
-// void Board::printLog()
-// {
-//   for(int i = 0; i < TURN_NUM; i++) {
-//     for(int j = 0; j < info->agent; j++) {
-//       cout << setw(2) << right<< i << ": " << "{ " << (int)log[i][j].act->kind << ", " << (int)log[i][j].act->direc << " } ";
-//     }
-//     cout << endl;
-//   }
-// }
-
-void Board::score(int &score1, int &score2)
-{
-  score1 = 0;
-  score2 = 0; 
-  for(int i=0 ; i < info->length ; i++){
-    for(int j=0 ; j < info->length ; j++){
-      if(map[i][j] & BIT_WALL1){
-        score1 += WALL_POINT;
-      }else if(map[i][j] & BIT_ENCAMP1){
-        score1 += POSITION_POINT;
-        if(map[i][j] & BIT_CASTLE){
-          score1 += CASTLE_POINT;
-        }
-      }
-      if(map[i][j] & BIT_WALL2){
-        score2 += WALL_POINT;
-      }else if(map[i][j] & BIT_ENCAMP2){
-        score2 += POSITION_POINT;
-        if(map[i][j] & BIT_CASTLE){
-          score2 += CASTLE_POINT;
-        }
-      }
-    }
-  }
-}
-
-bool Board::isIgnoreCoord(uint8_t x, uint8_t y)
-{
-  if(x < 0 || x > info->length - 1 || y < 0 || y > info->length - 1) {
-    return true;
-  }
-  return false;
-}
-
-/*bool Field::isObjAtCoord(uint8_t x, uint8_t y)
-{
-  if(FieldMap[y][x].kind == FILD_NONE)
-    return false;
-  return true;
-}*/
-
-bool Board::move_enable(uint8_t x, uint8_t y, bool belong)
-{
-  Bitmap_t target_wall = (belong == Player1) ? BIT_WALL2 : BIT_WALL1;
-  if(map[y][x] & (BIT_AGENT1 | BIT_AGENT2 | target_wall | BIT_POND) || ((x==0 || x==info->length-1) && (y==0 || y==info->length-1)))
-    return false;
-  return true;
-}
-
-bool Board::build_enable(uint8_t x, uint8_t y, bool belong)
-{
-  Bitmap_t target_agent = (belong == Player1) ? BIT_AGENT2 : BIT_AGENT1;
-  if((map[y][x] & (target_agent | BIT_CASTLE | BIT_WALL2 | BIT_WALL1)) || ((x==0 || x==info->length-1) && (y==0 || y==info->length-1)))
-    return false;
-  return true;
-}
-
-void Board::draw()
-{
-  for(Length_t i = 0; i < info->length; i++) {
-    for(Length_t j = 0; j < info->length; j++) {
-
-      switch(map[i][j] & (BIT_ENCAMP1 | BIT_ENCAMP2)) {
-        case FILD_POSITION_RED : cout << "\x1b[41m"; break;
-        case FILD_POSIITON_BLUE: cout << "\x1b[44m"; break;
-        case FILD_POSITION_AND : cout << "\x1b[45m"; break;
-        case FILD_POSITION_NONE: 
-          if(i % 2) {
-            if(j % 2)
-              cout << "\x1b[48;5;242m";
-            else
-              cout << "\x1b[49m";
-          } else {
-            if((j % 2) == 0)
-              cout << "\x1b[48;5;242m";
-            else
-              cout << "\x1b[49m";
-          }
-      }
-
-      if(map[i][j] & BIT_OPENED_ENCAMP)
-        cout << "\x1b[48;5;178m";
-
-      switch (map[i][j] & (BIT_AGENT1 | BIT_AGENT2 | BIT_POND))
-      {
-        case FILD_AGENT1 : cout << "\x1b[36m" << '1' << "\x1b[37m"; break;
-        case FILD_AGENT2 : cout << "\x1b[32m" << '2' << "\x1b[37m"; break;
-        case FILD_POND   : cout << "P"; break;
-        
-        default          : cout << '-'; break;
-      }
-      switch (map[i][j] & (BIT_CASTLE | BIT_WALL1 | BIT_WALL2))
-      {
-        case FILD_CASL   : cout << '@'; break;
-        case FILD_WALL1  : cout << "\x1b[33m" << 'A' << "\x1b[37m"; break;
-        case FILD_WALL2  : cout << "\x1b[34m" << 'B' << "\x1b[37m"; break;
-        
-        default          : cout << '-'; break;
-      }
-    }
-    cout << "\x1b[49m";
-    cout << "\x1b[39m\n";
-  }
-  cout << "\n";
-}
-
-// int Board::putwall(bool belong, Wall *wall)
-// {
-//   if(wall == nullptr)
-//     return 1;
-
-//   Bitmap_t target_wall = (next_turn == Player1) ? BIT_WALL1 : BIT_WALL1;
-//   Bitmap_t target_encamp = (next_turn == Player1) ? BIT_ENCAMP1 : BIT_ENCAMP2;
-
-//   // 城壁の周り8方向を探査して，自陣の城壁があれば連結する
-//   uint8_t direc = 0;
-//   uint8_t x[2], y[2];
-//   uint8_t cnt = 0;
-//   for(; direc < Direction_Max; direc++) {
-//     uint8_t mx = wall->x + round(cos(direc * PI/4));
-//     uint8_t my = wall->y + round(sin(direc * PI/4));
-//     if(isIgnoreCoord(mx, my))
-//       continue;
-//     if(map[my][mx] & target_wall) {
-//       x[cnt] = mx;
-//       y[cnt] = my;
-//       cnt++;
-//     }
-//   }
-//   if(cnt == 0) {
-//     Walls wal;
-//     wal.head = wal.tail = wall;
-//     wall->next = nullptr;
-//     wal.consol_num = 1;
-//     walls[belong].push_back(wal);
-//   } else if(cnt == 1) {
-//     // つながった城壁の先頭または末尾であるから探索する
-//     for(int i = 0; i < (int)walls[belong].size(); i++) {
-//       if(walls[belong][i].tail->x == x[0] && 
-//           walls[belong][i].tail->y == y[0]) {
-//         wall->next = nullptr;
-//         walls[belong][i].tail->next = wall;
-//         walls[belong][i].tail = wall;
-//         walls[belong][i].consol_num++;
-//         break;
-//       }
-//       if(walls[belong][i].head->x == x[0] && 
-//           walls[belong][i].head->y == y[0]) {
-//         wall->next = walls[belong][i].head->next;
-//         walls[belong][i].head = wall;
-//         walls[belong][i].consol_num++;
-//         break;
-//       }
-//     }
-//   }
-//   // cout << "belong:" << ((belong == Player1) ? "player1" : "player2") << "x:" << +wall->x << ", y:" << +wall->y << "を登録しました\n";
-//   return 0;
-// }
-
-// int Board::getwall(bool belong, uint8_t wall_x, uint8_t wall_y)
-// {
-//   for(int i = 0; i < (int)walls[belong].size(); i++) {
-//     Wall *pre = nullptr, *wall;
-//     int j;
-//     for(wall = walls[belong][i].head, j = 1; wall; pre = wall, wall = wall->next, j++) { // 読みにくいforでごめん
-//       if(wall->x == wall_x && wall->y == wall_y) {
-//         if(pre == nullptr && wall->next == nullptr) { // 1個だけの壁
-//           walls[belong][i].consol_num--;
-//           walls[belong].erase(walls[belong].begin() + i);
-//         } else if(wall->next == nullptr) { // 末端の壁を削除
-//           pre->next = nullptr;
-//           walls[belong][i].tail = pre;
-//           walls[belong][i].consol_num--;
-//           delete wall;
-//         } else if(pre == nullptr) { // 頭部の壁を削除
-//           walls[belong][i].head = wall->next;
-//           walls[belong][i].consol_num--;
-//           delete wall;
-//         } else {
-//           // 2つに分割
-//           pre->next = nullptr;
-//           walls[belong][i].tail = pre;
-//           walls[belong][i].consol_num -= walls[belong][i].consol_num - j;
-
-//           Walls wal;
-//           wal.head = wal.tail = wall->next;
-//           wal.consol_num = 1;
-//           walls[belong].push_back(wal);
-//         }
-//         return 0;
-//       }
-//     }
-//   }
-//   // cout << "player1の城壁状態:\n";
-//   // for(int i = 0; i < walls[Player1].size(); i++) {
-//   //   cout << "城壁" << i << ":" << walls[Player1][i].consol_num << endl;
-//   // }
-//   // cout << "player2の城壁状態:\n";
-//   // for(int i = 0; i < walls[Player2].size(); i++) {
-//   //   cout << "城壁" << i << ":" << walls[Player2][i].consol_num << endl;
-//   // }
-//   // cout << "belong:" << ((belong == Player1) ? "player1" : "player2") << ", x:" << +wall_x << ", y:" << +wall_y << endl;
-//   // exit(1);
-
-//   return 1;
 // }
