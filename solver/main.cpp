@@ -103,12 +103,12 @@ Action *getActplan(Board *match, ev_function act_plan, int depth)
   // 職人の数だけ最善手を探索する
   for(int i = 0; i < info->agent; i++) {
     Board *init_board = new Board(*match);
-    root_node[i] = new Game_Node(init_board);
+    root_node[i] = new Game_Node;
+    root_node[i]->board = init_board;
     root_node[i]->ev_func = act_plan;
 
     // cout << "職人" << i << "(" << +root_node[i]->board->agent1[i].x << ", " << +root_node[i]->board->agent1[i].y << ")" << "のゲーム木構築中..." << endl;
     expandChildren_by_num(root_node[i], lastdepth, i);
-    TreeSearch(root_node[i], i, Player1);
     
     auto itr = root_node[i]->childrenNode.begin();
     // 子供の評価値と自身の評価値が一致したゲームノードの行動を最善手として選択
