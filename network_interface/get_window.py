@@ -8,6 +8,9 @@ TOKEN = "kagoshimaf9e9e019877b0b3d212cf1dec665e9e9b45c99f1062779a73c5d3b1"
 
 path = "/matches/10"
 
+file = "res.json"
+old_file = "res.json.old"
+
 # post_num = 0
 
 class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
@@ -16,12 +19,21 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-type', "text/html")
         self.end_headers()
-        html_context = '<html lang="ja">' \
-                       '<meta charset="UTF-8"><h1>これはテスト</h1>' \
-                       '</html>'
-        self.wfile.write(html_context.encode())
-        res = requests.get(HOST + path + '?token=' + TOKEN)
+        with open(file, 'r') as f:
+            data = f.read()
 
+        # 古いファイルと比較して，変化があれば200を返す
+        with open(old_file, 'r') as f:
+            old_data = f.read()
+            if data == old_data:
+                text = "no changes"
+                self.wfile.write(text.encode())
+            else:
+                self.wfile.write(data.encode())
+
+        with open(old_file, 'w') as f:
+            f.write(data)
+            
     def do_POST(self):
         data = self.rfile.read(int(self.headers['content-length'])).decode('utf-8')
 
@@ -40,6 +52,6 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         self.send_header('Content-Type', 'text/plain; charset=utf-8')
         self.end_headers()
         
-server_address = ('localhost', 8080)
+server_address = ('localhost', 8081)
 httpd = HTTPServer(server_address, CustomHTTPRequestHandler)
 httpd.serve_forever()
