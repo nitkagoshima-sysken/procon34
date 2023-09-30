@@ -77,3 +77,39 @@ int ev_destroy(Board *board, bool belong) {
   return score;
 
 }
+
+
+
+int Castle_Get (Board *board, bool belong){
+  //城の座標陣地加点
+  //なってなかったら置く
+
+  int a = 0;
+  int b = 0;
+  int c = 0;
+
+  for(int i = 0; i < board->info->length; i++){
+    for(int j = 0; j < board->info->length; j++){
+  if(board->map[i][j] & BIT_CASTLE){
+    //城があったら
+    a = 100;
+  }
+
+  //陣地になってるか
+  if(board->map[i][j] & BIT_ENCAMP1){
+    b = 5000;
+  }
+
+  //城の周り壁かどうか
+  
+
+   }
+  }
+
+//城との距離
+int distance;
+
+
+  int score = a * 0.5 + b * 0.5 + c * 0.5 + (100 - distance);//100-距離
+  return score;
+}
