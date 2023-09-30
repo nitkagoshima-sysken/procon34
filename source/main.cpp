@@ -10,9 +10,9 @@
 using namespace std;
 using namespace nlohmann;
 
-#define SERVER_IP "192.168.10.4"
+#define SERVER_IP "localhost"
 #define SERVER_PORT 3000
-#define PY_SERVER_IP "192.168.10.4"
+#define PY_SERVER_IP "localhost"
 #define PY_SERVER_PORT 8080
 
 Board *getInfobyJson(json jobj)
@@ -244,6 +244,8 @@ void score(int msec)
 int main(int argc, char *argv[])
 {
   srand((unsigned)time(NULL));
+
+  int turn = 0;
 
   cout << "press enter\n";
   getchar();
