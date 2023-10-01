@@ -161,7 +161,7 @@ void calc(int msec, ev_function ev_func, bool belong)
 
   // フィールドデータが更新される前にgetをかけてしまったときのための保険
   while(reading_buffer == NO_CHANGE_STRING) {
-    sleep(0.1);
+    sleep(0.5);
     system(get_cmd.c_str());
 
     ifstream ifs;
@@ -175,8 +175,8 @@ void calc(int msec, ev_function ev_func, bool belong)
 
   Board *match = getInfobyJson(jobj);
 
-  if((belong == Player1 && match->turn % 2 != 0) || 
-     (belong == Player2 && match->turn % 2 == 0)) {
+  if((belong == Player1 && match->turn % 2 == 0) ||
+     (belong == Player2 && match->turn % 2 != 0)) {
     cout << "このターンでは行動計画を送信できません．\n";
     return;
   }
@@ -192,7 +192,7 @@ void calc(int msec, ev_function ev_func, bool belong)
     Action *act = getActplan(match, ev_func, depth);
 
     json post_json;
-    post_json["turn"] = match->turn + 1;
+    post_json["turn"] = match->turn;
     for(auto i = 0; i < match->info->agent; i++)
       post_json["actions"][i] = {{"type", +act[i].kind}, {"dir", +act[i].direc}};
     string cmd("curl -X POST -H \"Content-Type: application/json\" -d '");
