@@ -164,6 +164,17 @@ int main(int argc, char *argv[])
     cout << "current_:" << ((match.next_turn == Player1) ? "Player1" : "Player2") << endl;
     match.draw();
 
+    // for(auto i = 0; i < info->agent; i++) {
+    //   vector<Action> act;
+    //   match.getLegalAct(Player1, act, i);
+    //   int cnt = 0;
+    //   for(auto itr = act.begin(); itr != act.end(); itr++) {
+    //     if((*itr).kind == ACT_BUILD)
+    //       cnt++;
+    //   }
+    //   cout << "職人" << i << "の合法手数(建築):" << cnt << endl;
+    // }
+
     if(match.next_turn == Player1) {
       Game_Node **root_node = new Game_Node*[info->agent]();
 
@@ -207,6 +218,7 @@ int main(int argc, char *argv[])
 
         // 行動を盤面に反映させる
         match.ActionAnAgent(match.next_turn, i, best_act);
+        // cout << "職人" << i << "の行動:" << " kind: " << +best_act.kind << ", direc: " << +best_act.direc << endl; 
 
         pre_act[i] = root_node[i]->pre_act; // 直前の手として設定
       }

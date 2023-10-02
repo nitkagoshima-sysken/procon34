@@ -148,7 +148,7 @@ void Board::getLegalAct(bool belong, vector<Action> &action, uint8_t b_nomber)
 
   // 残りの4方向を探索
   act.kind = ACT_MOVE;
-  for(int direc = 0; direc < Direction_Max; direc ++) {
+  for(int direc = 0; direc < Direction_Max; direc++) {
     uint8_t mx = x + round(cos(direc * PI/4));
     uint8_t my = y + round(sin(direc * PI/4));
 
@@ -286,6 +286,11 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
   }
 
   if(kind == ACT_BUILD && build_enable(mx, my, belong)) {
+
+    if(direc != UP && direc != RIGHT && direc != DOWN && direc != LEFT) {
+      cout << "不正な手です\n";
+      return -1;
+    }
     map[my][mx] |= target_wall;
 
     // cout << "Player" << +belong << "'s agent" << +backnumber << " build "
@@ -314,6 +319,10 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
 
   if(kind == ACT_DEMOLISH) {
 
+    if(direc != UP && direc != RIGHT && direc != DOWN && direc != LEFT) {
+      cout << "不正な手です\n";
+      return -1;
+    }
     // if(getwall(belong, mx, my) == 1)
     //   cout << "getwall:エラー\n";
 
