@@ -213,32 +213,32 @@ void Board::getLegalBoard(bool belong, vector<Board*> &legal_board, uint8_t back
   }
 }
 
-void Board::put_wall(Cell cell, Bitmap_t target_wall, bool belong)
-{
-  //自分自身が根であると認識させる
-  uni_tree[belong].ancestor[cell] = uni_tree[belong].par[cell] = cell;
-  for(int direc = 0; direc < Direction_Max; direc++) {
-    uint8_t mx = cell.x + round(cos(direc * PI/4));
-    uint8_t my = cell.y + round(sin(direc * PI/4));
-    if(isIgnoreCoord(mx, my))
-      continue;
-    //壁があったら結合して分類
-    if(map[my][mx] & target_wall) {
-      //親同士比較root変数用意建築する予定見つけた壁の座標の
-      if(uni_tree[belong].same(cell, (Cell){mx,my})) {
-        cout << "陣地形成判定" << endl;
-        for(int d = 0; d < Direction_Max; d += 2) {
-          uint8_t mmx = cell.x + round(cos(d * PI/4));
-          uint8_t mmy = cell.y + round(sin(d * PI/4));
-          if(isIgnoreCoord(mmx, mmy))
-            continue;
-          Encamp_Update(belong, mmx, mmy);
-        }
-      }
-      uni_tree[belong].unite(cell, (Cell){mx, my});//今から置く予定mxmy//真ん中の周りの壁の座標mmxmmy
-    }
-  }
-}
+// void Board::put_wall(Cell cell, Bitmap_t target_wall, bool belong)
+// {
+//   //自分自身が根であると認識させる
+//   uni_tree[belong].ancestor[cell] = uni_tree[belong].par[cell] = cell;
+//   for(int direc = 0; direc < Direction_Max; direc++) {
+//     uint8_t mx = cell.x + round(cos(direc * PI/4));
+//     uint8_t my = cell.y + round(sin(direc * PI/4));
+//     if(isIgnoreCoord(mx, my))
+//       continue;
+//     //壁があったら結合して分類
+//     if(map[my][mx] & target_wall) {
+//       //親同士比較root変数用意建築する予定見つけた壁の座標の
+//       if(uni_tree[belong].same(cell, (Cell){mx,my})) {
+//         cout << "陣地形成判定" << endl;
+//         for(int d = 0; d < Direction_Max; d += 2) {
+//           uint8_t mmx = cell.x + round(cos(d * PI/4));
+//           uint8_t mmy = cell.y + round(sin(d * PI/4));
+//           if(isIgnoreCoord(mmx, mmy))
+//             continue;
+//           Encamp_Update(belong, mmx, mmy);
+//         }
+//       }
+//       uni_tree[belong].unite(cell, (Cell){mx, my});//今から置く予定mxmy//真ん中の周りの壁の座標mmxmmy
+//     }
+//   }
+// }
 
 int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
 {
@@ -328,6 +328,9 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
       target_wall   = BIT_WALL2;
     }
 
+    if(map[my][mx] & (BIT_WALL1 | BIT_WALL2))
+        map[my][mx] &= ~(BIT_WALL1 | BIT_WALL2);
+
     uint8_t cnt = 0;
     for(int direc = 0; direc < Direction_Max; direc+=2) {
       uint8_t mmx = mx + round(cos(direc * PI/4));
@@ -344,16 +347,16 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
       //   }
       // }
 
-      Encamp_Update(target_belong, mmx, mmy);
-
-      if(!(map[mmy][mmx] & target_encamp) && !(map[mmy][mmx] & target_wall)) {
+      if((!(map[mmy][mmx] & target_encamp) || map[mmy][mmx] & BIT_OPENED_ENCAMP) 
+         && !(map[mmy][mmx] & target_wall)) {
         for(int direc = 0; direc < Direction_Max; direc+=2) {
           uint8_t mmmx = mx + round(cos(direc * PI/4));
           uint8_t mmmy = my + round(sin(direc * PI/4));
           Encamp_Opened(target_belong, mmmx, mmmy);
         }
       }
-      if(map[mmy][mmx] & target_encamp) {
+      if((map[mmy][mmx] & target_encamp) && 
+         !(map[mmy][mmx] & BIT_OPENED_ENCAMP)) {
         cnt++;
       }
     }
@@ -363,8 +366,6 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
     // uni_tree[belong].ancestor.erase((Cell){mx,my});
     // uni_tree[belong].par.erase((Cell){mx,my});
 
-    if(map[my][mx] & (BIT_WALL1 | BIT_WALL2))
-        map[my][mx] &= ~(BIT_WALL1 | BIT_WALL2);
 
     return ACT_SUCCESS;
   }
@@ -472,6 +473,9 @@ void Board::Encamp_Opened(bool belong, uint8_t seed_x, uint8_t seed_y)
   Bitmap_t target_wall   = (belong == Player2) ? BIT_WALL1 : BIT_WALL2;
 
   if(!(map[seed_y][seed_x] & target_encamp)) { // シード座標が自陣の陣地でなければストップ
+    return;
+  }
+  if(map[seed_y][seed_x] & BIT_OPENED_ENCAMP) { // 既に解放済みの陣地ならスキップ
     return;
   }
 

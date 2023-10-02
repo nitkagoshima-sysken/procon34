@@ -9,6 +9,37 @@
 #include <fstream>
 using namespace std;
 
+// 反復するような手かどうかをチェックする関数
+// 戻り値がtrueならリピートしている
+bool check_repeat(Action act, Action pre_act)
+{
+  // pre_actの方向と真反対の方向を格納する変数(4を足すと元と逆の方向になる)
+  uint8_t reverse = (pre_act.direc + 4) % 8;
+
+  switch(pre_act.kind) {
+    case ACT_BUILD:
+      if(act.kind != ACT_DEMOLISH) // 次の行動が解体でなければ反復していない
+        break;
+      if(pre_act.direc == act.direc)
+        return true;
+      break;
+    case ACT_MOVE:
+      if(act.direc == reverse) { // 前に移動した方向と逆方向に移動しているなら
+        return true;
+      }
+      break;
+    case ACT_DEMOLISH: // ACT_BUILDの逆
+      if(act.kind != ACT_BUILD)
+        break;
+      if(pre_act.direc == act.direc)
+        return true;
+      break;
+  }
+
+  // ここまで来たなら合格
+  return false;
+}
+
 int main(int argc, char *argv[])
 {
   srand((unsigned)time(NULL));
@@ -120,9 +151,15 @@ int main(int argc, char *argv[])
   // char *response = request.res();
   // cout << response << endl;
 
+  // 反復した手を防ぐ為の変数
+  Action pre_act[info->agent];
+  for(auto i = 0; i < info->agent; i++) {
+    pre_act[i].direc = Direction_Max; // 無効な方向
+    pre_act[i].kind  = ACT_NONE;
+  }
+
   // メインループ
   for(int count = 1; count <= turn_num; count++) {
-    // system("clear");
     cout << "turn:" << count << endl;
     cout << "current_:" << ((match.next_turn == Player1) ? "Player1" : "Player2") << endl;
     match.draw();
@@ -131,43 +168,55 @@ int main(int argc, char *argv[])
       Game_Node **root_node = new Game_Node*[info->agent]();
 
       cout << ((match.next_turn == Player1) ? "player1" : "player2") << endl;
-      // for(int i = 0; i < info->agent; i++) {
-      //   std::vector<Action> action;
-      //   match.getLegalAct(match.next_turn, action ,i);
-      // cout << "職人" << i << "の合法手数:" << action.size() << endl;
-      // }
       cout << endl;
       
       int lastdepth = ((turn_num - count) < depth) ? (turn_num - count + 1) : depth ;
 
       for(int i = 0; i < info->agent; i++) {
         Board *init_board = new Board(match);
-        root_node[i] = new Game_Node;
-        root_node[i]->board = init_board;
-        root_node[i]->ev_func = evaluate_current_board;
-        root_node[i]->parentNode = nullptr;
+        root_node[i]                = new Game_Node;
+        root_node[i]->board         = init_board;
+        root_node[i]->ev_func       = evaluate_current_board;
+        root_node[i]->parentNode    = nullptr;
         root_node[i]->target_belong = match.next_turn;
-        // cout << "職人" << i << "(" << +root_node[i]->board->agent1[i].x << ", " << +root_node[i]->board->agent1[i].y << ")" << "のゲーム木構築中..." << endl;
+
+        // 職人の最善手を生成
         expandChildren_by_num(root_node[i], lastdepth, i);
-        // TreeSearch(root_node[i], i, Player1);
+        
+        // 最善手を格納するオブジェクト
+        Action best_act;
+
+        // 評価値から次に行動するべき手(最善手)を出す
+        // 親の評価値と子供の評価値を比べて一致した手を最善手と判断
         for(auto itr = root_node[i]->childrenNode.begin(); itr != root_node[i]->childrenNode.end(); itr++) {
           if(root_node[i]->evaluation == (*itr)->evaluation) {
-            // cout << "j:" << j << endl;
-            root_node[i]->pre_act = (*itr)->pre_act;
-            // cout << "kind:" << +(*itr)->pre_act.kind << ", direc:" << +(*itr)->pre_act.direc << endl;
+            best_act = (*itr)->pre_act;
             break;
           }
         }
-        // match.draw();
-        match.ActionAnAgent(match.next_turn, i, root_node[i]->pre_act);
+
+        // 計算した最善手が前の行動を打ち消すようなものでないかどうかをチェック
+        if(check_repeat(root_node[i]->pre_act, pre_act[i])) {
+          cout << "(デバッグ用):反復を検出!\n";
+          cout << "detail:\n";
+          cout << " agent    : " << i << endl;
+          cout << " act.kind : " << +best_act.kind << endl;
+          cout << " act.direc: " << +best_act.direc << endl;
+          // TODO: 反復しているのでbest_actを更新
+        }
+
+        // 行動を盤面に反映させる
+        match.ActionAnAgent(match.next_turn, i, best_act);
+
+        pre_act[i] = root_node[i]->pre_act; // 直前の手として設定
       }
 
-      for(int i = 0; i < info->agent; i++) {
-        cout << "職人" << i << "のスコア: " << root_node[i]->evaluation << endl;
-        // for(int j = 0; j < root_node[i]->childrenNode.size(); j++) {
-        //   cout << "  " << "子供" << j << "のスコア:" << root_node[i]->childrenNode[j]->evaluation << endl;
-        // }
-      }
+      // for(int i = 0; i < info->agent; i++) {
+      //   cout << "職人" << i << "のスコア: " << root_node[i]->evaluation << endl;
+      //   // for(int j = 0; j < root_node[i]->childrenNode.size(); j++) {
+      //   //   cout << "  " << "子供" << j << "のスコア:" << root_node[i]->childrenNode[j]->evaluation << endl;
+      //   // }
+      // }
       if(is_print_game_tree){
         fprintf(fp, "\n\nturn: %d", count);
         drawTree(root_node[2], fp);
