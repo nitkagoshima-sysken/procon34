@@ -6,6 +6,4 @@ procon
 *.zip
 .vscode/
 memo.md
-res.json
-res.json.old
 res.txt

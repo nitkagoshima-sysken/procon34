@@ -160,21 +160,15 @@ void calc(int msec, ev_function ev_func, bool belong)
   ifs.close();
 
   // フィールドデータが更新される前にgetをかけてしまったときのための保険
-  if(reading_buffer == NO_CHANGE_STRING) {
-    for(auto i = 0; reading_buffer == NO_CHANGE_STRING; i++) {
-      sleep(0.5);
-      system(get_cmd.c_str());
+  while(reading_buffer == NO_CHANGE_STRING) {
+    sleep(1);
+    system(get_cmd.c_str());
 
-      ifstream ifs;
-      ifs.open(OUT_FILE, ios::in);
-      string reading_buffer;
-      getline(ifs, reading_buffer);
-      ifs.close();
-      if(i == 3) {
-        cout << "不具合発生\n";
-        break;
-      }
-    }
+    ifstream ifs;
+    ifs.open(OUT_FILE, ios::in);
+    string reading_buffer;
+    getline(ifs, reading_buffer);
+    ifs.close();
   }
 
   auto jobj = json::parse(reading_buffer);
@@ -205,6 +199,8 @@ void calc(int msec, ev_function ev_func, bool belong)
     for(auto i = 0; i < match->info->agent; i++) {
       // 行動の方向を競技サーバ側に合わせる
       uint8_t direc = (act[i].direc + 4) % 8;
+      if(act[i].direc == 4) // 上記の計算式で正しい計算ができないパターンを受け止める
+        direc = 8;
 
       post_json["actions"][i] = {{"type", +act[i].kind}, {"dir", +direc}};
     }
@@ -216,9 +212,11 @@ void calc(int msec, ev_function ev_func, bool belong)
 
     // cout << cmd << endl;
     system(cmd.c_str());
+    delete act;
     auto time4 = high_resolution_clock::now();
     calc_time -= duration_cast<milliseconds>(time4 - time3);
   }
+  delete match;
   std::this_thread::sleep_for(calc_time);
 }
 

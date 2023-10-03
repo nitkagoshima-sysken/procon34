@@ -54,8 +54,8 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         print(data)
         data_encode = json.dumps(json.loads(data))
         print(data_encode)
-        print(turn)
-        if turn % 2 != 0:
+        print(turn + 1)
+        if (turn + 1) % 2 != 0:
             TOKEN = TOKEN_FORMER
         else:
             TOKEN = TOKEN_LLATER
