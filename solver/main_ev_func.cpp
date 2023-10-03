@@ -84,9 +84,14 @@ void feild_advantage(Board *board, int *point1, int *point2){
           tagetwall   = BIT_WALL2;
           belong      = 1;
         }
+        // flg1: 始点がbelongの城壁かどうか
+        // flg2: 始点がフィールド範囲内かどうか
         bool flg1=false, flg2=false;
+        // 始点
         uint8_t x= j-1, y= i-1;
+        // x, yを保存する用の変数
         uint8_t mx, my;
+        //
         bool flgp=false, flgc=false;
 
         if(board->isIgnoreCoord(x,y)){

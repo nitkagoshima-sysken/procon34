@@ -11,7 +11,7 @@
 using namespace std;
 using namespace nlohmann;
 
-#define SERVER_IP "172.27.152.111"
+#define SERVER_IP "192.168.10.4"
 #define SERVER_PORT 8080
 #define NO_CHANGE_STRING "no changes"
 
