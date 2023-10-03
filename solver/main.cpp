@@ -11,7 +11,7 @@
 using namespace std;
 using namespace nlohmann;
 
-#define SERVER_IP "localhost"
+#define SERVER_IP "172.27.152.111"
 #define SERVER_PORT 8080
 #define NO_CHANGE_STRING "no changes"
 
@@ -152,7 +152,7 @@ void calc(int msec, ev_function ev_func, bool belong)
   get_cmd += "'" + HOST + "?token=" + "' > " + OUT_FILE;
 
   system(get_cmd.c_str());
-
+  
   ifstream ifs;
   ifs.open(OUT_FILE, ios::in);
   string reading_buffer;
@@ -160,23 +160,31 @@ void calc(int msec, ev_function ev_func, bool belong)
   ifs.close();
 
   // フィールドデータが更新される前にgetをかけてしまったときのための保険
-  while(reading_buffer == NO_CHANGE_STRING) {
-    sleep(0.5);
-    system(get_cmd.c_str());
+  if(reading_buffer == NO_CHANGE_STRING) {
+    for(auto i = 0; reading_buffer == NO_CHANGE_STRING; i++) {
+      sleep(0.5);
+      system(get_cmd.c_str());
 
-    ifstream ifs;
-    ifs.open(OUT_FILE, ios::in);
-    string reading_buffer;
-    getline(ifs, reading_buffer);
-    ifs.close();
+      ifstream ifs;
+      ifs.open(OUT_FILE, ios::in);
+      string reading_buffer;
+      getline(ifs, reading_buffer);
+      ifs.close();
+      if(i == 3) {
+        cout << "不具合発生\n";
+        break;
+      }
+    }
   }
 
   auto jobj = json::parse(reading_buffer);
 
   Board *match = getInfobyJson(jobj);
 
-  if((belong == Player1 && match->turn % 2 == 0) ||
-     (belong == Player2 && match->turn % 2 != 0)) {
+  match->next_turn = belong;
+
+  if((belong == Player1 && match->turn % 2 != 0) ||
+     (belong == Player2 && match->turn % 2 == 0)) {
     cout << "このターンでは行動計画を送信できません．\n";
     return;
   }
@@ -192,9 +200,14 @@ void calc(int msec, ev_function ev_func, bool belong)
     Action *act = getActplan(match, ev_func, depth);
 
     json post_json;
-    post_json["turn"] = match->turn;
-    for(auto i = 0; i < match->info->agent; i++)
-      post_json["actions"][i] = {{"type", +act[i].kind}, {"dir", +act[i].direc}};
+    post_json["turn"] = match->turn + 1;
+
+    for(auto i = 0; i < match->info->agent; i++) {
+      // 行動の方向を競技サーバ側に合わせる
+      uint8_t direc = (act[i].direc + 4) % 8;
+
+      post_json["actions"][i] = {{"type", +act[i].kind}, {"dir", +direc}};
+    }
     string cmd("curl -X POST -H \"Content-Type: application/json\" -d '");
     cmd += post_json.dump();
     cmd += "' ";

@@ -4,12 +4,15 @@ import requests
 import json
 
 HOST = "http://localhost:3000"
-TOKEN = "kagoshimaf9e9e019877b0b3d212cf1dec665e9e9b45c99f1062779a73c5d3b1"
+TOKEN_FORMER = "kagoshimaf9e9e019877b0b3d212cf1dec665e9e9b45c99f1062779a73c5d3b1"
+TOKEN_LLATER = "tokyo1234"
 
 path = "/matches/10"
 
 file = "res.json"
 old_file = "res.json.old"
+
+turn = -1
 
 # post_num = 0
 
@@ -17,22 +20,26 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         self.send_response(200)
-        self.send_header('Content-type', "text/html")
+        self.send_header('Content-Type', 'text/plain; charset=utf-8')
         self.end_headers()
         with open(file, 'r') as f:
             data = f.read()
 
-        # 古いファイルと比較して，変化があれば200を返す
-        with open(old_file, 'r') as f:
-            old_data = f.read()
-            if data == old_data:
-                text = "no changes"
-                self.wfile.write(text.encode())
-            else:
-                self.wfile.write(data.encode())
+        global turn
+        jobj = json.loads(data)
+        get_turn = jobj['turn']
+        print('turn:' + str(turn) + ', get_turn: ' + str(get_turn))
 
-        with open(old_file, 'w') as f:
-            f.write(data)
+        # 取得したターン数が現在の次のターンになっているかどうか
+        if turn + 1 != get_turn:
+            print('failed')
+            self.wfile.write('no changes'.encode())
+        else:
+            print('success')
+            self.wfile.write(data.encode())
+
+        # 現在のターン数を更新
+        turn = get_turn
 
     def do_POST(self):
         data = self.rfile.read(int(self.headers['content-length'])).decode('utf-8')
@@ -42,9 +49,16 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
             'Content-Length': self.headers['content-length']
         }
 
+        global turn
+
         print(data)
         data_encode = json.dumps(json.loads(data))
         print(data_encode)
+        print(turn)
+        if turn % 2 != 0:
+            TOKEN = TOKEN_FORMER
+        else:
+            TOKEN = TOKEN_LLATER
         res = requests.post(HOST + path + '?token=' + TOKEN, headers=HEADER, data=data_encode)
         print(res.status_code)
         # post_num += 1
