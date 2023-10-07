@@ -371,13 +371,12 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
         }
         break;
       }
-      // 陣地が無いかつ解放済みの陣地がある
-      if(!(map[mmy][mmx] & target_encamp) && (map[mmy][mmx] & BIT_OPENED_ENCAMP)) {
+      if(map[mmy][mmx] & target_encamp) {
         cnt++;
       }
     }
     if(cnt == 3) { // 周りが全て陣地の場合
-      map[mx][my] |= target_encamp;
+      map[my][mx] |= target_encamp;
     }
     // uni_tree[belong].ancestor.erase((Cell){mx,my});
     // uni_tree[belong].par.erase((Cell){mx,my});

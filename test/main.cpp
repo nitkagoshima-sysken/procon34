@@ -11,27 +11,27 @@ using namespace std;
 
 // 反復するような手かどうかをチェックする関数
 // 戻り値がtrueならリピートしている
-bool check_repeat(Action act, Action pre_act)
+bool check_repeat(Action act_plan, Action pre_act)
 {
   // pre_actの方向と真反対の方向を格納する変数(4を足すと元と逆の方向になる)
   uint8_t reverse = (pre_act.direc + 4) % 8;
 
   switch(pre_act.kind) {
     case ACT_BUILD:
-      if(act.kind != ACT_DEMOLISH) // 次の行動が解体でなければ反復していない
+      if(act_plan.kind != ACT_DEMOLISH) // 次の行動が解体でなければ反復していない
         break;
-      if(pre_act.direc == act.direc)
+      if(pre_act.direc == act_plan.direc)
         return true;
       break;
     case ACT_MOVE:
-      if(act.direc == reverse) { // 前に移動した方向と逆方向に移動しているなら
+      if(act_plan.direc == reverse) { // 前に移動した方向と逆方向に移動しているなら
         return true;
       }
       break;
     case ACT_DEMOLISH: // ACT_BUILDの逆
-      if(act.kind != ACT_BUILD)
+      if(act_plan.kind != ACT_BUILD)
         break;
-      if(pre_act.direc == act.direc)
+      if(pre_act.direc == act_plan.direc)
         return true;
       break;
   }
@@ -178,9 +178,6 @@ int main(int argc, char *argv[])
     if(match.next_turn == Player1) {
       Game_Node **root_node = new Game_Node*[info->agent]();
 
-      cout << ((match.next_turn == Player1) ? "player1" : "player2") << endl;
-      cout << endl;
-      
       int lastdepth = ((turn_num - count) < depth) ? (turn_num - count + 1) : depth ;
 
       for(int i = 0; i < info->agent; i++) {
@@ -199,7 +196,8 @@ int main(int argc, char *argv[])
 
         // 評価値から次に行動するべき手(最善手)を出す
         // 親の評価値と子供の評価値を比べて一致した手を最善手と判断
-        for(auto itr = root_node[i]->childrenNode.begin(); itr != root_node[i]->childrenNode.end(); itr++) {
+        auto itr = root_node[i]->childrenNode.begin();
+        for(; itr != root_node[i]->childrenNode.end(); itr++) {
           if(root_node[i]->evaluation == (*itr)->evaluation) {
             best_act = (*itr)->pre_act;
             break;
@@ -207,20 +205,22 @@ int main(int argc, char *argv[])
         }
 
         // 計算した最善手が前の行動を打ち消すようなものでないかどうかをチェック
-        if(check_repeat(root_node[i]->pre_act, pre_act[i])) {
+        if(check_repeat(best_act, pre_act[i])) {
+          
           cout << "(デバッグ用):反復を検出!\n";
           cout << "detail:\n";
           cout << " agent    : " << i << endl;
           cout << " act.kind : " << +best_act.kind << endl;
           cout << " act.direc: " << +best_act.direc << endl;
-          // TODO: 反復しているのでbest_actを更新
+          
+          // 反復しているのでbest_actを更新
         }
 
         // 行動を盤面に反映させる
         match.ActionAnAgent(match.next_turn, i, best_act);
         // cout << "職人" << i << "の行動:" << " kind: " << +best_act.kind << ", direc: " << +best_act.direc << endl; 
 
-        pre_act[i] = root_node[i]->pre_act; // 直前の手として設定
+        pre_act[i] = best_act; // 直前の手として設定
       }
 
       // for(int i = 0; i < info->agent; i++) {
