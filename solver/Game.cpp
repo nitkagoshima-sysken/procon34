@@ -323,12 +323,10 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
       cout << "不正な手です\n";
       return -1;
     }
-    // if(getwall(belong, mx, my) == 1)
-    //   cout << "getwall:エラー\n";
+    // cout << "Player" << +belong << "'s agent" << +backnumber << " demolish "
+    //    << "( " << +mx << ", " << +my << " )\n";
 
-      // cout << "Player" << +belong << "'s agent" << +backnumber << " demolish "
-      //    << "( " << +mx << ", " << +my << " )\n";
-
+    // 解体する壁(ターゲット)がどちらの陣営に属するかを確認
     Bitmap_t target_encamp = BIT_ENCAMP1;
     bool target_belong = Player1;
     if(map[my][mx] & BIT_WALL2) {
@@ -337,10 +335,15 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
       target_wall   = BIT_WALL2;
     }
 
+    // 壁を解体
     if(map[my][mx] & (BIT_WALL1 | BIT_WALL2))
         map[my][mx] &= ~(BIT_WALL1 | BIT_WALL2);
+    else
+      return ACT_FAILED;
 
     uint8_t cnt = 0;
+    // 壁を解体したことによる陣地の解放などの処理を計算
+    // 解体した壁の上下左右の座標を調べる
     for(int direc = 0; direc < Direction_Max; direc+=2) {
       uint8_t mmx = mx + round(cos(direc * PI/4));
       uint8_t mmy = my + round(sin(direc * PI/4));
@@ -356,16 +359,20 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
       //   }
       // }
 
-      if((!(map[mmy][mmx] & target_encamp) || map[mmy][mmx] & BIT_OPENED_ENCAMP) 
+      // ifの条件式を日本語訳すると，陣地がないまたは解放済みの陣地がある，かつ壁がない
+      // つまり，解体した城壁の上下左右に何も無い箇所があるもしくは陣地はあるけれどそれが解放済みの時は，
+      // 解体した壁は陣地を形成していた壁である可能性があるから，Encanp_Openedを呼び出して更新する
+      if((!(map[mmy][mmx] & target_encamp) || map[mmy][mmx] & BIT_OPENED_ENCAMP)
          && !(map[mmy][mmx] & target_wall)) {
         for(int direc = 0; direc < Direction_Max; direc+=2) {
           uint8_t mmmx = mx + round(cos(direc * PI/4));
           uint8_t mmmy = my + round(sin(direc * PI/4));
           Encamp_Opened(target_belong, mmmx, mmmy);
         }
+        break;
       }
-      if((map[mmy][mmx] & target_encamp) && 
-         !(map[mmy][mmx] & BIT_OPENED_ENCAMP)) {
+      // 陣地が無いかつ解放済みの陣地がある
+      if(!(map[mmy][mmx] & target_encamp) && (map[mmy][mmx] & BIT_OPENED_ENCAMP)) {
         cnt++;
       }
     }
@@ -374,7 +381,6 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
     }
     // uni_tree[belong].ancestor.erase((Cell){mx,my});
     // uni_tree[belong].par.erase((Cell){mx,my});
-
 
     return ACT_SUCCESS;
   }
@@ -461,12 +467,16 @@ void Board::Encamp_Update(bool belong, uint8_t seed_x, uint8_t seed_y)
       }
     }
   }
+  Bitmap_t rev_encamp = (belong == Player1) ? BIT_ENCAMP2 : BIT_ENCAMP1;
   // ここまで来たということは陣地形成されている
   for(uint8_t i = 0; i < info->length; i++) {
     for(uint8_t j = 0; j < info->length; j++) {
       if(bitmap[i][j]) {
         map[i][j] |= target_encamp;
-        map[i][j] &= ~BIT_OPENED_ENCAMP; // 解放された陣地ではなくなる
+        if(map[i][j] & BIT_OPENED_ENCAMP && map[i][j] & rev_encamp)
+          map[i][j] &= ~(BIT_OPENED_ENCAMP | rev_encamp); // 解放された陣地は上書きされる
+        if(map[i][j] & BIT_OPENED_ENCAMP)
+          map[i][j] &= ~BIT_OPENED_ENCAMP;
       }
     }
   }
