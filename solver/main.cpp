@@ -11,7 +11,7 @@
 using namespace std;
 using namespace nlohmann;
 
-#define SERVER_IP "192.168.10.4"
+#define SERVER_IP "localhost"
 #define SERVER_PORT 8080
 #define NO_CHANGE_STRING "no changes"
 
@@ -189,7 +189,7 @@ void calc(int msec, ev_function ev_func, bool belong)
   auto time2 = high_resolution_clock::now();
   auto ms = duration_cast<chrono::milliseconds>(time2 - time1);
   auto calc_time = milliseconds(msec) - ms;
-  for(auto depth = 1; depth <= 5; depth++) {
+  for(auto depth = 1; depth <= 4; depth++) {
     auto time3 = high_resolution_clock::now();
     Action *act = getActplan(match, ev_func, depth);
 

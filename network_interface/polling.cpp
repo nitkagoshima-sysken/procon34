@@ -2,7 +2,7 @@
 #include <iostream>
 using namespace std;
 
-#define SERVER_IP "127.0.0.1"
+#define SERVER_IP "localhost"
 #define SERVER_PORT 3000
 
 int main()
