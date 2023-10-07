@@ -1,8 +1,11 @@
 from http.server import HTTPServer
 from http.server import BaseHTTPRequestHandler
-from ..solver import procon
 import requests
 import json
+import sys
+
+sys.path.append("../")
+from solver import procon
 
 HOST = "http://localhost:8081"
 
@@ -23,6 +26,6 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         if get_turn % 2 != 0:
             procon.calc(3, 1)
 
-server_address = ('0.0.0.0', 8080)
+server_address = ('0.0.0.0', 8081)
 httpd = HTTPServer(server_address, CustomHTTPRequestHandler)
 httpd.serve_forever()

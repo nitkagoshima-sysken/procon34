@@ -224,7 +224,7 @@ Action *calc(int msec, bool belong)
   return act;
 }
 
-PYBIND11_MODULE(example, m) {
+PYBIND11_MODULE(procon, m) {
     m.doc() = "pybind11 example plugin"; // optional module docstring
     m.def("calc", &calc, "compute best action and send to server as json file");
 }

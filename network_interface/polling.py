@@ -2,7 +2,7 @@ import requests
 import json
 import time
 
-HOST = "http://localhost:3000"
+HOST = "http://192.168.10.3:3000"
 TOKEN = "kagoshimaf9e9e019877b0b3d212cf1dec665e9e9b45c99f1062779a73c5d3b1"
 
 APP_SERVER = "http://locahost:8081"
@@ -14,8 +14,10 @@ interval = 3
 
 while 1:
   res = requests.get(HOST + path + '?token=' + TOKEN)
-  data = res.json
+  data = json.loads(res.content)
+  data_encode = json.dumps(data)
   get_turn = data['turn']
+  print(get_turn)
   if turn + 1 != get_turn:
     if turn < get_turn:
       print('too late')
@@ -25,8 +27,13 @@ while 1:
     print('changed')
     HEADER = {
         'Content-type': 'application/json',
-        'Content-Length': len(res.content)
+        'Content-Length': str(len(data_encode))
     }
-    r = requests.post(HOST, headers=HEADER, data=res.content)
+    try:
+      r = requests.post(APP_SERVER, headers=HEADER, data=data_encode)
+      print(r.status_code)
+    except Exception as e:
+      print(e)
 
-  time.sleep(interval)
+  turn += 1
+  time.sleep(interval - 0.5)
