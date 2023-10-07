@@ -140,7 +140,7 @@ Action *getActplan(Board *match, ev_function act_plan, int depth)
 #include <thread>
 using namespace chrono;
 
-void calc(int msec, ev_function ev_func, bool belong)
+Action *calc(int msec, ev_function ev_func, bool belong)
 {
   auto time1 = chrono::high_resolution_clock::now();
 
@@ -180,18 +180,19 @@ void calc(int msec, ev_function ev_func, bool belong)
   if((belong == Player1 && match->turn % 2 != 0) ||
      (belong == Player2 && match->turn % 2 == 0)) {
     cout << "このターンでは行動計画を送信できません．\n";
-    return;
+    return nullptr;
   }
   
   cout << +match->turn << endl;
   match->draw();
 
+  Action *act;
   auto time2 = high_resolution_clock::now();
   auto ms = duration_cast<chrono::milliseconds>(time2 - time1);
   auto calc_time = milliseconds(msec) - ms;
   for(auto depth = 1; depth <= 4; depth++) {
     auto time3 = high_resolution_clock::now();
-    Action *act = getActplan(match, ev_func, depth);
+    act = getActplan(match, ev_func, depth);
 
     json post_json;
     post_json["turn"] = match->turn + 1;
@@ -218,6 +219,8 @@ void calc(int msec, ev_function ev_func, bool belong)
   }
   delete match;
   std::this_thread::sleep_for(calc_time);
+
+  return act;
 }
 
 int main(int argc, char *argv[])
@@ -226,13 +229,39 @@ int main(int argc, char *argv[])
 
   int turn = 0;
 
-  cout << "press enter\n";
-  getchar();
+  string HOST = "http://";
+  HOST += SERVER_IP;
+  HOST += ":" + to_string(SERVER_PORT);
+  string PATH = "/matches/10";
+  string TOKEN = "kagoshimaf9e9e019877b0b3d212cf1dec665e9e9b45c99f1062779a73c5d3b1";
+  string OUT_FILE = "init.txt";
+  string get_cmd("curl ");
+  get_cmd += "'" + HOST + PATH + "?token=" + TOKEN + "' > " + OUT_FILE;
 
   int msec = 3000;
   int turn_num = 60;
 
+  cout << "press enter\n";
+  getchar();
+
+  system(get_cmd.c_str());
+  ifstream ifs;
+  ifs.open(OUT_FILE, ios::in);
+  string reading_buffer;
+  getline(ifs, reading_buffer);
+  ifs.close();
+
+  auto jobj = json::parse(reading_buffer);
+
+  Board *init = getInfobyJson(jobj);
+
+  Action pre_act1[init->info->agent];
+  Action pre_act2[init->info->agent];
+
   for(auto i = 0; i < turn_num / 2; i++) {
+    if(i != 0) {
+      ;
+    }
     calc(msec, evaluate_current_board, Player1);
     calc(msec, ev_diff_score, Player2);
   }
