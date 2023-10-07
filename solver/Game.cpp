@@ -305,7 +305,7 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
       if(isIgnoreCoord(mmx, mmy))
         continue;
 
-      Encamp_Update(belong, mmx, mmy);    
+      Encamp_Update(belong, mmx, mmy);   
     }
 
     if(map[my][mx] & BIT_ENCAMP1) {
@@ -594,14 +594,34 @@ void Board::draw()
       if(map[i][j] & BIT_OPENED_ENCAMP)
         cout << "\x1b[48;5;178m";
 
-      switch (map[i][j] & (BIT_AGENT1 | BIT_AGENT2 | BIT_POND))
-      {
-        case FILD_AGENT1 : cout << "\x1b[36m" << '1' << "\x1b[37m"; break;
-        case FILD_AGENT2 : cout << "\x1b[32m" << '2' << "\x1b[37m"; break;
-        case FILD_POND   : cout << "P"; break;
-        
-        default          : cout << '-'; break;
+      if(map[i][j] & BIT_AGENT1) {
+        for(int k = 0; k < info->agent; k++) {
+          if(i == agent1[k].y && j == agent1[k].x) {
+            cout << "\x1b[36m" << k << "\x1b[37m";
+            break;
+          }
+        }
+      } else if(map[i][j] & BIT_AGENT2) {
+        for(int k = 0; k < info->agent; k++) {
+          if(i == agent2[k].y && j == agent2[k].x) {
+            cout << "\x1b[32m" << k << "\x1b[37m";
+            break;
+          }
+        }
+      } else if(map[i][j] & BIT_POND) {
+        cout << "P";
+      } else {
+        cout << '-';
       }
+
+      // switch (map[i][j] & (BIT_AGENT1 | BIT_AGENT2 | BIT_POND))
+      // {
+      //   case FILD_AGENT1 : cout << "\x1b[36m" << '1' << "\x1b[37m"; break;
+      //   case FILD_AGENT2 : cout << "\x1b[32m" << '2' << "\x1b[37m"; break;
+      //   case FILD_POND   : cout << "P"; break;
+        
+      //   default          : cout << '-'; break;
+      // }
       switch (map[i][j] & (BIT_CASTLE | BIT_WALL1 | BIT_WALL2))
       {
         case FILD_CASL   : cout << '@'; break;
