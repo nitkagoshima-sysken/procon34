@@ -8,6 +8,7 @@
 #include "nlohmann/json.hpp"
 #include <fstream>
 #include <unistd.h>
+#include <pybind11/pybind11.h>
 using namespace std;
 using namespace nlohmann;
 
@@ -140,7 +141,7 @@ Action *getActplan(Board *match, ev_function act_plan, int depth)
 #include <thread>
 using namespace chrono;
 
-Action *calc(int msec, ev_function ev_func, bool belong)
+Action *calc(int msec, bool belong)
 {
   auto time1 = chrono::high_resolution_clock::now();
 
@@ -192,7 +193,7 @@ Action *calc(int msec, ev_function ev_func, bool belong)
   auto calc_time = milliseconds(msec) - ms;
   for(auto depth = 1; depth <= 4; depth++) {
     auto time3 = high_resolution_clock::now();
-    act = getActplan(match, ev_func, depth);
+    act = getActplan(match, evaluate_current_board, depth);
 
     json post_json;
     post_json["turn"] = match->turn + 1;
@@ -223,6 +224,11 @@ Action *calc(int msec, ev_function ev_func, bool belong)
   return act;
 }
 
+PYBIND11_MODULE(example, m) {
+    m.doc() = "pybind11 example plugin"; // optional module docstring
+    m.def("calc", &calc, "compute best action and send to server as json file");
+}
+
 int main(int argc, char *argv[])
 {
   srand((unsigned)time(NULL));
@@ -232,12 +238,12 @@ int main(int argc, char *argv[])
   int msec = 3000;
   int turn_num = 60;
 
+  cout << "press enter\n";
+  getchar();
+
   for(auto i = 0; i < turn_num / 2; i++) {
-    if(i != 0) {
-      ;
-    }
-    calc(msec, evaluate_current_board, Player1);
-    calc(msec, ev_diff_score, Player2);
+    calc(msec, Player1);
+    calc(msec, Player2);
   }
 
   return 0;
