@@ -229,34 +229,8 @@ int main(int argc, char *argv[])
 
   int turn = 0;
 
-  string HOST = "http://";
-  HOST += SERVER_IP;
-  HOST += ":" + to_string(SERVER_PORT);
-  string PATH = "/matches/10";
-  string TOKEN = "kagoshimaf9e9e019877b0b3d212cf1dec665e9e9b45c99f1062779a73c5d3b1";
-  string OUT_FILE = "init.txt";
-  string get_cmd("curl ");
-  get_cmd += "'" + HOST + PATH + "?token=" + TOKEN + "' > " + OUT_FILE;
-
   int msec = 3000;
   int turn_num = 60;
-
-  cout << "press enter\n";
-  getchar();
-
-  system(get_cmd.c_str());
-  ifstream ifs;
-  ifs.open(OUT_FILE, ios::in);
-  string reading_buffer;
-  getline(ifs, reading_buffer);
-  ifs.close();
-
-  auto jobj = json::parse(reading_buffer);
-
-  Board *init = getInfobyJson(jobj);
-
-  Action pre_act1[init->info->agent];
-  Action pre_act2[init->info->agent];
 
   for(auto i = 0; i < turn_num / 2; i++) {
     if(i != 0) {
