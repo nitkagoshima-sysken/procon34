@@ -23,8 +23,7 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         with open(file, 'w') as f:
             f.write(data)
 
-        if get_turn % 2 != 0:
-            procon.calc(3, 1)
+        procon.calc(3, 1)
 
         self.send_response(200)
         self.send_header('Content-Type', 'text/plain; charset=utf-8')

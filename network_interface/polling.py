@@ -10,7 +10,7 @@ APP_SERVER = "http://localhost:8081"
 
 path = "/matches/10"
 
-turn = -1
+turn = 0
 interval = 3
 
 while 1:
@@ -19,7 +19,7 @@ while 1:
   data_encode = json.dumps(data)
   get_turn = data['turn']
   print(get_turn)
-  if turn + 1 != get_turn:
+  if turn != get_turn:
     print('some error occured')
     time.sleep(interval)
     continue
@@ -37,5 +37,5 @@ while 1:
     print(e)
     continue
 
-  turn += 1
-  time.sleep(interval)
+  turn += 2
+  time.sleep(interval * 2)

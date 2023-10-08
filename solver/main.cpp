@@ -145,14 +145,7 @@ Action *calc(int msec, bool belong)
 {
   auto time1 = chrono::high_resolution_clock::now();
 
-  string HOST = "http://";
-  HOST += SERVER_IP;
-  HOST += ":" + to_string(SERVER_PORT);
-  string OUT_FILE = "res.txt";
-  string get_cmd("curl ");
-  get_cmd += "'" + HOST + "?token=" + "' > " + OUT_FILE;
-
-  system(get_cmd.c_str());
+  string OUT_FILE = "../network_interface/res.json";
   
   ifstream ifs;
   ifs.open(OUT_FILE, ios::in);
@@ -160,21 +153,17 @@ Action *calc(int msec, bool belong)
   getline(ifs, reading_buffer);
   ifs.close();
 
-  // フィールドデータが更新される前にgetをかけてしまったときのための保険
-  while(reading_buffer == NO_CHANGE_STRING) {
-    sleep(1);
-    system(get_cmd.c_str());
-
-    ifstream ifs;
-    ifs.open(OUT_FILE, ios::in);
-    string reading_buffer;
-    getline(ifs, reading_buffer);
-    ifs.close();
-  }
-
   auto jobj = json::parse(reading_buffer);
 
   Board *match = getInfobyJson(jobj);
+
+  cout << "solver/main.cpp:calc\n";
+  cout << " turn  :" << +match->turn << endl;
+  cout << " belong:" << ((belong == Player1) ? "player1" : "player2") << endl;
+
+  cout << endl;
+
+  match->draw();
 
   match->next_turn = belong;
 
@@ -183,9 +172,6 @@ Action *calc(int msec, bool belong)
     cout << "このターンでは行動計画を送信できません．\n";
     return nullptr;
   }
-  
-  cout << +match->turn << endl;
-  match->draw();
 
   Action *act;
   auto time2 = high_resolution_clock::now();
