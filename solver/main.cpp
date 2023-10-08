@@ -141,12 +141,11 @@ Action *getActplan(Board *match, ev_function act_plan, int depth)
 #include <thread>
 using namespace chrono;
 
-Action *calc(int msec, bool belong)
+void calc(int msec, bool belong)
 {
-  auto time1 = chrono::high_resolution_clock::now();
-
   string OUT_FILE = "../network_interface/res.json";
   
+  // ファイルを開く
   ifstream ifs;
   ifs.open(OUT_FILE, ios::in);
   string reading_buffer;
@@ -170,15 +169,12 @@ Action *calc(int msec, bool belong)
   if((belong == Player1 && match->turn % 2 != 0) ||
      (belong == Player2 && match->turn % 2 == 0)) {
     cout << "このターンでは行動計画を送信できません．\n";
-    return nullptr;
+    return;
   }
 
+  // 最善手を計算する
   Action *act;
-  auto time2 = high_resolution_clock::now();
-  auto ms = duration_cast<chrono::milliseconds>(time2 - time1);
-  auto calc_time = milliseconds(msec) - ms;
-  for(auto depth = 1; depth <= 4; depth++) {
-    auto time3 = high_resolution_clock::now();
+  for(auto depth = 1; depth <= 5; depth++) {
     act = getActplan(match, evaluate_current_board, depth);
 
     json post_json;
@@ -201,13 +197,10 @@ Action *calc(int msec, bool belong)
     // cout << cmd << endl;
     system(cmd.c_str());
     delete act;
-    auto time4 = high_resolution_clock::now();
-    calc_time -= duration_cast<milliseconds>(time4 - time3);
   }
   delete match;
-  std::this_thread::sleep_for(calc_time);
 
-  return act;
+  return;
 }
 
 PYBIND11_MODULE(procon, m) {

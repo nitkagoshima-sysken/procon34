@@ -7,8 +7,6 @@ import sys
 sys.path.append("../")
 from solver import procon
 
-HOST = "http://localhost:8081"
-
 file = "res.json"
 
 class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
