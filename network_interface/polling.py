@@ -24,8 +24,7 @@ while 1:
     '''タイミングがずれた'''
     print('some error occured')
     # タイミングが早まった
-      
-    continue
+    exit()
   
   print('changed')
   HEADER = {
