@@ -188,7 +188,7 @@ int main(int argc, char *argv[])
         root_node[i]->parentNode    = nullptr;
         root_node[i]->target_belong = match.next_turn;
 
-        // 職人の最善手を生成
+        // ゲーム木を生成&評価値をアルファベータ法で選択
         expandChildren_by_num(root_node[i], lastdepth, i);
         
         // 最善手を格納するオブジェクト
@@ -231,13 +231,13 @@ int main(int argc, char *argv[])
       //   //   cout << "  " << "子供" << j << "のスコア:" << root_node[i]->childrenNode[j]->evaluation << endl;
       //   // }
       // }
-      if(is_print_game_tree){
+      if(is_print_game_tree) {
         fprintf(fp, "\n\nturn: %d", count);
         drawTree(root_node[2], fp);
       }
-        // for(int i = 0; i < info->agent; i++) {
-        //   deleteTree(root_node[i]);
-        // }
+        for(int i = 0; i < info->agent; i++) {
+          deleteTree(root_node[i]);
+        }
         for(int i = 0; i < info->agent; i++)
           delete root_node[i];
         delete root_node;

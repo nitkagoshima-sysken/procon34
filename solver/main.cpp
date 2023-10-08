@@ -16,6 +16,37 @@ using namespace nlohmann;
 #define SERVER_PORT 8080
 #define NO_CHANGE_STRING "no changes"
 
+// 反復するような手かどうかをチェックする関数
+// 戻り値がtrueならリピートしている
+bool check_repeat(Action act_plan, Action pre_act)
+{
+  // pre_actの方向と真反対の方向を格納する変数(4を足すと元と逆の方向になる)
+  uint8_t reverse = (pre_act.direc + 4) % 8;
+
+  switch(pre_act.kind) {
+    case ACT_BUILD:
+      if(act_plan.kind != ACT_DEMOLISH) // 次の行動が解体でなければ反復していない
+        break;
+      if(pre_act.direc == act_plan.direc)
+        return true;
+      break;
+    case ACT_MOVE:
+      if(act_plan.direc == reverse) { // 前に移動した方向と逆方向に移動しているなら
+        return true;
+      }
+      break;
+    case ACT_DEMOLISH: // ACT_BUILDの逆
+      if(act_plan.kind != ACT_BUILD)
+        break;
+      if(pre_act.direc == act_plan.direc)
+        return true;
+      break;
+  }
+
+  // ここまで来たなら合格
+  return false;
+}
+
 Board *getInfobyJson(json jobj)
 {
   FieldInfo *info = new FieldInfo;
@@ -99,7 +130,7 @@ Action *getActplan(Board *match, ev_function act_plan, int depth)
   int lastdepth = ((TURN_NUM - turn) < depth) ? (TURN_NUM - turn) : depth;
 
   // 生成した最善手を格納するためのオブジェクト
-  Action *act = new Action[info->agent]();
+  Action *best_act = new Action[info->agent]();
 
   // 職人の数だけ最善手を探索する
   for(int i = 0; i < info->agent; i++) {
@@ -108,21 +139,20 @@ Action *getActplan(Board *match, ev_function act_plan, int depth)
     root_node[i]->board = init_board;
     root_node[i]->ev_func = act_plan;
 
-    // cout << "職人" << i << "(" << +root_node[i]->board->agent1[i].x << ", " << +root_node[i]->board->agent1[i].y << ")" << "のゲーム木構築中..." << endl;
+    // ゲーム木を生成&評価値をアルファベータ法で選択
     expandChildren_by_num(root_node[i], lastdepth, i);
     
+    // 評価値から次に行動するべき手(最善手)を出す
+    // 親の評価値と子供の評価値を比べて一致した手を最善手と判断
     auto itr = root_node[i]->childrenNode.begin();
     // 子供の評価値と自身の評価値が一致したゲームノードの行動を最善手として選択
     for(; itr != root_node[i]->childrenNode.end(); itr++) {
       if(root_node[i]->evaluation == (*itr)->evaluation) {
-        act[i] = (*itr)->pre_act;
+        best_act[i] = (*itr)->pre_act;
         break;
       }
     }
-    if(itr == root_node[i]->childrenNode.end() + 1) {
-      cout << "error: ゲーム木が正常に評価・構築されていません\n";
-      return nullptr;
-    }
+    delete init_board;
   }
 
   // for(int i = 0; i < info->agent; i++) {
@@ -134,7 +164,7 @@ Action *getActplan(Board *match, ev_function act_plan, int depth)
   }
   delete root_node;
 
-  return act;
+  return best_act;
 }
 
 #include <chrono>
