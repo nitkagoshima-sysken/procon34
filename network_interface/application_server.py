@@ -26,6 +26,10 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         if get_turn % 2 != 0:
             procon.calc(3, 1)
 
+        self.send_response(200)
+        self.send_header('Content-Type', 'text/plain; charset=utf-8')
+        self.end_headers()
+
 server_address = ('0.0.0.0', 8081)
 httpd = HTTPServer(server_address, CustomHTTPRequestHandler)
 httpd.serve_forever()
