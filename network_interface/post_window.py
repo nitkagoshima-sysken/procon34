@@ -3,7 +3,7 @@ from http.server import BaseHTTPRequestHandler
 import requests
 import json
 
-HOST = "http://172.17.3.5:3000"
+HOST = "http://localhost:3000"
 TOKEN_FORMER = "kagoshimaf9e9e019877b0b3d212cf1dec665e9e9b45c99f1062779a73c5d3b1"
 TOKEN_LLATER = "tokyo1234"
 
