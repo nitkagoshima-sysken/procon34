@@ -213,7 +213,7 @@ void calc(int msec, bool belong)
     for(auto i = 0; i < match->info->agent; i++) {
       // 行動の方向を競技サーバ側に合わせる
       uint8_t direc = (act[i].direc + 4) % 8;
-      if(act[i].direc == 4) // 上記の計算式で正しい計算ができないパターンを受け止める
+      if(act[i].direc == 4) // 上記の計算式で正しい計算ができないパターンを握りつぶす
         direc = 8;
 
       post_json["actions"][i] = {{"type", +act[i].kind}, {"dir", +direc}};
