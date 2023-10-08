@@ -3,7 +3,7 @@ import json
 import time
 from http.client import RemoteDisconnected
 
-HOST = "http://localhost:3000"
+HOST = "http://192.168.10.3:3000"
 TOKEN = "kagoshimaf9e9e019877b0b3d212cf1dec665e9e9b45c99f1062779a73c5d3b1"
 
 APP_SERVER = "http://localhost:8081"
@@ -19,12 +19,16 @@ while 1:
   data = json.loads(res.content)
   data_encode = json.dumps(data)
   get_turn = data['turn']
-  print(get_turn)
+  print({'turn': turn, 'get_turn': get_turn})
   if turn != get_turn:
     '''タイミングがずれた'''
     print('some error occured')
-    # タイミングが早まった
-    exit()
+    # 早くgetしすぎた
+    if turn > get_turn:
+      print('continue')
+      continue
+    else:
+      exit()
   
   print('changed')
   HEADER = {
