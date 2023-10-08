@@ -300,9 +300,9 @@ int main(int argc, char *argv[])
           if((!strcmp(path,&file[0][0])) || (!strcmp(path,&file[1][0])) || (!strcmp(path,&file[2][0])) || (!strcmp(path,&file[3][0]))){
             uint8_t dir[4] = {2,0,4,6};
             uint8_t sx[4]  = {(uint8_t)info->length/2 +2,(uint8_t)info->length/2 -3,(uint8_t)info->length/2 +3,(uint8_t)info->length/2 -2};
-            uint8_t sy[4]  = {(uint8_t)info->length/2 +3,(uint8_t)info->length/2 +2,(uint8_t)info->length/2 -2,(uint8_t)info->length/2 -3};
+            uint8_t sy[4]  = {(uint8_t)info->length/2 -3,(uint8_t)info->length/2 -2,(uint8_t)info->length/2 +2,(uint8_t)info->length/2 +3};
             uint8_t ssx[4]  = {(uint8_t)info->length/2 -1,(uint8_t)info->length/2 -2,(uint8_t)info->length/2 +2,(uint8_t)info->length/2 +1};
-            uint8_t ssy[4]  = {(uint8_t)info->length/2 +2,(uint8_t)info->length/2 -1,(uint8_t)info->length/2 +1,(uint8_t)info->length/2 -2};
+            uint8_t ssy[4]  = {(uint8_t)info->length/2 -2,(uint8_t)info->length/2 +1,(uint8_t)info->length/2 -1,(uint8_t)info->length/2 +2};
 
             switch((!strcmp(path,&file[2][0])) ? count/2 +1 : count/2){
               case 1: 
