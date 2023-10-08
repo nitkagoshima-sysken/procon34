@@ -87,7 +87,7 @@ void feild_advantage(Board *board, int *point1, int *point2){
         bool flg1=false, flg2=false;
         uint8_t x= j-1, y= i-1;
         uint8_t mx, my;
-        bool flgp=false, flgc=false;
+        bool flgp=false, flgc=false, flgce=false;
 
         if(board->isIgnoreCoord(x,y)){
           flg2 = true;
@@ -107,9 +107,12 @@ void feild_advantage(Board *board, int *point1, int *point2){
               continue;
             }
 
-            if((!flgc) && (board->map[y][x] & BIT_CASTLE) && (l==0) /*&& (! (board->map[y][x] & tagetencamp))*/){
-              belong ? p2 += WALL_POINT * coefficient_score * ((board->map[y][x] & tagetencamp) ? 3 : 6) : p1 += WALL_POINT * coefficient_score * ((board->map[y][x] & tagetencamp) ? 3 : 6);
-              flgc=true;
+            if((board->map[y][x] & BIT_CASTLE) && (l==0) /*&& (! (board->map[y][x] & tagetencamp))*/){
+              if(board->map[y][x] & tagetencamp){
+                flgce = true;
+              }else{
+                flgc =true;
+              }
             }
 
             if((! (board->map[i][j] & BIT_POND)) && (board->map[y][x] & BIT_POND) && (l==0)){
@@ -180,6 +183,11 @@ void feild_advantage(Board *board, int *point1, int *point2){
             uint8_t advp= (advantagepoint == 1)? 5: ((advantagepoint <5)? 3 : 1);
             belong ? p2+= advp : p1+= advp;
           }
+        }
+        if(flgc){
+          belong ? p2 += WALL_POINT * coefficient_score * 6 : p1 += WALL_POINT * coefficient_score * 6;
+        }else if (flgce){
+          belong ? p2 += WALL_POINT * coefficient_score * 3 : p1 += WALL_POINT * coefficient_score * 3;
         }
       }
     }
