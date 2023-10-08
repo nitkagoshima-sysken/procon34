@@ -1,7 +1,7 @@
 {
   "teams": [
-    {"name": "チェストブラザーズ", "token": "kagoshimaf9e9e019877b0b3d212cf1dec665e9e9b45c99f1062779a73c5d3b1"},
-    {"name": "都立東京工業専門学校", "token": "tokyo1234"}
+    {"name": "先攻チーム", "token": "kagoshimaf9e9e019877b0b3d212cf1dec665e9e9b45c99f1062779a73c5d3b1"},
+    {"name": "後攻チーム", "token": "tokyo1234"}
   ],
   "match": {
     "id": 10,

@@ -7,13 +7,14 @@
 #include "Evaluation_func.hpp"
 #include "nlohmann/json.hpp"
 #include <fstream>
+#include <unistd.h>
+#include <pybind11/pybind11.h>
 using namespace std;
 using namespace nlohmann;
 
 #define SERVER_IP "localhost"
-#define SERVER_PORT 3000
-#define PY_SERVER_IP "localhost"
-#define PY_SERVER_PORT 8080
+#define SERVER_PORT 8080
+#define NO_CHANGE_STRING "no changes"
 
 Board *getInfobyJson(json jobj)
 {
@@ -140,105 +141,71 @@ Action *getActplan(Board *match, ev_function act_plan, int depth)
 #include <thread>
 using namespace chrono;
 
-void calc(int msec)
+void calc(int msec, bool belong)
 {
-  auto time1 = chrono::high_resolution_clock::now();
-
-  string HOST = "http://";
-  HOST += SERVER_IP;
-  HOST += ":" + to_string(SERVER_PORT);
-  string PATH = "/matches/10";
-  string TOKEN = "kagoshimaf9e9e019877b0b3d212cf1dec665e9e9b45c99f1062779a73c5d3b1";
-  string OUT_FILE = "res.txt";
-  string get_cmd("curl ");
-  get_cmd += "'" + HOST + PATH + "?token=" + TOKEN + "' > " + OUT_FILE;
-
-  system(get_cmd.c_str());
-
+  string OUT_FILE = "../network_interface/res.json";
+  
+  // ファイルを開く
   ifstream ifs;
   ifs.open(OUT_FILE, ios::in);
   string reading_buffer;
   getline(ifs, reading_buffer);
+  ifs.close();
 
   auto jobj = json::parse(reading_buffer);
+
   Board *match = getInfobyJson(jobj);
-  cout << +match->turn << endl;
+
+  cout << "solver/main.cpp:calc\n";
+  cout << " turn  :" << +match->turn << endl;
+  cout << " belong:" << ((belong == Player1) ? "player1" : "player2") << endl;
+
+  cout << endl;
+
   match->draw();
 
-  auto time2 = high_resolution_clock::now();
-  auto ms = duration_cast<chrono::milliseconds>(time2 - time1);
-  auto calc_time = milliseconds(msec) - ms;
+  match->next_turn = belong;
+
+  if((belong == Player1 && match->turn % 2 != 0) ||
+     (belong == Player2 && match->turn % 2 == 0)) {
+    cout << "このターンでは行動計画を送信できません．\n";
+    return;
+  }
+
+  // 最善手を計算する
+  Action *act;
   for(auto depth = 1; depth <= 5; depth++) {
-    auto time3 = high_resolution_clock::now();
-    Action *act = getActplan(match, evaluate_current_board, depth);
+    act = getActplan(match, evaluate_current_board, depth);
 
     json post_json;
     post_json["turn"] = match->turn + 1;
-    for(auto i = 0; i < match->info->agent; i++)
-      post_json["actions"][i] = {{"type", +act[i].kind}, {"dir", +act[i].direc}};
+
+    for(auto i = 0; i < match->info->agent; i++) {
+      // 行動の方向を競技サーバ側に合わせる
+      uint8_t direc = (act[i].direc + 4) % 8;
+      if(act[i].direc == 4) // 上記の計算式で正しい計算ができないパターンを受け止める
+        direc = 8;
+
+      post_json["actions"][i] = {{"type", +act[i].kind}, {"dir", +direc}};
+    }
     string cmd("curl -X POST -H \"Content-Type: application/json\" -d '");
     cmd += post_json.dump();
     cmd += "' ";
-    cmd += PY_SERVER_IP;
-    cmd += ":" + to_string(PY_SERVER_PORT);
+    cmd += SERVER_IP;
+    cmd += ":" + to_string(SERVER_PORT);
 
     // cout << cmd << endl;
     system(cmd.c_str());
-    auto time4 = high_resolution_clock::now();
-    calc_time -= duration_cast<chrono::milliseconds>(time4 - time3);
+    delete act;
   }
-  std::this_thread::sleep_for(calc_time);
+  delete match;
+
+  return;
 }
 
-void score(int msec)
-{
-  auto time1 = chrono::high_resolution_clock::now();
-
-  string HOST = "http://";
-  HOST += SERVER_IP;
-  HOST += ":" + to_string(SERVER_PORT);
-  string PATH = "/matches/10";
-  string TOKEN = "kagoshimaf9e9e019877b0b3d212cf1dec665e9e9b45c99f1062779a73c5d3b1";
-  string OUT_FILE = "res.txt";
-  string get_cmd("curl ");
-  get_cmd += "'" + HOST + PATH + "?token=" + TOKEN + "' > " + OUT_FILE;
-
-  system(get_cmd.c_str());
-
-  ifstream ifs;
-  ifs.open(OUT_FILE, ios::in);
-  string reading_buffer;
-  getline(ifs, reading_buffer);
-
-  auto jobj = json::parse(reading_buffer);
-  Board *match = getInfobyJson(jobj);
-  cout << +match->turn << endl;
-  match->draw();
-  match->next_turn = Player2;
-
-  auto time2 = high_resolution_clock::now();
-  auto ms = duration_cast<chrono::milliseconds>(time2 - time1);
-  auto calc_time = milliseconds(msec) - ms;
-  for(auto depth = 1; depth <= 5; depth++) {
-    auto time3 = high_resolution_clock::now();
-    Action *act = getActplan(match, ev_diff_score, depth);
-
-    json post_json;
-    post_json["turn"] = match->turn + 1;
-    for(auto i = 0; i < match->info->agent; i++)
-      post_json["actions"][i] = {{"type", +act[i].kind}, {"dir", +act[i].direc}};
-    string cmd("curl -X POST -H \"Content-Type: application/json\" -d '");
-    cmd += post_json.dump();
-    cmd += "' ";
-    cmd += PY_SERVER_IP;
-    cmd += ":" + to_string(PY_SERVER_PORT);
-
-    // cout << cmd << endl;
-    system(cmd.c_str());
-    auto time4 = high_resolution_clock::now();
-    calc_time -= duration_cast<chrono::milliseconds>(time4 - time3);
-  }
-  std::this_thread::sleep_for(calc_time);
+PYBIND11_MODULE(procon, m) {
+    m.doc() = "pybind11 example plugin"; // optional module docstring
+    m.def("calc", &calc, "compute best action and send to server as json file");
 }
 
 int main(int argc, char *argv[])
@@ -247,15 +214,15 @@ int main(int argc, char *argv[])
 
   int turn = 0;
 
-  cout << "press enter\n";
-  getchar();
-
   int msec = 3000;
   int turn_num = 60;
 
+  cout << "press enter\n";
+  getchar();
+
   for(auto i = 0; i < turn_num / 2; i++) {
-    calc(msec);
-    score(msec);
+    calc(msec, Player1);
+    calc(msec, Player2);
   }
 
   return 0;

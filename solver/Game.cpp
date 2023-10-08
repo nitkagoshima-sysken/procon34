@@ -58,10 +58,6 @@ Board::Board(Bitmap_t **fieldmap, FieldInfo *info, Agent *age1, Agent *age2)
         }
       }
     }
-    // agent1[i].bx  =0;
-    // agent1[i].by  =0;
-    // agent1[i].bbx =0;
-    // agent1[i].bby =0;
   }
 
   turn = 0;
@@ -270,11 +266,6 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
   if(kind == ACT_MOVE && move_enable(mx, my, belong)) {
     map[my][mx] |= (target_agent_bit & map[y][x]); // Agentを移動
     map[y][x] &= ~target_agent_bit;
-
-    // target_agent[backnumber].bbx = target_agent[backnumber].bx ;
-    // target_agent[backnumber].bby = target_agent[backnumber].by ;
-    // target_agent[backnumber].bx  = target_agent[backnumber].x ;
-    // target_agent[backnumber].by  = target_agent[backnumber].y ;
     
     target_agent[backnumber].x = mx;
     target_agent[backnumber].y = my; // Agent構造体のx, y座標も移動させて帳尻合わせ

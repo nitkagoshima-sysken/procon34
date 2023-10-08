@@ -87,7 +87,7 @@ void feild_advantage(Board *board, int *point1, int *point2){
         bool flg1=false, flg2=false;
         uint8_t x= j-1, y= i-1;
         uint8_t mx, my;
-        bool flgp=false, flgc=false;
+        bool flgp=false, flgc=false, flgce=false;
 
         if(board->isIgnoreCoord(x,y)){
           flg2 = true;
@@ -107,9 +107,12 @@ void feild_advantage(Board *board, int *point1, int *point2){
               continue;
             }
 
-            if((!flgc) && (board->map[y][x] & BIT_CASTLE) && (l==0) /*&& (! (board->map[y][x] & tagetencamp))*/){
-              belong ? p2 += WALL_POINT * coefficient_score * ((board->map[y][x] & tagetencamp) ? 3 : 6) : p1 += WALL_POINT * coefficient_score * ((board->map[y][x] & tagetencamp) ? 3 : 6);
-              flgc=true;
+            if((board->map[y][x] & BIT_CASTLE) && (l==0) /*&& (! (board->map[y][x] & tagetencamp))*/){
+              if(board->map[y][x] & tagetencamp){
+                flgce = true;
+              }else{
+                flgc =true;
+              }
             }
 
             if((! (board->map[i][j] & BIT_POND)) && (board->map[y][x] & BIT_POND) && (l==0)){
@@ -181,6 +184,11 @@ void feild_advantage(Board *board, int *point1, int *point2){
             belong ? p2+= advp : p1+= advp;
           }
         }
+        if(flgc){
+          belong ? p2 += WALL_POINT * coefficient_score * 6 : p1 += WALL_POINT * coefficient_score * 6;
+        }else if (flgce){
+          belong ? p2 += WALL_POINT * coefficient_score * 3 : p1 += WALL_POINT * coefficient_score * 3;
+        }
       }
     }
   }
@@ -208,11 +216,11 @@ int evaluate_current_board(Board *board, bool belong)
 
   board->score(a_score,b_score);
 
-  p +=coefficient_score * (a_score - b_score);  //スコアポイント加算
+  p +=coefficient_score * ((belong == Player1)? (a_score - b_score) : (b_score - a_score));  //スコアポイント加算
 
   feild_advantage(board, &adp1, &adp2);
 
-  p +=coefficient_adva * (adp1 - adp2);
+  p +=coefficient_adva * ((belong == Player1)? (adp1 - adp2) : (adp2 - adp1));
 
   belong = Player1;
   for(uint8_t i=0; i< board->info->agent ; i++){//自職人ポイント加算
