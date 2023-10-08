@@ -221,6 +221,8 @@ int main(int argc, char *argv[])
         // cout << "職人" << i << "の行動:" << " kind: " << +best_act.kind << ", direc: " << +best_act.direc << endl; 
 
         pre_act[i] = best_act; // 直前の手として設定
+
+        delete init_board;
       }
 
       // for(int i = 0; i < info->agent; i++) {
