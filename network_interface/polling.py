@@ -12,8 +12,9 @@ path = "/matches/10"
 
 turn = 0
 interval = 3
+turn_num = 60
 
-while 1:
+while turn < turn_num:
   start = time.perf_counter()
   res = requests.get(HOST + path + '?token=' + TOKEN)
   data = json.loads(res.content)
@@ -22,13 +23,14 @@ while 1:
   print({'turn': turn, 'get_turn': get_turn})
   if turn != get_turn:
     '''タイミングがずれた'''
-    print('some error occured')
     # 早くgetしすぎた
     if turn > get_turn:
-      print('continue')
+      time.sleep(0.1)
       continue
     else:
-      exit()
+    # 遅くgetしてしまった
+      print('どうしようね')
+      # exit()
   
   print('changed')
   HEADER = {
