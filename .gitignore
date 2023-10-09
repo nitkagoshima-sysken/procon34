@@ -1,9 +1,10 @@
 *~
 *.o
-procon
 *.json
 *.s
 *.zip
+*.so
 .vscode/
 memo.md
 res.txt
+procon
