@@ -8,7 +8,7 @@ SRCS += main_ev_func.cpp
 OBJS=$(SRCS:.cpp=.o)
 
 procon: $(OBJS)
-	$(CC) $(CFLAGS) -o procon.cpython-38-x86_64-linux-gnu.so $(OBJS) $(LDFLAGS)
+	$(CC) $(CFLAGS) -o procon$(shell python3-config --extension-suffix) $(OBJS) $(LDFLAGS)
 
 $(OBJS): $(SRCS)
 	$(CC) $(CFLAGS) -c $(SRCS)
