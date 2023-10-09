@@ -44,3 +44,13 @@
 ~~* Act failedのエラー~~
 ~~* 解放された陣地にAの壁がいるのに消えないバグ~~
 ~~* 解放された陣地に新しい陣地ができたときに上書きする~~
+
+## 10/10
+* アプリケーションサーバのアドレスを10.3を固定
+
+APP_SERVER
+application_server
+
+WEB_SERVER
+TERMINAL_SERVER,
+PROCON_LINUX

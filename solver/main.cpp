@@ -12,7 +12,7 @@
 using namespace std;
 using namespace nlohmann;
 
-#define SERVER_IP "localhost"
+#define SERVER_IP "192.168.10.4"
 #define SERVER_PORT 8080
 #define NO_CHANGE_STRING "no changes"
 

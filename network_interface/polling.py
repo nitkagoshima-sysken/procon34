@@ -3,10 +3,10 @@ import json
 import time
 from http.client import RemoteDisconnected
 
-HOST = "http://192.168.10.3:3000"
+HOST = "http://192.168.10.4:3000"
 TOKEN = "kagoshimaf9e9e019877b0b3d212cf1dec665e9e9b45c99f1062779a73c5d3b1"
 
-APP_SERVER = "http://localhost:8081"
+APP_SERVER = "http://192.168.10.3:8081"
 
 path = "/matches/10"
 
