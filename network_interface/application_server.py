@@ -11,8 +11,6 @@ HOST = "http://localhost:8081"
 
 file = "res.json"
 
-# post_num = 0
-
 class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         data = self.rfile.read(int(self.headers['content-length'])).decode('utf-8')
