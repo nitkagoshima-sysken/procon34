@@ -7,6 +7,12 @@ import sys
 sys.path.append("../")
 from solver import procon
 
+ip_dict = {}
+with open('.ipconfig', 'r') as f:
+    for line in f:
+      (k, v) = line.split()
+      ip_dict[k] = v
+
 file = "res.json"
 
 class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
@@ -19,7 +25,7 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         with open(file, 'w') as f:
             f.write(data)
 
-        procon.calc(3, 1)
+        procon.calc(3, 1, ip_dict['local-server-ip'])
 
         self.send_response(200)
         self.send_header('Content-Type', 'text/plain; charset=utf-8')

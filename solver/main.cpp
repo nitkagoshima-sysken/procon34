@@ -133,9 +133,8 @@ Action *getActplan(Board *match, ev_function act_plan, int depth)
 
   // 職人の数だけ最善手を探索する
   for(int i = 0; i < info->agent; i++) {
-    Board *init_board = new Board(*match);
     root_node[i] = new Game_Node;
-    root_node[i]->board = init_board;
+    root_node[i]->board = match;
     root_node[i]->ev_func = act_plan;
 
     // ゲーム木を生成&評価値をアルファベータ法で選択
@@ -151,7 +150,7 @@ Action *getActplan(Board *match, ev_function act_plan, int depth)
         break;
       }
     }
-    delete init_board;
+    match->ActionAnAgent(match->next_turn, i, best_act[i]);
   }
 
   // for(int i = 0; i < info->agent; i++) {
@@ -170,7 +169,7 @@ Action *getActplan(Board *match, ev_function act_plan, int depth)
 #include <thread>
 using namespace chrono;
 
-void calc(int msec, bool belong)
+void calc(int msec, bool belong, char *ip)
 {
   string OUT_FILE = "../network_interface/res.json";
   
@@ -220,22 +219,7 @@ void calc(int msec, bool belong)
     string cmd("curl -X POST -H \"Content-Type: application/json\" -d '");
     cmd += post_json.dump();
     cmd += "' ";
-
-    ifstream ifs("../network_interface/.ipconfig");
-    if(!ifs) {
-      cout << ".ipconfigが開けません" << endl;
-      return;
-    }
-    string ip_str;
-    ifs >> ip_str;
-    auto i = ip_str.find("server-local-ip");
-    if(i == string::npos) {
-      cout << "ローカルサーバのipアドレスが読み取れません" << endl;
-      return;
-    }
-    ip_str.substr(i + 1, );
-
-    cmd += SERVER_IP;
+    cmd += ip;
     cmd += ":" + to_string(SERVER_PORT);
 
     // cout << cmd << endl;
@@ -254,21 +238,5 @@ PYBIND11_MODULE(procon, m) {
 
 int main(int argc, char *argv[])
 {
-  srand((unsigned)time(NULL));
-
-  int turn = 0;
-
-  int msec = 3000;
-  int turn_num = 60;
-
-  cout << "press enter\n";
-  getchar();
-
-  for(auto i = 0; i < turn_num / 2; i++) {
-    calc(msec, Player1);
-    calc(msec, Player2);
-  }
-
   return 0;
-
 }
