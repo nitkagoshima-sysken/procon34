@@ -12,7 +12,6 @@
 using namespace std;
 using namespace nlohmann;
 
-#define SERVER_IP "192.168.10.4"
 #define SERVER_PORT 8080
 
 // 反復するような手かどうかをチェックする関数
