@@ -47,6 +47,8 @@
 
 ## 10/10
 * アプリケーションサーバのアドレスを10.3を固定
+* アプリケーションサーバの管理者権限で次を実行
+  netsh interface portproxy add v4tov4 listenport=8081 listenaddr=192.168.10.3 connectport=8081 connectaddress=172.27.152.111
 
 APP_SERVER
 application_server
@@ -54,3 +56,7 @@ application_server
 WEB_SERVER
 TERMINAL_SERVER,
 PROCON_LINUX
+
+## windows起動時に管理者権限で次のコマンドを入力
+netsh interface portproxy add v4tov4 listenport=3000 listenaddr=192.168.10.4 connectport=3000 connectaddress=172.27.152.111
+netsh interface portproxy add v4tov4 listenport=8080 listenaddr=192.168.10.4 connectport=8080 conenctaddress=172.27.152.111
