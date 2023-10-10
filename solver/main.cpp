@@ -14,7 +14,6 @@ using namespace nlohmann;
 
 #define SERVER_IP "192.168.10.4"
 #define SERVER_PORT 8080
-#define NO_CHANGE_STRING "no changes"
 
 // 反復するような手かどうかをチェックする関数
 // 戻り値がtrueならリピートしている
@@ -221,6 +220,21 @@ void calc(int msec, bool belong)
     string cmd("curl -X POST -H \"Content-Type: application/json\" -d '");
     cmd += post_json.dump();
     cmd += "' ";
+
+    ifstream ifs("../network_interface/.ipconfig");
+    if(!ifs) {
+      cout << ".ipconfigが開けません" << endl;
+      return;
+    }
+    string ip_str;
+    ifs >> ip_str;
+    auto i = ip_str.find("server-local-ip");
+    if(i == string::npos) {
+      cout << "ローカルサーバのipアドレスが読み取れません" << endl;
+      return;
+    }
+    ip_str.substr(i + 1, );
+
     cmd += SERVER_IP;
     cmd += ":" + to_string(SERVER_PORT);
 

@@ -3,8 +3,16 @@ from http.server import BaseHTTPRequestHandler
 import requests
 import json
 
-HOST = "http://192.168.10.3:3000"
+ip_dict = {}
+with open('.ipconfig', 'r') as f:
+    for line in f:
+      (k, v) = line.split()
+      ip_dict[int(k)] = v
+
+HOST = "http://" + ip_dict['server-ip'] + ':' +ip_dict['server-port']
 TOKEN = "kagoshimaf9e9e019877b0b3d212cf1dec665e9e9b45c99f1062779a73c5d3b1"
+
+APP_SERVER = "http://" + ip_dict['server-local-ip'] + ':' + ip_dict['server-local-port']
 
 path = "/matches/10"
 
