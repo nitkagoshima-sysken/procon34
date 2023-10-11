@@ -122,19 +122,20 @@ Action *getActplan(Board *match, ev_function act_plan, int depth)
   int turn = match->turn;
   Game_Node **root_node = new Game_Node*[info->agent]();
 
-  cout << ((target_player == Player1) ? "player1" : "player2") << endl;
-  
   // 最後の数ターンのみ，探索深度を調整する
   int lastdepth = ((TURN_NUM - turn) < depth) ? (TURN_NUM - turn) : depth;
 
   // 生成した最善手を格納するためのオブジェクト
   Action *best_act = new Action[info->agent]();
 
+  Board *init_board = new Board(*match);
   // 職人の数だけ最善手を探索する
   for(int i = 0; i < info->agent; i++) {
-    root_node[i] = new Game_Node;
-    root_node[i]->board = match;
-    root_node[i]->ev_func = act_plan;
+    root_node[i]                = new Game_Node;
+    root_node[i]->board         = init_board;
+    root_node[i]->ev_func       = act_plan;
+    root_node[i]->parentNode    = nullptr;
+    root_node[i]->target_belong = match->next_turn;
 
     // ゲーム木を生成&評価値をアルファベータ法で選択
     expandChildren_by_num(root_node[i], lastdepth, i);
@@ -149,7 +150,7 @@ Action *getActplan(Board *match, ev_function act_plan, int depth)
         break;
       }
     }
-    match->ActionAnAgent(match->next_turn, i, best_act[i]);
+    init_board->ActionAnAgent(match->next_turn, i, best_act[i]);
   }
 
   // for(int i = 0; i < info->agent; i++) {
@@ -160,6 +161,7 @@ Action *getActplan(Board *match, ev_function act_plan, int depth)
     deleteTree(root_node[i]);
   }
   delete root_node;
+  delete init_board;
 
   return best_act;
 }
@@ -214,6 +216,12 @@ void calc(int msec, bool belong, char *map_json, char *ip)
 
     // cout << cmd << endl;
     system(cmd.c_str());
+    if(depth == 4) {
+      cout << "計算結果:" << endl;
+      for(int i = 0; i < match->info->agent; i++) {
+        cout << " 職人" << i << ": " << "kind:" << +act[i].kind << ", direc:" << +act[i].direc << endl;
+      }
+    }
     delete act;
   }
   delete match;

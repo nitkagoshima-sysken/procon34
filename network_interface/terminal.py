@@ -30,7 +30,6 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
             'Content-Length': self.headers['content-length']
         }
 
-        print(data)
         data_encode = json.dumps(json.loads(data))
         print(data_encode)
         res = requests.post(HOST + path + '?token=' + TOKEN, headers=HEADER, data=data_encode)
