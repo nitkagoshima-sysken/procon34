@@ -129,7 +129,6 @@ Action *getActplan(Board *match, ev_function act_plan, int depth)
   Action *best_act = new Action[info->agent]();
 
   Board *init_board = new Board(*match);
-  init_board->draw();
   // 職人の数だけ最善手を探索する
   for(int i = 0; i < info->agent; i++) {
     root_node[i]                = new Game_Node;
@@ -141,8 +140,8 @@ Action *getActplan(Board *match, ev_function act_plan, int depth)
     // ゲーム木を生成&評価値をアルファベータ法で選択
     expandChildren_by_num(root_node[i], lastdepth, i);
     
-    // 評価値から次に行動するべき手(最善手)を出す
     // 親の評価値と子供の評価値を比べて一致した手を最善手と判断
+    // 評価値から次に行動するべき手(最善手)を出す
     auto itr = root_node[i]->childrenNode.begin();
     // 子供の評価値と自身の評価値が一致したゲームノードの行動を最善手として選択
     for(; itr != root_node[i]->childrenNode.end(); itr++) {
@@ -195,7 +194,7 @@ void calc(int msec, bool belong, char *map_json, char *ip)
 
   // 最善手を計算する
   Action *act;
-  for(auto depth = 1; depth <= 5; depth++) {
+  for(auto depth = 5; depth <= 5; depth++) {
     act = getActplan(match, evaluate_current_board, depth);
 
     json post_json;
