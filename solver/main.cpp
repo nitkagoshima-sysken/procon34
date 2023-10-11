@@ -225,8 +225,6 @@ void calc(int msec, bool belong, char *map_json, char *ip)
     delete act;
   }
   delete match;
-
-  return;
 }
 
 PYBIND11_MODULE(procon, m) {
