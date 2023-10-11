@@ -153,8 +153,6 @@ Action *getActplan(Board *match, ev_function act_plan, int depth, json log)
       }
     }
 
-    
-
     init_board->ActionAnAgent(match->next_turn, i, best_act[i]);
   }
 

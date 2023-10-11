@@ -22,6 +22,7 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         jobj = json.loads(data)
         get_turn = jobj['turn']
 
+        # print(json.dumps(jobj['logs'], indent=2))
         procon.calc(3, 1, data, ip_dict['local-server-ip'])
 
         self.send_response(200)
