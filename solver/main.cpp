@@ -112,7 +112,7 @@ Board *getInfobyJson(json jobj)
   return match;
 }
 
-Action *getActplan(Board *match, ev_function act_plan, int depth)
+Action *getActplan(Board *match, ev_function act_plan, int depth, json log)
 {
   if(match == nullptr) {
     cout << "error: matchがnullです\n";
@@ -152,6 +152,9 @@ Action *getActplan(Board *match, ev_function act_plan, int depth)
         break;
       }
     }
+
+    
+
     init_board->ActionAnAgent(match->next_turn, i, best_act[i]);
   }
 
@@ -197,7 +200,7 @@ void calc(int msec, bool belong, char *map_json, char *ip)
   // 最善手を計算する
   Action *act;
   for(auto depth = 5; depth <= 5; depth++) {
-    act = getActplan(match, evaluate_current_board, depth);
+    act = getActplan(match, evaluate_current_board, depth, jobj["log"]);
 
     json post_json;
     post_json["turn"] = match->turn + 1;
