@@ -168,18 +168,9 @@ Action *getActplan(Board *match, ev_function act_plan, int depth)
 #include <thread>
 using namespace chrono;
 
-void calc(int msec, bool belong, char *ip)
+void calc(int msec, bool belong, char *map_json, char *ip)
 {
-  string OUT_FILE = "../network_interface/res.json";
-  
-  // ファイルを開く
-  ifstream ifs;
-  ifs.open(OUT_FILE, ios::in);
-  string reading_buffer;
-  getline(ifs, reading_buffer);
-  ifs.close();
-
-  auto jobj = json::parse(reading_buffer);
+  auto jobj = json::parse(map_json);
 
   Board *match = getInfobyJson(jobj);
 

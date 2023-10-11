@@ -22,10 +22,7 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         jobj = json.loads(data)
         get_turn = jobj['turn']
 
-        with open(file, 'w') as f:
-            f.write(data)
-
-        procon.calc(3, 1, ip_dict['local-server-ip'])
+        procon.calc(3, 1, data, ip_dict['local-server-ip'])
 
         self.send_response(200)
         self.send_header('Content-Type', 'text/plain; charset=utf-8')
