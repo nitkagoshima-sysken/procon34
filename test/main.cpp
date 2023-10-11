@@ -7,6 +7,7 @@
 #include "Evaluation_func.hpp"
 #include <assert.h>
 #include <fstream>
+#include <string.h>
 using namespace std;
 
 // 反復するような手かどうかをチェックする関数
@@ -193,14 +194,26 @@ int main(int argc, char *argv[])
         
         // 最善手を格納するオブジェクト
         Action best_act;
+        best_act.kind = ACT_NONE;
 
         // 評価値から次に行動するべき手(最善手)を出す
         // 親の評価値と子供の評価値を比べて一致した手を最善手と判断
         auto itr = root_node[i]->childrenNode.begin();
         for(; itr != root_node[i]->childrenNode.end(); itr++) {
           if(root_node[i]->evaluation == (*itr)->evaluation) {
-            best_act = (*itr)->pre_act;
-            break;
+            if(best_act.kind == ACT_NONE){
+              best_act = (*itr)->pre_act;
+            }else{
+              Board *actc1 = new Board(match);
+              Board *actc2 = new Board(match);
+              actc1->ActionAnAgent(match.next_turn, i, best_act);
+              actc2->ActionAnAgent(match.next_turn, i, (*itr)->pre_act);
+              if(evaluate_current_board(actc1, match.next_turn) < evaluate_current_board(actc2, match.next_turn)){
+                best_act = (*itr)->pre_act;
+              }
+              delete actc1;
+              delete actc2;
+            }
           }
         }
 
@@ -294,6 +307,51 @@ int main(int argc, char *argv[])
             // cout << "j:" << j << endl;
             root_node[i]->pre_act = (*itr)->pre_act;
             break;
+          }
+        }
+        // cout << i << ":" << (int)init_board->agent2[i].x << ", " << (int)init_board->agent2[i].y << "\n";
+        char file[4][22] = {"../Field_Data/A11.csv",
+                            "../Field_Data/A13.csv",
+                            "../Field_Data/A15.csv",
+                            "../Field_Data/A17.csv"};
+        if(count < 9){
+          if((!strcmp(path,&file[0][0])) || (!strcmp(path,&file[1][0])) || (!strcmp(path,&file[2][0])) || (!strcmp(path,&file[3][0]))){
+            uint8_t dir[4] = {2,0,4,6};
+            uint8_t sx[4]  = {(uint8_t)info->length/2 +2,(uint8_t)info->length/2 -3,(uint8_t)info->length/2 +3,(uint8_t)info->length/2 -2};
+            uint8_t sy[4]  = {(uint8_t)info->length/2 -3,(uint8_t)info->length/2 -2,(uint8_t)info->length/2 +2,(uint8_t)info->length/2 +3};
+            uint8_t ssx[4]  = {(uint8_t)info->length/2 -1,(uint8_t)info->length/2 -2,(uint8_t)info->length/2 +2,(uint8_t)info->length/2 +1};
+            uint8_t ssy[4]  = {(uint8_t)info->length/2 -2,(uint8_t)info->length/2 +1,(uint8_t)info->length/2 -1,(uint8_t)info->length/2 +2};
+
+            switch((!strcmp(path,&file[2][0])) ? count/2 +1 : count/2){
+              case 1: 
+                root_node[i]->pre_act.kind = ACT_MOVE;  
+                root_node[i]->pre_act.direc = dir[i];
+                break;
+              case 2:
+                root_node[i]->pre_act.kind = ACT_BUILD;
+                if(init_board->map[(int)(sy[i])][(int)(sx[i])] & BIT_AGENT1){
+                  root_node[i]->pre_act.direc = (uint8_t)((dir[i] + 6) % 8);
+                }else{
+                  root_node[i]->pre_act.direc = (uint8_t)((dir[i] + 2) % 8);
+                }
+                break;
+              case 3:
+                root_node[i]->pre_act.kind = ACT_BUILD;
+                if(init_board->map[(int)(ssy[i])][(int)(ssx[i])] & BIT_AGENT1){
+                  root_node[i]->pre_act.direc = dir[i];
+                }else if(init_board->map[(int)(ssy[i])][(int)(ssx[i])] & BIT_WALL2){
+                  root_node[i]->pre_act.direc = (uint8_t)((dir[i] + 6) % 8);
+                }else{
+                  root_node[i]->pre_act.direc = (uint8_t)((dir[i] + 2) % 8);
+                }
+                break;
+              case 4:
+                if(!(init_board->map[(int)(ssy[i])][(int)(ssx[i])] & BIT_AGENT1)){
+                  root_node[i]->pre_act.kind = ACT_BUILD;
+                  root_node[i]->pre_act.direc = (uint8_t)((dir[i] + 4) % 8);
+                }
+                break;
+            }
           }
         }
         // match.draw();
