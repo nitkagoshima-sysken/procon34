@@ -104,6 +104,8 @@ Board *getInfobyJson(json jobj)
     }
   }
 
+  // TODO 解放された陣地
+
   // 返却するオブジェクト
   Board *match = new Board(map, info, agent1, agent2);
   match->turn = jobj["turn"];
@@ -216,7 +218,7 @@ void calc(int msec, bool belong, char *map_json, char *ip)
 
     // cout << cmd << endl;
     system(cmd.c_str());
-    if(depth == 4) {
+    if(depth == 5) {
       cout << "計算結果:" << endl;
       for(int i = 0; i < match->info->agent; i++) {
         cout << " 職人" << i << ": " << "kind:" << +act[i].kind << ", direc:" << +act[i].direc << endl;

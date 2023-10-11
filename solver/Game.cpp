@@ -37,30 +37,8 @@ Board::Board(Bitmap_t **fieldmap, FieldInfo *info, Agent *age1, Agent *age2)
 {
   this->map = fieldmap;
   this->info = info;
-
-  agent1 = new Agent[info->agent];
-  agent2 = new Agent[info->agent];
-
-  for(int i = 0; i < info->agent; i++) {
-    int cnt1 = 0, cnt2 = 0;
-    for(int j = 0; j < info->length; j++) {
-      for(int k = 0; k < info->length; k++) {
-        if(map[j][k] & BIT_AGENT1) {
-          agent1[cnt1].x = k;
-          agent1[cnt1].y = j;
-          cnt1++;
-          continue;
-        }
-        if(map[j][k] & BIT_AGENT2) {
-          agent2[cnt2].x = k;
-          agent2[cnt2].y = j;
-          cnt2++;
-        }
-      }
-    }
-  }
-
-  turn = 0;
+  this->agent1 = age1;
+  this->agent2 = age2;
 }
 
 Board::Board(const Board &board)
