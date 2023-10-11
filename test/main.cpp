@@ -246,75 +246,75 @@ int main(int argc, char *argv[])
           delete root_node[i];
         delete root_node;
     } else {
-    //   assert(match.next_turn == Player2);
-    //   // Action *act;
-    //   // act = new Action[info->agent];
-    //   // for(int i = 0; i < info->agent; i++) {
-    //   //   vector<Action> legal_act;
-    //   //   match.getLegalAct(match.next_turn, legal_act, i);
-    //   //   int rand_act = rand()%legal_act.size();
-    //   //   act[i] = legal_act[rand_act];
-    //   //   // cout << "select: " << (int)act[i].kind << ", " << (int)act[i].direc << endl;
-    //   //   match.ActionAnAgent(match.next_turn, i, act[i]);
+      assert(match.next_turn == Player2);
+      // Action *act;
+      // act = new Action[info->agent];
+      // for(int i = 0; i < info->agent; i++) {
+      //   vector<Action> legal_act;
+      //   match.getLegalAct(match.next_turn, legal_act, i);
+      //   int rand_act = rand()%legal_act.size();
+      //   act[i] = legal_act[rand_act];
+      //   // cout << "select: " << (int)act[i].kind << ", " << (int)act[i].direc << endl;
+      //   match.ActionAnAgent(match.next_turn, i, act[i]);
 
-    //   // // 陣地ができたかどうかを確認し，更新する
-    //   // // game.Encamp_Update();
+      // // 陣地ができたかどうかを確認し，更新する
+      // // game.Encamp_Update();
 
-    //   // uint8_t x, y;
-    //   // }
-    //   // delete act;
-    //   Game_Node **root_node = new Game_Node*[info->agent]();
+      // uint8_t x, y;
+      // }
+      // delete act;
+      Game_Node **root_node = new Game_Node*[info->agent]();
 
-    //   cout << ((match.next_turn == Player1) ? "player1" : "player2") << endl;
-    //   // for(int i = 0; i < info->agent; i++) {
-    //   //   std::vector<Action> action;
-    //   //   match.getLegalAct(match.next_turn, action ,i);
-    //   //   // cout << "職人" << i << "の合法手数:" << action.size() << endl;
-    //   //   // for(auto itr = action.begin(); itr != action.end(); itr++)
-    //   //   cout << "kind: " << +(*itr).kind << ", direc: " << +(*itr).direc <<  endl;
-    //   // }
-    //   cout << endl;
+      cout << ((match.next_turn == Player1) ? "player1" : "player2") << endl;
+      // for(int i = 0; i < info->agent; i++) {
+      //   std::vector<Action> action;
+      //   match.getLegalAct(match.next_turn, action ,i);
+      //   // cout << "職人" << i << "の合法手数:" << action.size() << endl;
+      //   // for(auto itr = action.begin(); itr != action.end(); itr++)
+      //   cout << "kind: " << +(*itr).kind << ", direc: " << +(*itr).direc <<  endl;
+      // }
+      cout << endl;
       
-    //   int lastdepth = ((turn_num - count) < depth) ? (turn_num - count + 1) : depth ;
+      int lastdepth = ((turn_num - count) < depth) ? (turn_num - count + 1) : depth ;
 
-    //   for(int i = 0; i < info->agent; i++) {
-    //     Board *init_board = new Board(match);
-    //     root_node[i] = new Game_Node;
-    //     root_node[i]->board = init_board;
-    //     root_node[i]->ev_func = ev_diff_score;
-    //     root_node[i]->parentNode = nullptr;
-    //     root_node[i]->target_belong = match.next_turn;
-    //     // cout << "職人" << i << "(" << +root_node[i]->board->agent2[i].x << ", " << +root_node[i]->board->agent2[i].y << ")" << "のゲーム木構築中..." << endl;
-    //     expandChildren_by_num(root_node[i], lastdepth, i);
-    //     // TreeSearch(root_node[i], i, Player2);
-    //     for(auto itr = root_node[i]->childrenNode.begin(); itr != root_node[i]->childrenNode.end(); itr++) {
-    //       // cout << "ev_value:" << (*itr)->evaluation << endl;
-    //       if(root_node[i]->evaluation == (*itr)->evaluation) {
-    //         // cout << "kind:" << +(*itr)->pre_act.kind << ", direc:" << +(*itr)->pre_act.direc << endl;
-    //         // cout << "j:" << j << endl;
-    //         root_node[i]->pre_act = (*itr)->pre_act;
-    //         break;
-    //       }
-    //     }
-    //     // match.draw();
-    //     match.ActionAnAgent(match.next_turn, i, root_node[i]->pre_act);
-    //   }
+      for(int i = 0; i < info->agent; i++) {
+        Board *init_board = new Board(match);
+        root_node[i] = new Game_Node;
+        root_node[i]->board = init_board;
+        root_node[i]->ev_func = ev_diff_score;
+        root_node[i]->parentNode = nullptr;
+        root_node[i]->target_belong = match.next_turn;
+        // cout << "職人" << i << "(" << +root_node[i]->board->agent2[i].x << ", " << +root_node[i]->board->agent2[i].y << ")" << "のゲーム木構築中..." << endl;
+        expandChildren_by_num(root_node[i], lastdepth, i);
+        // TreeSearch(root_node[i], i, Player2);
+        for(auto itr = root_node[i]->childrenNode.begin(); itr != root_node[i]->childrenNode.end(); itr++) {
+          // cout << "ev_value:" << (*itr)->evaluation << endl;
+          if(root_node[i]->evaluation == (*itr)->evaluation) {
+            // cout << "kind:" << +(*itr)->pre_act.kind << ", direc:" << +(*itr)->pre_act.direc << endl;
+            // cout << "j:" << j << endl;
+            root_node[i]->pre_act = (*itr)->pre_act;
+            break;
+          }
+        }
+        // match.draw();
+        match.ActionAnAgent(match.next_turn, i, root_node[i]->pre_act);
+      }
 
-    //   // for(int i = 0; i < info->agent; i++) {
-    //   //   cout << "職人" << i << "のスコア: " << root_node[i]->evaluation << endl;
-    //   //   // for(int j = 0; j < root_node[i]->childrenNode.size(); j++) {
-    //   //   //   cout << "  " << "子供" << j << "のスコア:" << root_node[i]->childrenNode[j]->evaluation << endl;
-    //   //   // }
-    //   // }
+      // for(int i = 0; i < info->agent; i++) {
+      //   cout << "職人" << i << "のスコア: " << root_node[i]->evaluation << endl;
+      //   // for(int j = 0; j < root_node[i]->childrenNode.size(); j++) {
+      //   //   cout << "  " << "子供" << j << "のスコア:" << root_node[i]->childrenNode[j]->evaluation << endl;
+      //   // }
+      // }
 
-    //   // if(is_print_game_tree)
-    //   //   drawTree(root_node[1], fp);
-    //   // for(int i = 0; i < info->agent; i++) {
-    //   //   deleteTree(root_node[i]);
-    //   // }
-    //   for(int i = 0; i < info->agent; i++)
-    //     delete root_node[i];
-    //   delete root_node;
+      // if(is_print_game_tree)
+      //   drawTree(root_node[1], fp);
+      // for(int i = 0; i < info->agent; i++) {
+      //   deleteTree(root_node[i]);
+      // }
+      for(int i = 0; i < info->agent; i++)
+        delete root_node[i];
+      delete root_node;
     }
     match.next_turn = !match.next_turn;
     if(is_pause) {

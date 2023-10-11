@@ -216,7 +216,6 @@ void calc(int msec, bool belong, char *map_json, char *ip)
     cmd += ip;
     cmd += ":" + to_string(SERVER_PORT);
 
-    // cout << cmd << endl;
     system(cmd.c_str());
     if(depth == 5) {
       cout << "計算結果:" << endl;
