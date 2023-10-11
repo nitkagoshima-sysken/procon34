@@ -129,6 +129,7 @@ Action *getActplan(Board *match, ev_function act_plan, int depth)
   Action *best_act = new Action[info->agent]();
 
   Board *init_board = new Board(*match);
+  init_board->draw();
   // 職人の数だけ最善手を探索する
   for(int i = 0; i < info->agent; i++) {
     root_node[i]                = new Game_Node;

@@ -43,6 +43,7 @@
 * 考えられる事態を整理し，対応する
 * 2対戦同時の対応
 * 作成した最初の行動を実際の試合(solver/main.cpp)に反映させる
+* UIの作成
 
 * 次セグフォが出たら十中八九deleteTreeだぞ！！！！！
 
@@ -56,6 +57,7 @@
 * アプリケーションサーバのアドレスを10.3を固定
 * アプリケーションサーバの管理者権限で次を実行
   netsh interface portproxy add v4tov4 listenport=8081 listenaddr=192.168.10.3 connectport=8081 connectaddress=172.27.152.111
+* windows defenderでブロックされないよう規制を追加する
 
 APP_SERVER
 application_server
