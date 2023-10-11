@@ -194,7 +194,7 @@ void calc(int msec, bool belong, char *map_json, char *ip)
 
   // 最善手を計算する
   Action *act;
-  for(auto depth = 1; depth <= 5; depth++) {
+  for(auto depth = 5; depth <= 5; depth++) {
     act = getActplan(match, evaluate_current_board, depth);
 
     json post_json;
@@ -216,7 +216,7 @@ void calc(int msec, bool belong, char *map_json, char *ip)
 
     // cout << cmd << endl;
     system(cmd.c_str());
-    if(depth == 4) {
+    if(depth == 5) {
       cout << "計算結果:" << endl;
       for(int i = 0; i < match->info->agent; i++) {
         cout << " 職人" << i << ": " << "kind:" << +act[i].kind << ", direc:" << +act[i].direc << endl;
