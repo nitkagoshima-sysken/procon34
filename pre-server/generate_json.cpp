@@ -10,7 +10,7 @@ using namespace nlohmann;
 int main(int argc, char *argv[])
 {
   string suffix("../Field_Data/");
-  if(argc != 2) {
+  if(argc < 2) {
     cout << "フィールドマップを指定してください(例: B11.csv)" << endl;
     return 0;
   }
@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
   // boardとinfoを設定
   map.AnalyzeFile(&info, &board);
 
-  string OUT_FILE("test.json");
+  string OUT_FILE(argv[2]);
 
   ofstream ofs(OUT_FILE);
   if(!ofs) {
