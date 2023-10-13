@@ -209,7 +209,7 @@ void calc(int msec, bool belong, char *map_json, char *ip, int turns, bool first
   Board *match = getInfobyJson(jobj);
 
   cout << "solver/main.cpp:calc\n";
-  cout << "現在のターン: " << match->turn << endl;
+  cout << "現在のターン: " << +match->turn << endl;
   cout << " first     :" << first << endl;
 
   cout << endl;
