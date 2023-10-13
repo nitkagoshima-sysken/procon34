@@ -191,16 +191,16 @@ int main(int argc, char *argv[])
         }
 
         // 計算した最善手が前の行動を打ち消すようなものでないかどうかをチェック
-        // if(check_repeat(best_act, pre_act[i])) {
+        if(check_repeat(best_act, pre_act[i])) {
           
-        //   cout << "(デバッグ用):反復を検出!\n";
-        //   cout << "detail:\n";
-        //   cout << " agent    : " << i << endl;
-        //   cout << " act.kind : " << +best_act.kind << endl;
-        //   cout << " act.direc: " << +best_act.direc << endl;
+          cout << "(デバッグ用):反復を検出!\n";
+          cout << "detail:\n";
+          cout << " agent    : " << i << endl;
+          cout << " act.kind : " << +best_act.kind << endl;
+          cout << " act.direc: " << +best_act.direc << endl;
           
-        //   // 反復しているのでbest_actを更新
-        // }
+          // 反復しているのでbest_actを更新
+        }
 
         uint8_t mx = match.agent1[i].x + round(cos(best_act.direc * PI/4));
         uint8_t my = match.agent1[i].y + round(sin(best_act.direc * PI/4));
