@@ -76,10 +76,6 @@ int main(int argc, char *argv[])
         }
       }
     }
-    // agent1[i].bx  =0;
-    // agent1[i].by  =0;
-    // agent1[i].bbx =0;
-    // agent1[i].bby =0;
   }
 
   Board match(fieldmap, info, agent1, agent2);

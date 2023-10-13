@@ -40,6 +40,9 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         print(data_encode)
         res = requests.post(HOST + path + '?token=' + TOKEN, headers=HEADER, data=data_encode)
         print(res.status_code)
+
+        with open('last_act', 'w') as f:
+            f.write(data)
         
         if res.status_code != 200:
             print('some error occured')
