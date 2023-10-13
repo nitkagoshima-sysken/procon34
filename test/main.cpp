@@ -7,11 +7,8 @@
 #include "Evaluation_func.hpp"
 #include <assert.h>
 #include <fstream>
-<<<<<<< HEAD
 #include <string.h>
-=======
 #include <math.h>
->>>>>>> feature/same_act
 using namespace std;
 
 // 反復するような手かどうかをチェックする関数
