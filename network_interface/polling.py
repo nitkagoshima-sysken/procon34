@@ -25,8 +25,12 @@ path = "/matches/" + info_dict['id']
 turn = 0
 interval = info_dict['turnSeconds']
 turn_num = info_dict['turns']
+first = info_dict['first']
 
 while turn < turn_num:
+  if turn % 2 == 0:
+     if first == 'True':
+        
   start = time.perf_counter()
   res = requests.get(HOST + path + '?token=' + TOKEN)
   data = json.loads(res.content)

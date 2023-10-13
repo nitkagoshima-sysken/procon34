@@ -304,6 +304,10 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
       target_wall   = BIT_WALL2;
     }
 
+    if(map[my][mx] & BIT_WALL1) {
+      target_wall = BIT_WALL1;
+    }
+
     // 壁を解体
     if(map[my][mx] & (BIT_WALL1 | BIT_WALL2))
         map[my][mx] &= ~(BIT_WALL1 | BIT_WALL2);
