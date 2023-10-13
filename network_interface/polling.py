@@ -27,26 +27,54 @@ interval = info_dict['turnSeconds']
 turn_num = info_dict['turns']
 first = info_dict['first']
 
-while turn < turn_num:
-  if turn % 2 == 0:
-     if first == 'True':
-        
+def get_board(HOST=HOST, TOKEN=TOKEN, path=path):
+    res = requests.get(HOST + path + '?token=' + TOKEN)
+    data = json.loads(res.content)
+    data_encode = json.dumps(data)
+    get_turn = data['turn']
+    return start,data_encode,get_turn
+
+while turn <= turn_num:
   start = time.perf_counter()
-  res = requests.get(HOST + path + '?token=' + TOKEN)
-  data = json.loads(res.content)
-  data_encode = json.dumps(data)
-  get_turn = data['turn']
-  print({'turn': turn, 'get_turn': get_turn})
-  if turn != get_turn:
-    '''タイミングがずれた'''
-    # 早くgetしすぎた
-    if turn > get_turn:
-      time.sleep(0.1)
-      continue
-    else:
-    # 遅くgetしてしまった
-      print('どうしようね')
-      # exit()
+  if turn % 2 == 0:
+      if first == 'False':
+        '''自分のターンではないので待ち'''
+        time.sleep(interval)
+        turn += 1
+        continue
+      
+      data_encode, get_turn = get_board()
+      print({'turn': turn, 'get_turn': get_turn})
+
+      if turn != get_turn:
+        '''タイミングがずれた'''
+        # 早くgetしすぎた
+        if turn > get_turn:
+          time.sleep(0.1)
+          continue
+        else:
+        # 遅くgetしてしまった
+          print('どうしようね')
+          # exit()
+  else:
+     if first == 'True':
+        time.sleep(interval)
+        turn += 1
+        continue
+     
+     data_encode, get_turn = get_board()
+     print({'turn': turn, 'get_turn': get_turn})
+
+     if turn != get_turn:
+      '''タイミングがずれた'''
+      # 早くgetしすぎた
+      if turn > get_turn:
+        time.sleep(0.1)
+        continue
+      else:
+      # 遅くgetしてしまった
+        print('どうしようね')
+        # exit()
   
   print('changed')
   HEADER = {
@@ -61,6 +89,6 @@ while turn < turn_num:
     print(e)
     continue
 
-  turn += 2
+  turn += 1
   padding = time.perf_counter() - start
-  time.sleep(interval * 2 - padding)
+  time.sleep(interval - padding)
