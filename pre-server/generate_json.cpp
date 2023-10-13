@@ -7,6 +7,7 @@
 using namespace std;
 using namespace nlohmann;
 
+// 1. ファイル名，2. ターン数，3. ターンセコンド，4. 初手(True or False) ，5. 出力ファイル
 int main(int argc, char *argv[])
 {
   string suffix("../Field_Data/");

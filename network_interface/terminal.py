@@ -41,6 +41,9 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         res = requests.post(HOST + path + '?token=' + TOKEN, headers=HEADER, data=data_encode)
         print(res.status_code)
         
+        if res.status_code != 200:
+            print('some error occured')
+
         self.send_response(res.status_code)
         self.send_header('Content-Type', 'text/plain; charset=utf-8')
         self.end_headers()
