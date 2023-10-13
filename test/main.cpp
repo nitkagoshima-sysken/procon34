@@ -26,6 +26,8 @@ bool check_repeat(Action act_plan, Action pre_act)
         return true;
       break;
     case ACT_MOVE:
+    if(act_plan.kind != ACT_MOVE) // 次の行動が移動で無ければ反復していない
+        break;
       if(act_plan.direc == reverse) { // 前に移動した方向と逆方向に移動しているなら
         return true;
       }
