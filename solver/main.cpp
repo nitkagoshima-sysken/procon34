@@ -14,6 +14,87 @@ using namespace nlohmann;
 
 #define SERVER_PORT 8080
 
+void check_opened(Board *board, bool belong, uint8_t seed_x, uint8_t seed_y)
+{
+  if(board->isIgnoreCoord(seed_x, seed_y))
+    return;
+
+  FieldInfo *info = board->info;
+  Bitmap_t **map = board->map;
+
+  bool bitmap[info->length][info->length];
+  Cell stack[STACK_MAX_NUM] = {0};
+  short sp = 0;
+
+  Bitmap_t target_wall = (belong == Player1) ? BIT_WALL1 : BIT_WALL2;
+  Bitmap_t target_encamp = (belong == Player1) ? BIT_ENCAMP1 : BIT_ENCAMP2;
+
+  for(uint8_t i = 0; i < info->length; i++) {
+    for(uint8_t j = 0; j < info->length; j++) {
+      bitmap[i][j] = false;
+    }
+  }
+
+  if(map[seed_y][seed_x] & target_wall) { // シード座標が城壁ならストップ
+    return;
+  }
+  board->pushCell(stack, sp, seed_x, seed_y);
+
+  while(sp >= 0) {
+    uint8_t x, y;
+    if(board->popCell(stack, sp, x, y)) // popするデータがなくなった
+      break;
+
+    if(map[y][x] & target_wall) {
+      continue;
+    }
+
+    bitmap[y][x] = true;
+
+    for(int direc = 0; direc < Direction_Max; direc+=2) { // 上下左右を調べる
+      uint8_t mx = x + round(cos(direc * PI/4));
+      uint8_t my = y + round(sin(direc * PI/4));
+
+      if(board->isIgnoreCoord(mx, my)) { // 途中でフィールド外枠に到達したということは解放された陣地
+        for(uint8_t i = 0; i < info->length; i++) {
+          for(uint8_t j = 0; j < info->length; j++) {
+            if(bitmap[i][j]) {
+              map[i][j] |= target_encamp;
+              // if(map[i][j] & BIT_OPENED_ENCAMP && map[i][j] & rev_encamp)
+              //   map[i][j] &= ~(BIT_OPENED_ENCAMP | rev_encamp); // 解放された陣地は上書きされる
+              if(map[i][j] & BIT_OPENED_ENCAMP)
+                map[i][j] &= ~BIT_OPENED_ENCAMP;
+            }
+          }
+        }
+        return;
+      }
+      if(!(map[my][mx] & target_wall)) { // 城壁じゃなければ(陣地になる可能性があれば)
+        if(bitmap[my][mx]) { // 訪れたことがあればスキップ
+          // cout << "it has done.\n";
+          continue;
+        }
+        board->pushCell(stack, sp, mx, my);
+        bitmap[my][mx] = true;
+      }
+    }
+  }
+  Bitmap_t rev_encamp = (belong == Player1) ? BIT_ENCAMP2 : BIT_ENCAMP1;
+  // ここまで来たということは陣地形成されている
+  for(uint8_t i = 0; i < info->length; i++) {
+    for(uint8_t j = 0; j < info->length; j++) {
+      if(bitmap[i][j]) {
+        map[i][j] |= target_encamp;
+        if(map[i][j] & BIT_OPENED_ENCAMP && map[i][j] & rev_encamp)
+          map[i][j] &= ~(BIT_OPENED_ENCAMP | rev_encamp); // 解放された陣地は上書きされる
+        if(map[i][j] & BIT_OPENED_ENCAMP)
+          map[i][j] &= ~BIT_OPENED_ENCAMP;
+      }
+    }
+  }
+
+}
+
 // 反復するような手かどうかをチェックする関数
 // 戻り値がtrueならリピートしている
 // bool check_repeat(Action act_plan, Action pre_act)
@@ -78,6 +159,7 @@ Board *getInfobyJson(json jobj)
           map[i][j] |= BIT_WALL2;
           break;
       }
+      Board board(map, info, agent1, agent2);
       switch((int)jobj["board"]["territories"][i][j]) {
         case 1:
           map[i][j] |= BIT_ENCAMP1;
@@ -105,9 +187,6 @@ Board *getInfobyJson(json jobj)
       }
     }
   }
-
-  // TODO 解放された陣地
-
 
   // 返却するオブジェクト
   Board *match = new Board(map, info, agent1, agent2);
