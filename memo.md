@@ -74,3 +74,6 @@ PROCON_LINUX
 ## windows起動時に管理者権限で次のコマンドを入力
 netsh interface portproxy add v4tov4 listenport=3000 listenaddr=192.168.10.4 connectport=3000 connectaddress=172.27.152.111
 netsh interface portproxy add v4tov4 listenport=8080 listenaddr=192.168.10.4 connectport=8080 conenctaddress=172.27.152.111
+
+# さーば接続確認コマンド
+curl http://172.28.0.1:8080/matches?token=kagoshimaf9e9e019877b0b3d212cf1dec665e9e9b45c99f1062779a73c5d3b1

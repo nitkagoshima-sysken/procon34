@@ -1,6 +1,6 @@
-server-ip 192.168.10.1
-local-server-ip 192.168.10.3
-server-port 3000
-local-server-port 8080
-app-server-ip 192.168.10.2
-app-server-port 8081
+server-ip 172.28.0.1
+local-server-ip localhost
+server-port 8080
+local-server-port 8090
+app-server-ip localhost
+app-server-port 8091
