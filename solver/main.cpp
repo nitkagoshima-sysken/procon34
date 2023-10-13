@@ -155,12 +155,39 @@ Action *getActplan(Board *match, ev_function act_plan, int depth, json log, int 
       }
     }
 
+    Action pre_act;
+    pre_act.kind = log[match->turn]["actions"][i]["type"];
+
+    uint8_t direc = log[match->turn]["actions"][i]["dir"];
+    // 行動の方向を競技サーバ側に合わせる
+    uint8_t direc_rotate = (direc + 4) % 8;
+    switch(direc) {
+      case 1:
+        direc_rotate = 5;
+        break;
+      case 2:
+        direc_rotate = 6;
+        break;
+      case 3:
+        direc_rotate = 7;
+        break;
+    }
+
+    pre_act.direc = direc_rotate;
+
+    if(check_repeat(best_act[i], pre_act)) {
+      cout << "(デバッグ用):反復を検出!\n";
+      cout << "detail:\n";
+      cout << " agent    : " << i << endl;
+      cout << " act.kind : " << +best_act[i].kind << endl;
+      cout << " act.direc: " << +best_act[i].direc << endl;
+      // TODO 
+    }
+
     init_board->ActionAnAgent(match->next_turn, i, best_act[i]);
   }
 
-  // for(int i = 0; i < info->agent; i++) {
-  //   cout << "職人" << i << "のスコア: " << root_node[i]->evaluation << endl;
-  // }
+
   // メモリ開放
   for(int i = 0; i < info->agent; i++) {
     deleteTree(root_node[i]);
@@ -182,8 +209,8 @@ void calc(int msec, bool belong, char *map_json, char *ip, int turns, bool first
   Board *match = getInfobyJson(jobj);
 
   cout << "solver/main.cpp:calc\n";
-  cout << " turn  :" << +match->turn << endl;
-  cout << " first :" << first << endl;
+  cout << "現在のターン: " << match->turn << endl;
+  cout << " first     :" << first << endl;
 
   cout << endl;
 
