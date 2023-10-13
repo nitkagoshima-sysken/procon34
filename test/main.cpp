@@ -7,7 +7,11 @@
 #include "Evaluation_func.hpp"
 #include <assert.h>
 #include <fstream>
+<<<<<<< HEAD
 #include <string.h>
+=======
+#include <math.h>
+>>>>>>> feature/same_act
 using namespace std;
 
 // 反復するような手かどうかをチェックする関数
@@ -229,10 +233,18 @@ int main(int argc, char *argv[])
           // 反復しているのでbest_actを更新
         }
 
+        uint8_t mx = match.agent1[i].x + round(cos(best_act.direc * PI/4));
+        uint8_t my = match.agent1[i].y + round(sin(best_act.direc * PI/4));
+
+        if(match.map[my][mx] & BIT_WALL2) {
+          pre_act[i].kind = ACT_NONE;
+          pre_act[i].direc = Direction_Max;
+        } else {
+          pre_act[i] = best_act; // 直前の手として設定
+        }
+
         // 行動を盤面に反映させる
         match.ActionAnAgent(match.next_turn, i, best_act);
-
-        pre_act[i] = best_act; // 直前の手として設定
 
         delete init_board;
       }

@@ -29,6 +29,8 @@ bool check_repeat(Action act_plan, Action pre_act)
         return true;
       break;
     case ACT_MOVE:
+      if(act_plan.kind != ACT_MOVE) // 次の行動が移動で無ければ反復していない
+        break;
       if(act_plan.direc == reverse) { // 前に移動した方向と逆方向に移動しているなら
         return true;
       }
@@ -112,7 +114,7 @@ Board *getInfobyJson(json jobj)
   return match;
 }
 
-Action *getActplan(Board *match, ev_function act_plan, int depth)
+Action *getActplan(Board *match, ev_function act_plan, int depth, json log, int turn_num)
 {
   if(match == nullptr) {
     cout << "error: matchがnullです\n";
@@ -125,7 +127,7 @@ Action *getActplan(Board *match, ev_function act_plan, int depth)
   Game_Node **root_node = new Game_Node*[info->agent]();
 
   // 最後の数ターンのみ，探索深度を調整する
-  int lastdepth = ((TURN_NUM - turn) < depth) ? (TURN_NUM - turn) : depth;
+  int lastdepth = ((turn_num - turn) < depth) ? (turn_num - turn) : depth;
 
   // 生成した最善手を格納するためのオブジェクト
   Action *best_act = new Action[info->agent]();
@@ -152,6 +154,7 @@ Action *getActplan(Board *match, ev_function act_plan, int depth)
         break;
       }
     }
+
     init_board->ActionAnAgent(match->next_turn, i, best_act[i]);
   }
 
@@ -172,7 +175,7 @@ Action *getActplan(Board *match, ev_function act_plan, int depth)
 #include <thread>
 using namespace chrono;
 
-void calc(int msec, bool belong, char *map_json, char *ip)
+void calc(int msec, bool belong, char *map_json, char *ip, int turns, bool first)
 {
   auto jobj = json::parse(map_json);
 
@@ -180,7 +183,7 @@ void calc(int msec, bool belong, char *map_json, char *ip)
 
   cout << "solver/main.cpp:calc\n";
   cout << " turn  :" << +match->turn << endl;
-  cout << " belong:" << ((belong == Player1) ? "player1" : "player2") << endl;
+  cout << " first :" << first << endl;
 
   cout << endl;
 
@@ -188,16 +191,24 @@ void calc(int msec, bool belong, char *map_json, char *ip)
 
   match->next_turn = belong;
 
-  if((belong == Player1 && match->turn % 2 != 0) ||
-     (belong == Player2 && match->turn % 2 == 0)) {
-    cout << "このターンでは行動計画を送信できません．\n";
-    return;
+  if(first == true) {
+    if((belong == Player1 && match->turn % 2 != 0) ||
+      (belong == Player2 && match->turn % 2 == 0)) {
+      cout << "このターンでは行動計画を送信できません．\n";
+      return;
+    }
+  } else {
+    if((belong == Player1 && match->turn % 2 == 0) ||
+      (belong == Player2 && match->turn % 2 != 0)) {
+        cout << "このターンでは行動計画を送信できません．\n";
+        return;
+      }
   }
 
   // 最善手を計算する
   Action *act;
   for(auto depth = 5; depth <= 5; depth++) {
-    act = getActplan(match, evaluate_current_board, depth);
+    act = getActplan(match, evaluate_current_board, depth, jobj["log"], turns);
 
     json post_json;
     post_json["turn"] = match->turn + 1;
