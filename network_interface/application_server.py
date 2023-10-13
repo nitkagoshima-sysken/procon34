@@ -13,6 +13,12 @@ with open('.ipconfig', 'r') as f:
       (k, v) = line.split()
       ip_dict[k] = v
 
+info_dict = {}
+with open('.field-info', 'r') as f:
+    for line in f:
+        (k, v) = line.split()
+        info_dict[k] = v
+
 file = "res.json"
 
 class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
@@ -23,7 +29,7 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         get_turn = jobj['turn']
 
         # print(json.dumps(jobj['logs'], indent=2))
-        procon.calc(3, 1, data, ip_dict['local-server-ip'])
+        procon.calc(3, 1, data, ip_dict['local-server-ip'], info_dict['turns'])
 
         self.send_response(200)
         self.send_header('Content-Type', 'text/plain; charset=utf-8')

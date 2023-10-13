@@ -25,4 +25,10 @@ turns = jobj['matches'][0]['turns']
 turnSeconds = jobj['matches'][0]['turnSeconds']
 first = jobj['matches'][0]['first']
 
+data = 'id ' + str(id) + '\n' \
+    + 'turns ' + str(turns) + '\n' \
+    + 'turnSeconds ' + str(turnSeconds) + '\n' \
+    + 'first ' + str(first) + '\n'
 
+with open('.field-info', 'w') as f:
+   f.write(data)

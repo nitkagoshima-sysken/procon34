@@ -173,7 +173,7 @@ Action *getActplan(Board *match, ev_function act_plan, int depth, json log)
 #include <thread>
 using namespace chrono;
 
-void calc(int msec, bool belong, char *map_json, char *ip)
+void calc(int msec, bool belong, char *map_json, char *ip, int turns)
 {
   auto jobj = json::parse(map_json);
 
