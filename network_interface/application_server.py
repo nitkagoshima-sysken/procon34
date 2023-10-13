@@ -3,6 +3,7 @@ from http.server import BaseHTTPRequestHandler
 import requests
 import json
 import sys
+from distutils.util import strtobool
 
 sys.path.append("../")
 from solver import procon
@@ -19,6 +20,9 @@ with open('.field-info', 'r') as f:
         (k, v) = line.split()
         info_dict[k] = v
 
+turn_num = int(info_dict['turns'])
+first = strtobool(info_dict['first'])
+
 file = "res.json"
 
 class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
@@ -29,7 +33,7 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         get_turn = jobj['turn']
 
         # print(json.dumps(jobj['logs'], indent=2))
-        procon.calc(3, 1, data, ip_dict['local-server-ip'], info_dict['turns'], info_dict['first'])
+        procon.calc(3, 1, data, ip_dict['local-server-ip'], turn_num, first)
 
         self.send_response(200)
         self.send_header('Content-Type', 'text/plain; charset=utf-8')

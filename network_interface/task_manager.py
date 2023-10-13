@@ -23,21 +23,21 @@ APP_SERVER = "http://" + ip_dict['app-server-ip'] + ':' + ip_dict['app-server-po
 path = "/matches/" + info_dict['id']
 
 turn = 0
-interval = info_dict['turnSeconds']
-turn_num = info_dict['turns']
-first = info_dict['first']
+interval = int(info_dict['turnSeconds'])
+turn_num = int(info_dict['turns'])
+first = bool(info_dict['first'])
 
 def get_board(HOST=HOST, TOKEN=TOKEN, path=path):
     res = requests.get(HOST + path + '?token=' + TOKEN)
     data = json.loads(res.content)
     data_encode = json.dumps(data)
     get_turn = data['turn']
-    return start,data_encode,get_turn
+    return data_encode,get_turn
 
-while turn <= turn_num:
+while turn < turn_num:
   start = time.perf_counter()
   if turn % 2 == 0:
-      if first == 'False':
+      if first == False:
         '''自分のターンではないので待ち'''
         time.sleep(interval)
         turn += 1
@@ -57,7 +57,8 @@ while turn <= turn_num:
           print('どうしようね')
           # exit()
   else:
-     if first == 'True':
+     if first == True:
+        '''自分のターンではないので待ち'''
         time.sleep(interval)
         turn += 1
         continue

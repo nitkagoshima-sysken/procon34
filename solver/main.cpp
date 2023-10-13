@@ -114,7 +114,7 @@ Board *getInfobyJson(json jobj)
   return match;
 }
 
-Action *getActplan(Board *match, ev_function act_plan, int depth, json log)
+Action *getActplan(Board *match, ev_function act_plan, int depth, json log, int turn_num)
 {
   if(match == nullptr) {
     cout << "error: matchがnullです\n";
@@ -127,7 +127,7 @@ Action *getActplan(Board *match, ev_function act_plan, int depth, json log)
   Game_Node **root_node = new Game_Node*[info->agent]();
 
   // 最後の数ターンのみ，探索深度を調整する
-  int lastdepth = ((TURN_NUM - turn) < depth) ? (TURN_NUM - turn) : depth;
+  int lastdepth = ((turn_num - turn) < depth) ? (turn_num - turn) : depth;
 
   // 生成した最善手を格納するためのオブジェクト
   Action *best_act = new Action[info->agent]();
@@ -175,7 +175,7 @@ Action *getActplan(Board *match, ev_function act_plan, int depth, json log)
 #include <thread>
 using namespace chrono;
 
-void calc(int msec, bool belong, char *map_json, char *ip, int turns, char *first_str)
+void calc(int msec, bool belong, char *map_json, char *ip, int turns, bool first)
 {
   auto jobj = json::parse(map_json);
 
@@ -183,15 +183,13 @@ void calc(int msec, bool belong, char *map_json, char *ip, int turns, char *firs
 
   cout << "solver/main.cpp:calc\n";
   cout << " turn  :" << +match->turn << endl;
-  cout << " belong:" << ((belong == Player1) ? "player1" : "player2") << endl;
+  cout << " first :" << first << endl;
 
   cout << endl;
 
   match->draw();
 
   match->next_turn = belong;
-
-  bool first = (first_str == "True") ? true : false;
 
   if(first == true) {
     if((belong == Player1 && match->turn % 2 != 0) ||
@@ -210,7 +208,7 @@ void calc(int msec, bool belong, char *map_json, char *ip, int turns, char *firs
   // 最善手を計算する
   Action *act;
   for(auto depth = 5; depth <= 5; depth++) {
-    act = getActplan(match, evaluate_current_board, depth, jobj["log"]);
+    act = getActplan(match, evaluate_current_board, depth, jobj["log"], turns);
 
     json post_json;
     post_json["turn"] = match->turn + 1;
