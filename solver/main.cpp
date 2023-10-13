@@ -108,6 +108,7 @@ Board *getInfobyJson(json jobj)
 
   // TODO 解放された陣地
 
+
   // 返却するオブジェクト
   Board *match = new Board(map, info, agent1, agent2);
   match->turn = jobj["turn"];
