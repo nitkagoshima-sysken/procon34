@@ -5,6 +5,38 @@
 #include <string.h>
 using namespace std;
 
+bool check_repeat(Action act_plan, Action pre_act)
+{
+  // pre_actの方向と真反対の方向を格納する変数(4を足すと元と逆の方向になる)
+  uint8_t reverse = (pre_act.direc + 4) % 8;
+
+  switch(pre_act.kind) {
+    case ACT_BUILD:
+      if(act_plan.kind != ACT_DEMOLISH) // 次の行動が解体でなければ反復していない
+        break;
+      if(pre_act.direc == act_plan.direc)
+        return true;
+      break;
+    case ACT_MOVE:
+    if(act_plan.kind != ACT_MOVE) // 次の行動が移動で無ければ反復していない
+        break;
+      if(act_plan.direc == reverse) { // 前に移動した方向と逆方向に移動しているなら
+        return true;
+      }
+      break;
+    case ACT_DEMOLISH: // ACT_BUILDの逆
+      if(act_plan.kind != ACT_BUILD)
+        break;
+      if(pre_act.direc == act_plan.direc)
+        return true;
+      break;
+  }
+
+  // ここまで来たなら合格
+  return false;
+}
+
+
 // Game_Node::Game_Node(Board *board)
 // {
 //   this->board = board;
@@ -18,12 +50,17 @@ using namespace std;
 //     childrenNode.clear();
 // }
 
-void Game_Node::expandChildren(int backnumber)
+void Game_Node::expandChildren(int backnumber, Action *pre_action)
 {
   std::vector<Action> action;
   board->getLegalAct(board->next_turn, action, backnumber);
 
   for(auto itr = action.begin(); itr != action.end(); itr++) {
+    if(pre_action != NULL){
+      if(check_repeat(*itr, *pre_action)){
+        continue;
+      }
+    }
     Game_Node *child = new Game_Node;
     child->pre_act = *itr;
     child->parentNode = this;
@@ -35,15 +72,16 @@ void Game_Node::expandChildren(int backnumber)
 }
 
 // 普通の外部関数
-void expandChildren_by_num(Game_Node *root, int n, int backnumber, bool first_node)
+void expandChildren_by_num(Game_Node *root, int n, int backnumber, bool first_node, Action *pre_act)
 {
   if(n == 0) {
     root->evaluation = root->ev_func(root->board, root->target_belong);
     return;
   }
 
-  if(root->childrenNode.empty()) // 子供がいないときは生成
-    root->expandChildren(backnumber);
+  if(root->childrenNode.empty()){ // 子供がいないときは生成
+    root->expandChildren(backnumber, pre_act);
+  }
 
   int max_score;
   int min_score;
