@@ -37,7 +37,7 @@ def get_board(HOST=HOST, TOKEN=TOKEN, path=path):
 while turn < turn_num:
   start = time.perf_counter()
   if turn % 2 == 0:
-      if first == True:
+      if first != True:
         '''自分のターンではないので待ち'''
         time.sleep(interval)
         turn += 1
@@ -57,7 +57,7 @@ while turn < turn_num:
           print('どうしようね')
           # exit()
   else:
-     if first == False:
+     if first != False:
         '''自分のターンではないので待ち'''
         time.sleep(interval)
         turn += 1

@@ -114,7 +114,7 @@ Board *getInfobyJson(json jobj)
   return match;
 }
 
-Action *getActplan(Board *match, ev_function act_plan, int depth, json log, int turn_num)
+Action *getActplan(Board *match, ev_function act_plan, int depth, json jobj, int turn_num)
 {
   if(match == nullptr) {
     cout << "error: matchがnullです\n";
@@ -155,38 +155,38 @@ Action *getActplan(Board *match, ev_function act_plan, int depth, json log, int 
       }
     }
 
-    Action pre_act;
-    pre_act.kind = log[match->turn]["actions"][i]["type"];
+    if(match->turn > 1) {
+      Action pre_act;
+      int kind  = jobj["logs"][(int)(match->turn)-1]["actions"][i]["type"];
+      int direc = jobj["logs"][(int)(match->turn)-1]["actions"][i]["dir"];
+      // 行動の方向を競技サーバ側に合わせる
+      uint8_t direc_rotate = (direc + 4) % 8;
+      switch(direc) {
+        case 1:
+          direc_rotate = 5;
+          break;
+        case 2:
+          direc_rotate = 6;
+          break;
+        case 3:
+          direc_rotate = 7;
+          break;
+      }
 
-    uint8_t direc = log[match->turn]["actions"][i]["dir"];
-    // 行動の方向を競技サーバ側に合わせる
-    uint8_t direc_rotate = (direc + 4) % 8;
-    switch(direc) {
-      case 1:
-        direc_rotate = 5;
-        break;
-      case 2:
-        direc_rotate = 6;
-        break;
-      case 3:
-        direc_rotate = 7;
-        break;
-    }
+      pre_act.kind = kind;
+      pre_act.direc = direc_rotate;
 
-    pre_act.direc = direc_rotate;
-
-    if(check_repeat(best_act[i], pre_act)) {
-      cout << "(デバッグ用):反復を検出!\n";
-      cout << "detail:\n";
-      cout << " agent    : " << i << endl;
-      cout << " act.kind : " << +best_act[i].kind << endl;
-      cout << " act.direc: " << +best_act[i].direc << endl;
-      // TODO 
+      if(check_repeat(best_act[i], pre_act)) {
+        cout << "(デバッグ用):反復を検出!\n";
+        cout << "detail:\n";
+        cout << " agent    : " << i << endl;
+        cout << " act.kind : " << +best_act[i].kind << endl;
+        cout << " act.direc: " << +best_act[i].direc << endl;
+      }
     }
 
     init_board->ActionAnAgent(match->next_turn, i, best_act[i]);
   }
-
 
   // メモリ開放
   for(int i = 0; i < info->agent; i++) {
@@ -235,7 +235,8 @@ void calc(int msec, bool belong, char *map_json, char *ip, int turns, bool first
   // 最善手を計算する
   Action *act;
   for(auto depth = 5; depth <= 5; depth++) {
-    act = getActplan(match, evaluate_current_board, depth, jobj["log"], turns);
+
+    act = getActplan(match, evaluate_current_board, depth, jobj, turns);
 
     json post_json;
     post_json["turn"] = match->turn + 1;
