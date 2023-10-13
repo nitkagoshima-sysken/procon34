@@ -1,5 +1,5 @@
 id 10
-turns 60
-turnSeconds 3
-first False
-shape 11
+turns 30
+turnSeconds 10
+first True
+shape 0
