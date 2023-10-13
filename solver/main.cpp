@@ -29,6 +29,8 @@ bool check_repeat(Action act_plan, Action pre_act)
         return true;
       break;
     case ACT_MOVE:
+      if(act_plan.kind != ACT_MOVE) // 次の行動が移動で無ければ反復していない
+        break;
       if(act_plan.direc == reverse) { // 前に移動した方向と逆方向に移動しているなら
         return true;
       }
@@ -173,7 +175,7 @@ Action *getActplan(Board *match, ev_function act_plan, int depth, json log)
 #include <thread>
 using namespace chrono;
 
-void calc(int msec, bool belong, char *map_json, char *ip, int turns)
+void calc(int msec, bool belong, char *map_json, char *ip, int turns, char *first_str)
 {
   auto jobj = json::parse(map_json);
 
@@ -189,10 +191,20 @@ void calc(int msec, bool belong, char *map_json, char *ip, int turns)
 
   match->next_turn = belong;
 
-  if((belong == Player1 && match->turn % 2 != 0) ||
-     (belong == Player2 && match->turn % 2 == 0)) {
-    cout << "このターンでは行動計画を送信できません．\n";
-    return;
+  bool first = (first_str == "True") ? true : false;
+
+  if(first == true) {
+    if((belong == Player1 && match->turn % 2 != 0) ||
+      (belong == Player2 && match->turn % 2 == 0)) {
+      cout << "このターンでは行動計画を送信できません．\n";
+      return;
+    }
+  } else {
+    if((belong == Player1 && match->turn % 2 == 0) ||
+      (belong == Player2 && match->turn % 2 != 0)) {
+        cout << "このターンでは行動計画を送信できません．\n";
+        return;
+      }
   }
 
   // 最善手を計算する

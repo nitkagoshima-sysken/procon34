@@ -23,8 +23,8 @@ APP_SERVER = "http://" + ip_dict['app-server-ip'] + ':' + ip_dict['app-server-po
 path = "/matches/" + info_dict['id']
 
 turn = 0
-interval = 3
-turn_num = 60
+interval = info_dict['turnSeconds']
+turn_num = info_dict['turns']
 
 while turn < turn_num:
   start = time.perf_counter()

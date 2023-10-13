@@ -29,7 +29,7 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         get_turn = jobj['turn']
 
         # print(json.dumps(jobj['logs'], indent=2))
-        procon.calc(3, 1, data, ip_dict['local-server-ip'], info_dict['turns'])
+        procon.calc(3, 1, data, ip_dict['local-server-ip'], info_dict['turns'], info_dict['first'])
 
         self.send_response(200)
         self.send_header('Content-Type', 'text/plain; charset=utf-8')
