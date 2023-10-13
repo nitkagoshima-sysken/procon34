@@ -51,6 +51,6 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         self.send_header('Content-Type', 'text/plain; charset=utf-8')
         self.end_headers()
         
-server_address = ('0.0.0.0', 8080)
+server_address = ('0.0.0.0', 8090)
 httpd = HTTPServer(server_address, CustomHTTPRequestHandler)
 httpd.serve_forever()
