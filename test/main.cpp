@@ -13,36 +13,6 @@ using namespace std;
 
 // 反復するような手かどうかをチェックする関数
 // 戻り値がtrueならリピートしている
-bool check_repeat(Action act_plan, Action pre_act)
-{
-  // pre_actの方向と真反対の方向を格納する変数(4を足すと元と逆の方向になる)
-  uint8_t reverse = (pre_act.direc + 4) % 8;
-
-  switch(pre_act.kind) {
-    case ACT_BUILD:
-      if(act_plan.kind != ACT_DEMOLISH) // 次の行動が解体でなければ反復していない
-        break;
-      if(pre_act.direc == act_plan.direc)
-        return true;
-      break;
-    case ACT_MOVE:
-    if(act_plan.kind != ACT_MOVE) // 次の行動が移動で無ければ反復していない
-        break;
-      if(act_plan.direc == reverse) { // 前に移動した方向と逆方向に移動しているなら
-        return true;
-      }
-      break;
-    case ACT_DEMOLISH: // ACT_BUILDの逆
-      if(act_plan.kind != ACT_BUILD)
-        break;
-      if(pre_act.direc == act_plan.direc)
-        return true;
-      break;
-  }
-
-  // ここまで来たなら合格
-  return false;
-}
 
 int main(int argc, char *argv[])
 {
@@ -193,7 +163,7 @@ int main(int argc, char *argv[])
         root_node[i]->target_belong = match.next_turn;
 
         // ゲーム木を生成&評価値をアルファベータ法で選択
-        expandChildren_by_num(root_node[i], lastdepth, i);
+        expandChildren_by_num(root_node[i], lastdepth, i, true, &pre_act[i]);
         
         // 最善手を格納するオブジェクト
         Action best_act;
@@ -221,16 +191,16 @@ int main(int argc, char *argv[])
         }
 
         // 計算した最善手が前の行動を打ち消すようなものでないかどうかをチェック
-        if(check_repeat(best_act, pre_act[i])) {
+        // if(check_repeat(best_act, pre_act[i])) {
           
-          cout << "(デバッグ用):反復を検出!\n";
-          cout << "detail:\n";
-          cout << " agent    : " << i << endl;
-          cout << " act.kind : " << +best_act.kind << endl;
-          cout << " act.direc: " << +best_act.direc << endl;
+        //   cout << "(デバッグ用):反復を検出!\n";
+        //   cout << "detail:\n";
+        //   cout << " agent    : " << i << endl;
+        //   cout << " act.kind : " << +best_act.kind << endl;
+        //   cout << " act.direc: " << +best_act.direc << endl;
           
-          // 反復しているのでbest_actを更新
-        }
+        //   // 反復しているのでbest_actを更新
+        // }
 
         uint8_t mx = match.agent1[i].x + round(cos(best_act.direc * PI/4));
         uint8_t my = match.agent1[i].y + round(sin(best_act.direc * PI/4));

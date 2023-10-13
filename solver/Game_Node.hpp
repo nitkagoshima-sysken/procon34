@@ -33,7 +33,7 @@ public:
   // Game_Node(Board *board);
   // ~Game_Node();
 
-  void expandChildren(int backnumber);
+  void expandChildren(int backnumber, Action *pre_action);
   void deleteChildren();
 
   //char wallpoint(uint8_t x, uint8_t y , char beforepoint,int *point);
@@ -45,7 +45,8 @@ public:
 
 };
 
-void expandChildren_by_num(Game_Node *root, int n, int backnumber, bool first_node = true);
+bool check_repeat(Action act_plan, Action pre_act);
+void expandChildren_by_num(Game_Node *root, int n, int backnumber, bool first_node = true, Action *pre_act = NULL);
 void TreeSearch(Game_Node *root, int backnumber, bool belong, bool first_node = true);
 void drawTree(Game_Node *root, FILE *fp, int n = -1);
 void deleteTree(Game_Node* root);

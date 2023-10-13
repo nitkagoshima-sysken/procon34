@@ -16,36 +16,36 @@ using namespace nlohmann;
 
 // 反復するような手かどうかをチェックする関数
 // 戻り値がtrueならリピートしている
-bool check_repeat(Action act_plan, Action pre_act)
-{
-  // pre_actの方向と真反対の方向を格納する変数(4を足すと元と逆の方向になる)
-  uint8_t reverse = (pre_act.direc + 4) % 8;
+// bool check_repeat(Action act_plan, Action pre_act)
+// {
+//   // pre_actの方向と真反対の方向を格納する変数(4を足すと元と逆の方向になる)
+//   uint8_t reverse = (pre_act.direc + 4) % 8;
 
-  switch(pre_act.kind) {
-    case ACT_BUILD:
-      if(act_plan.kind != ACT_DEMOLISH) // 次の行動が解体でなければ反復していない
-        break;
-      if(pre_act.direc == act_plan.direc)
-        return true;
-      break;
-    case ACT_MOVE:
-      if(act_plan.kind != ACT_MOVE) // 次の行動が移動で無ければ反復していない
-        break;
-      if(act_plan.direc == reverse) { // 前に移動した方向と逆方向に移動しているなら
-        return true;
-      }
-      break;
-    case ACT_DEMOLISH: // ACT_BUILDの逆
-      if(act_plan.kind != ACT_BUILD)
-        break;
-      if(pre_act.direc == act_plan.direc)
-        return true;
-      break;
-  }
+//   switch(pre_act.kind) {
+//     case ACT_BUILD:
+//       if(act_plan.kind != ACT_DEMOLISH) // 次の行動が解体でなければ反復していない
+//         break;
+//       if(pre_act.direc == act_plan.direc)
+//         return true;
+//       break;
+//     case ACT_MOVE:
+//       if(act_plan.kind != ACT_MOVE) // 次の行動が移動で無ければ反復していない
+//         break;
+//       if(act_plan.direc == reverse) { // 前に移動した方向と逆方向に移動しているなら
+//         return true;
+//       }
+//       break;
+//     case ACT_DEMOLISH: // ACT_BUILDの逆
+//       if(act_plan.kind != ACT_BUILD)
+//         break;
+//       if(pre_act.direc == act_plan.direc)
+//         return true;
+//       break;
+//   }
 
-  // ここまで来たなら合格
-  return false;
-}
+//   // ここまで来たなら合格
+//   return false;
+// }
 
 Board *getInfobyJson(json jobj)
 {
