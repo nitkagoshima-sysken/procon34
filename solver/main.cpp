@@ -206,7 +206,7 @@ void calc(int msec, bool belong, char *map_json, char *ip, int turns, bool first
 
   // 最善手を計算する
   Action *act;
-  for(auto depth = 5; depth <= 5; depth++) {
+  for(auto depth = 1; depth <= 5; depth++) {
     act = getActplan(match, evaluate_current_board, depth, jobj["log"], turns);
 
     json post_json;
