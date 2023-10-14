@@ -57,6 +57,7 @@ while turn < turn_num:
         # 遅くgetしてしまった
           print('どうしようね')
           # exit()
+          turn += 2
   else:
      if first == True:
         '''自分のターンではないので待ち'''
@@ -77,6 +78,7 @@ while turn < turn_num:
       # 遅くgetしてしまった
         print('どうしようね')
         # exit()
+        turn += 2
   
   print('changed')
   HEADER = {
