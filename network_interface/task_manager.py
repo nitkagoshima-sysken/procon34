@@ -95,4 +95,4 @@ while turn < turn_num:
 
   turn += 1
   padding = time.perf_counter() - start
-  time.sleep(interval - padding + 1)
+  time.sleep(interval - padding)
