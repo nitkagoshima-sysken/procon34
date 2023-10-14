@@ -54,6 +54,8 @@ while turn < turn_num:
           time.sleep(0.1)
           continue
         else:
+           turn += 2
+           continue
         # 遅くgetしてしまった
           # exit()
   else:
@@ -73,6 +75,8 @@ while turn < turn_num:
         time.sleep(0.1)
         continue
       else:
+         turn += 2
+         continue
         # exit()
   
   print('changed')
