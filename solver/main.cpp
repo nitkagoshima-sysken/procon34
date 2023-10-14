@@ -12,7 +12,7 @@
 using namespace std;
 using namespace nlohmann;
 
-#define SERVER_PORT 8080
+#define SERVER_PORT 8082
 
 // 反復するような手かどうかをチェックする関数
 // 戻り値がtrueならリピートしている
@@ -192,14 +192,13 @@ void calc(int msec, bool belong, char *map_json, char *ip, int turns, bool first
   match->next_turn = belong;
 
   if(first == true) {
-    if((belong == Player1 && match->turn % 2 != 0) ||
-      (belong == Player2 && match->turn % 2 == 0)) {
+    if(match->turn % 2 != 0) {
       cout << "このターンでは行動計画を送信できません．\n";
       return;
     }
   } else {
-    if((belong == Player1 && match->turn % 2 == 0) ||
-      (belong == Player2 && match->turn % 2 != 0)) {
+    if( match->turn % 2 == 0) 
+     {
         cout << "このターンでは行動計画を送信できません．\n";
         return;
       }

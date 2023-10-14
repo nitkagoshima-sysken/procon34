@@ -1,4 +1,4 @@
-id 10
+id 142
 turns 60
-turnSeconds 3
-first False
+turnSeconds 10
+first True
