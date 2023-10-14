@@ -175,13 +175,13 @@ Action *getActplan(Board *match, ev_function act_plan, int depth, json jobj, int
       pre_act.kind = kind;
       pre_act.direc = direc_rotate;
 
-      if(check_repeat(best_act[i], pre_act)) {
-        cout << "(デバッグ用):反復を検出!\n";
-        cout << "detail:\n";
-        cout << " agent    : " << i << endl;
-        cout << " act.kind : " << +best_act[i].kind << endl;
-        cout << " act.direc: " << +best_act[i].direc << endl;
-      }
+      // if(check_repeat(best_act[i], pre_act)) {
+      //   cout << "(デバッグ用):反復を検出!\n";
+      //   cout << "detail:\n";
+      //   cout << " agent    : " << i << endl;
+      //   cout << " act.kind : " << +best_act[i].kind << endl;
+      //   cout << " act.direc: " << +best_act[i].direc << endl;
+      // }
     }
 
     // if(match->turn < 10){
