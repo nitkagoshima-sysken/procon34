@@ -167,6 +167,8 @@ int main(int argc, char *argv[])
 
         // 評価値から次に行動するべき手(最善手)を出す
         // 親の評価値と子供の評価値を比べて一致した手を最善手と判断
+        int smax,scom;
+        bool flgcom = false;
         auto itr = root_node[i]->childrenNode.begin();
         for(; itr != root_node[i]->childrenNode.end(); itr++) {
           if(root_node[i]->evaluation == (*itr)->evaluation) {
@@ -175,10 +177,16 @@ int main(int argc, char *argv[])
             }else{
               Board *actc1 = new Board(match);
               Board *actc2 = new Board(match);
-              actc1->ActionAnAgent(match.next_turn, i, best_act);
+              if(flgcom){
+                actc1->ActionAnAgent(match.next_turn, i, best_act);
+                smax =evaluate_current_board(actc1, match.next_turn);
+                flgcom = true;
+              }
               actc2->ActionAnAgent(match.next_turn, i, (*itr)->pre_act);
-              if(evaluate_current_board(actc1, match.next_turn) < evaluate_current_board(actc2, match.next_turn)){
+              scom =evaluate_current_board(actc2, match.next_turn);
+              if(smax < scom){
                 best_act = (*itr)->pre_act;
+                smax = scom;
               }
               delete actc1;
               delete actc2;
