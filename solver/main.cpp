@@ -14,87 +14,6 @@ using namespace nlohmann;
 
 #define SERVER_PORT 8080
 
-void check_opened(Board *board, bool belong, uint8_t seed_x, uint8_t seed_y)
-{
-  if(board->isIgnoreCoord(seed_x, seed_y))
-    return;
-
-  FieldInfo *info = board->info;
-  Bitmap_t **map = board->map;
-
-  bool bitmap[info->length][info->length];
-  Cell stack[STACK_MAX_NUM] = {0};
-  short sp = 0;
-
-  Bitmap_t target_wall = (belong == Player1) ? BIT_WALL1 : BIT_WALL2;
-  Bitmap_t target_encamp = (belong == Player1) ? BIT_ENCAMP1 : BIT_ENCAMP2;
-
-  for(uint8_t i = 0; i < info->length; i++) {
-    for(uint8_t j = 0; j < info->length; j++) {
-      bitmap[i][j] = false;
-    }
-  }
-
-  if(map[seed_y][seed_x] & target_wall) { // シード座標が城壁ならストップ
-    return;
-  }
-  board->pushCell(stack, sp, seed_x, seed_y);
-
-  while(sp >= 0) {
-    uint8_t x, y;
-    if(board->popCell(stack, sp, x, y)) // popするデータがなくなった
-      break;
-
-    if(map[y][x] & target_wall) {
-      continue;
-    }
-
-    bitmap[y][x] = true;
-
-    for(int direc = 0; direc < Direction_Max; direc+=2) { // 上下左右を調べる
-      uint8_t mx = x + round(cos(direc * PI/4));
-      uint8_t my = y + round(sin(direc * PI/4));
-
-      if(board->isIgnoreCoord(mx, my)) { // 途中でフィールド外枠に到達したということは解放された陣地
-        for(uint8_t i = 0; i < info->length; i++) {
-          for(uint8_t j = 0; j < info->length; j++) {
-            if(bitmap[i][j]) {
-              map[i][j] |= target_encamp;
-              // if(map[i][j] & BIT_OPENED_ENCAMP && map[i][j] & rev_encamp)
-              //   map[i][j] &= ~(BIT_OPENED_ENCAMP | rev_encamp); // 解放された陣地は上書きされる
-              if(map[i][j] & BIT_OPENED_ENCAMP)
-                map[i][j] &= ~BIT_OPENED_ENCAMP;
-            }
-          }
-        }
-        return;
-      }
-      if(!(map[my][mx] & target_wall)) { // 城壁じゃなければ(陣地になる可能性があれば)
-        if(bitmap[my][mx]) { // 訪れたことがあればスキップ
-          // cout << "it has done.\n";
-          continue;
-        }
-        board->pushCell(stack, sp, mx, my);
-        bitmap[my][mx] = true;
-      }
-    }
-  }
-  Bitmap_t rev_encamp = (belong == Player1) ? BIT_ENCAMP2 : BIT_ENCAMP1;
-  // ここまで来たということは陣地形成されている
-  for(uint8_t i = 0; i < info->length; i++) {
-    for(uint8_t j = 0; j < info->length; j++) {
-      if(bitmap[i][j]) {
-        map[i][j] |= target_encamp;
-        if(map[i][j] & BIT_OPENED_ENCAMP && map[i][j] & rev_encamp)
-          map[i][j] &= ~(BIT_OPENED_ENCAMP | rev_encamp); // 解放された陣地は上書きされる
-        if(map[i][j] & BIT_OPENED_ENCAMP)
-          map[i][j] &= ~BIT_OPENED_ENCAMP;
-      }
-    }
-  }
-
-}
-
 // 反復するような手かどうかをチェックする関数
 // 戻り値がtrueならリピートしている
 // bool check_repeat(Action act_plan, Action pre_act)
@@ -265,47 +184,47 @@ Action *getActplan(Board *match, ev_function act_plan, int depth, json jobj, int
       // }
     }
 
-    if(match->turn < 10){
-      if(shape != 0){
-        uint8_t dir[4] = {2,0,4,6};
-        uint8_t sx[4]  = {(uint8_t)info->length/2 +2,(uint8_t)info->length/2 -3,(uint8_t)info->length/2 +3,(uint8_t)info->length/2 -2};
-        uint8_t sy[4]  = {(uint8_t)info->length/2 -3,(uint8_t)info->length/2 -2,(uint8_t)info->length/2 +2,(uint8_t)info->length/2 +3};
-        uint8_t ssx[4]  = {(uint8_t)info->length/2 -1,(uint8_t)info->length/2 -2,(uint8_t)info->length/2 +2,(uint8_t)info->length/2 +1};
-        uint8_t ssy[4]  = {(uint8_t)info->length/2 -2,(uint8_t)info->length/2 +1,(uint8_t)info->length/2 -1,(uint8_t)info->length/2 +2};
+    // if(match->turn < 10){
+    //   if(shape != 0){
+    //     uint8_t dir[4] = {2,0,4,6};
+    //     uint8_t sx[4]  = {(uint8_t)info->length/2 +2,(uint8_t)info->length/2 -3,(uint8_t)info->length/2 +3,(uint8_t)info->length/2 -2};
+    //     uint8_t sy[4]  = {(uint8_t)info->length/2 -3,(uint8_t)info->length/2 -2,(uint8_t)info->length/2 +2,(uint8_t)info->length/2 +3};
+    //     uint8_t ssx[4]  = {(uint8_t)info->length/2 -1,(uint8_t)info->length/2 -2,(uint8_t)info->length/2 +2,(uint8_t)info->length/2 +1};
+    //     uint8_t ssy[4]  = {(uint8_t)info->length/2 -2,(uint8_t)info->length/2 +1,(uint8_t)info->length/2 -1,(uint8_t)info->length/2 +2};
 
-        switch((shape == 15) ? (match->turn+1)/2 +1 : (match->turn+1)/2){
-          case 1:
-            best_act[i].kind = ACT_MOVE;
-            best_act[i].direc = dir[i];
-            break;
-          case 2:
-            best_act[i].kind = ACT_BUILD;
-            if(match->map[(int)(sy[i])][(int)(sx[i])] & BIT_AGENT2){
-              best_act[i].direc = (uint8_t)((dir[i] + 6) % 8);
-            }else{
-              best_act[i].direc = (uint8_t)((dir[i] + 2) % 8);
-            }
-            break;
-          case 3:
-            best_act[i].kind = ACT_BUILD;
-            if(match->map[(int)(ssy[i])][(int)(ssx[i])] & BIT_AGENT2){
-              best_act[i].direc = dir[i];
-            }else if(match->map[(int)(ssy[i])][(int)(ssx[i])] & BIT_WALL1){
-              best_act[i].direc = (uint8_t)((dir[i] + 6) % 8);
-            }else{
-              best_act[i].direc = (uint8_t)((dir[i] + 2) % 8);
-            }
-            cout << (int)ssx[i] << ":" << (int)ssy[i] << "\n";
-            break;
-          case 4:
-            if(!(match->map[(int)(ssy[i])][(int)(ssx[i])] & BIT_AGENT2)){
-              best_act[i].kind = ACT_BUILD;
-              best_act[i].direc = (uint8_t)((dir[i] + 4) % 8);
-            }
-            break;
-        }
-      }
-    }
+    //     switch((shape == 15) ? (match->turn+1)/2 +1 : (match->turn+1)/2){
+    //       case 1:
+    //         best_act[i].kind = ACT_MOVE;
+    //         best_act[i].direc = dir[i];
+    //         break;
+    //       case 2:
+    //         best_act[i].kind = ACT_BUILD;
+    //         if(match->map[(int)(sy[i])][(int)(sx[i])] & BIT_AGENT2){
+    //           best_act[i].direc = (uint8_t)((dir[i] + 6) % 8);
+    //         }else{
+    //           best_act[i].direc = (uint8_t)((dir[i] + 2) % 8);
+    //         }
+    //         break;
+    //       case 3:
+    //         best_act[i].kind = ACT_BUILD;
+    //         if(match->map[(int)(ssy[i])][(int)(ssx[i])] & BIT_AGENT2){
+    //           best_act[i].direc = dir[i];
+    //         }else if(match->map[(int)(ssy[i])][(int)(ssx[i])] & BIT_WALL1){
+    //           best_act[i].direc = (uint8_t)((dir[i] + 6) % 8);
+    //         }else{
+    //           best_act[i].direc = (uint8_t)((dir[i] + 2) % 8);
+    //         }
+    //         cout << (int)ssx[i] << ":" << (int)ssy[i] << "\n";
+    //         break;
+    //       case 4:
+    //         if(!(match->map[(int)(ssy[i])][(int)(ssx[i])] & BIT_AGENT2)){
+    //           best_act[i].kind = ACT_BUILD;
+    //           best_act[i].direc = (uint8_t)((dir[i] + 4) % 8);
+    //         }
+    //         break;
+    //     }
+    //   }
+    // }
 
     init_board->ActionAnAgent(match->next_turn, i, best_act[i]);
   }
