@@ -350,6 +350,7 @@ int Board::ActionAnAgent(bool belong, uint8_t backnumber, Action act)
     }
     if(cnt == 3) { // 周りが全て陣地の場合
       map[my][mx] |= target_encamp;
+      Encamp_Opened(target_belong, mx, my);
     }
     // uni_tree[belong].ancestor.erase((Cell){mx,my});
     // uni_tree[belong].par.erase((Cell){mx,my});

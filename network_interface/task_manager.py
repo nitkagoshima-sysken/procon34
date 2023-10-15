@@ -3,6 +3,7 @@ import json
 import time
 from http.client import RemoteDisconnected
 from distutils.util import strtobool
+from distutils.util import strtobool
 
 ip_dict = {}
 with open('.ipconfig', 'r') as f:
@@ -26,6 +27,7 @@ path = "/matches/" + info_dict['id']
 turn = 0
 interval = int(info_dict['turnSeconds'])
 turn_num = int(info_dict['turns'])
+first = strtobool(info_dict['first'])
 first = strtobool(info_dict['first'])
 
 def get_board(HOST=HOST, TOKEN=TOKEN, path=path):
@@ -54,10 +56,10 @@ while turn < turn_num:
           time.sleep(0.1)
           continue
         else:
+           turn += 2
+           continue
         # 遅くgetしてしまった
-          print('どうしようね')
           # exit()
-          turn += 2
   else:
      if first == True:
         '''自分のターンではないので待ち'''
@@ -75,10 +77,9 @@ while turn < turn_num:
         time.sleep(0.1)
         continue
       else:
-      # 遅くgetしてしまった
-        print('どうしようね')
+         turn += 2
+         continue
         # exit()
-        turn += 2
   
   print('changed')
   HEADER = {

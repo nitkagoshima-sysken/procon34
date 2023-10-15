@@ -12,40 +12,38 @@
 using namespace std;
 using namespace nlohmann;
 
-#define SERVER_PORT 8082
-
 // 反復するような手かどうかをチェックする関数
 // 戻り値がtrueならリピートしている
-bool check_repeat(Action act_plan, Action pre_act)
-{
-  // pre_actの方向と真反対の方向を格納する変数(4を足すと元と逆の方向になる)
-  uint8_t reverse = (pre_act.direc + 4) % 8;
+// bool check_repeat(Action act_plan, Action pre_act)
+// {
+//   // pre_actの方向と真反対の方向を格納する変数(4を足すと元と逆の方向になる)
+//   uint8_t reverse = (pre_act.direc + 4) % 8;
 
-  switch(pre_act.kind) {
-    case ACT_BUILD:
-      if(act_plan.kind != ACT_DEMOLISH) // 次の行動が解体でなければ反復していない
-        break;
-      if(pre_act.direc == act_plan.direc)
-        return true;
-      break;
-    case ACT_MOVE:
-      if(act_plan.kind != ACT_MOVE) // 次の行動が移動で無ければ反復していない
-        break;
-      if(act_plan.direc == reverse) { // 前に移動した方向と逆方向に移動しているなら
-        return true;
-      }
-      break;
-    case ACT_DEMOLISH: // ACT_BUILDの逆
-      if(act_plan.kind != ACT_BUILD)
-        break;
-      if(pre_act.direc == act_plan.direc)
-        return true;
-      break;
-  }
+//   switch(pre_act.kind) {
+//     case ACT_BUILD:
+//       if(act_plan.kind != ACT_DEMOLISH) // 次の行動が解体でなければ反復していない
+//         break;
+//       if(pre_act.direc == act_plan.direc)
+//         return true;
+//       break;
+//     case ACT_MOVE:
+//       if(act_plan.kind != ACT_MOVE) // 次の行動が移動で無ければ反復していない
+//         break;
+//       if(act_plan.direc == reverse) { // 前に移動した方向と逆方向に移動しているなら
+//         return true;
+//       }
+//       break;
+//     case ACT_DEMOLISH: // ACT_BUILDの逆
+//       if(act_plan.kind != ACT_BUILD)
+//         break;
+//       if(pre_act.direc == act_plan.direc)
+//         return true;
+//       break;
+//   }
 
-  // ここまで来たなら合格
-  return false;
-}
+//   // ここまで来たなら合格
+//   return false;
+// }
 
 Board *getInfobyJson(json jobj)
 {
@@ -59,7 +57,7 @@ Board *getInfobyJson(json jobj)
 
   Agent *agent1 = new Agent[info->agent]();
   Agent *agent2 = new Agent[info->agent]();
-  
+
   for(auto i = 0; i < info->length; i++) {
     for(auto j = 0; j < info->length; j++) {
       switch((int)jobj["board"]["structures"][i][j]) {
@@ -89,7 +87,7 @@ Board *getInfobyJson(json jobj)
           map[i][j] |= (BIT_ENCAMP1 | BIT_ENCAMP2);
           break;
       }
-      
+
       if((int)jobj["board"]["masons"][i][j] > 0) { // 先手職人
         map[i][j] |= BIT_AGENT1;
         int num = (int)jobj["board"]["masons"][i][j] - 1;
@@ -106,15 +104,13 @@ Board *getInfobyJson(json jobj)
     }
   }
 
-  // TODO 解放された陣地
-
   // 返却するオブジェクト
   Board *match = new Board(map, info, agent1, agent2);
   match->turn = jobj["turn"];
   return match;
 }
 
-Action *getActplan(Board *match, ev_function act_plan, int depth, json log, int turn_num)
+Action *getActplan(Board *match, ev_function act_plan, int depth, int turn_num, int shape)
 {
   if(match == nullptr) {
     cout << "error: matchがnullです\n";
@@ -154,13 +150,52 @@ Action *getActplan(Board *match, ev_function act_plan, int depth, json log, int 
         break;
       }
     }
+    
+    if(match->turn < 10){
+      if(shape != 0){
+        uint8_t dir[4] = {2,0,4,6};
+        uint8_t sx[4]  = {(uint8_t)info->length/2 +2,(uint8_t)info->length/2 -3,(uint8_t)info->length/2 +3,(uint8_t)info->length/2 -2};
+        uint8_t sy[4]  = {(uint8_t)info->length/2 -3,(uint8_t)info->length/2 -2,(uint8_t)info->length/2 +2,(uint8_t)info->length/2 +3};
+        uint8_t ssx[4]  = {(uint8_t)info->length/2 -1,(uint8_t)info->length/2 -2,(uint8_t)info->length/2 +2,(uint8_t)info->length/2 +1};
+        uint8_t ssy[4]  = {(uint8_t)info->length/2 -2,(uint8_t)info->length/2 +1,(uint8_t)info->length/2 -1,(uint8_t)info->length/2 +2};
+
+        switch((shape == 15) ? (match->turn+1)/2 +1 : (match->turn+1)/2){
+          case 1:
+            best_act[i].kind = ACT_MOVE;
+            best_act[i].direc = dir[i];
+            break;
+          case 2:
+            best_act[i].kind = ACT_BUILD;
+            if(match->map[(int)(sy[i])][(int)(sx[i])] & BIT_AGENT2){
+              best_act[i].direc = (uint8_t)((dir[i] + 6) % 8);
+            }else{
+              best_act[i].direc = (uint8_t)((dir[i] + 2) % 8);
+            }
+            break;
+          case 3:
+            best_act[i].kind = ACT_BUILD;
+            if(match->map[(int)(ssy[i])][(int)(ssx[i])] & BIT_AGENT2){
+              best_act[i].direc = dir[i];
+            }else if(match->map[(int)(ssy[i])][(int)(ssx[i])] & BIT_WALL1){
+              best_act[i].direc = (uint8_t)((dir[i] + 6) % 8);
+            }else{
+              best_act[i].direc = (uint8_t)((dir[i] + 2) % 8);
+            }
+            cout << (int)ssx[i] << ":" << (int)ssy[i] << "\n";
+            break;
+          case 4:
+            if(!(match->map[(int)(ssy[i])][(int)(ssx[i])] & BIT_AGENT2)){
+              best_act[i].kind = ACT_BUILD;
+              best_act[i].direc = (uint8_t)((dir[i] + 4) % 8);
+            }
+            break;
+        }
+      }
+    }
 
     init_board->ActionAnAgent(match->next_turn, i, best_act[i]);
   }
 
-  // for(int i = 0; i < info->agent; i++) {
-  //   cout << "職人" << i << "のスコア: " << root_node[i]->evaluation << endl;
-  // }
   // メモリ開放
   for(int i = 0; i < info->agent; i++) {
     deleteTree(root_node[i]);
@@ -175,21 +210,21 @@ Action *getActplan(Board *match, ev_function act_plan, int depth, json log, int 
 #include <thread>
 using namespace chrono;
 
-void calc(int msec, bool belong, char *map_json, char *ip, int turns, bool first)
+void calc(char *map_json, char *ip, int port, int turns, bool first, int shape)
 {
   auto jobj = json::parse(map_json);
 
   Board *match = getInfobyJson(jobj);
 
   cout << "solver/main.cpp:calc\n";
-  cout << " turn  :" << +match->turn << endl;
-  cout << " first :" << first << endl;
+  cout << "現在のターン: " << +match->turn << endl;
+  cout << " first     :" << first << endl;
 
   cout << endl;
 
   match->draw();
 
-  match->next_turn = belong;
+  match->next_turn = Player1;
 
   if(first == true) {
     if(match->turn % 2 != 0) {
@@ -207,7 +242,7 @@ void calc(int msec, bool belong, char *map_json, char *ip, int turns, bool first
   // 最善手を計算する
   Action *act;
   for(auto depth = 1; depth <= 5; depth++) {
-    act = getActplan(match, evaluate_current_board, depth, jobj["log"], turns);
+    act = getActplan(match, evaluate_current_board, depth, turns, shape);
 
     json post_json;
     post_json["turn"] = match->turn + 1;
@@ -224,7 +259,7 @@ void calc(int msec, bool belong, char *map_json, char *ip, int turns, bool first
     cmd += post_json.dump();
     cmd += "' ";
     cmd += ip;
-    cmd += ":" + to_string(SERVER_PORT);
+    cmd += ":" + to_string(port);
 
     system(cmd.c_str());
     if(depth == 5) {

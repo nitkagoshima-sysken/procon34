@@ -22,6 +22,7 @@ with open('.field-info', 'r') as f:
 
 turn_num = int(info_dict['turns'])
 first = strtobool(info_dict['first'])
+shape = int(info_dict['shape'])
 
 file = "res.json"
 
@@ -33,7 +34,7 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         get_turn = jobj['turn']
 
         # print(json.dumps(jobj['logs'], indent=2))
-        procon.calc(3, 1, data, ip_dict['local-server-ip'], turn_num, first)
+        procon.calc(data, ip_dict['local-server-ip'], int(ip_dict['local-server-port']), turn_num, first, shape)
 
         self.send_response(200)
         self.send_header('Content-Type', 'text/plain; charset=utf-8')

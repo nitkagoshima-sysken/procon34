@@ -9,26 +9,31 @@ with open('.ipconfig', 'r') as f:
       (k, v) = line.split()
       ip_dict[k] = v
 
+HOST = "http://" + ip_dict['server-ip'] + ':' +ip_dict['server-port']
+TOKEN = "kagoshimaf9e9e019877b0b3d212cf1dec665e9e9b45c99f1062779a73c5d3b1"
+
 info_dict = {}
 with open('.field-info', 'r') as f:
     for line in f:
         (k, v) = line.split()
         info_dict[k] = v
 
-HOST = "http://" + ip_dict['server-ip'] + ':' +ip_dict['server-port']
-TOKEN = "kagoshimaf9e9e019877b0b3d212cf1dec665e9e9b45c99f1062779a73c5d3b1"
-
-APP_SERVER = "http://" + ip_dict['local-server-ip'] + ':' + ip_dict['local-server-port']
-
 path = "/matches/" + info_dict['id']
 
-file = "res.json"
-old_file = "res.json.old"
+'''緊急用のプログラム'''
 
 class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
 
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header('Content-type', "text/html")
+        self.end_headers()
+        with open('index.html', 'r') as f:
+            html_context = f.read()
+        self.wfile.write(html_context.encode())
+
     def do_POST(self):
-        '''APP SERVERから行動計画がPOSTされる'''
+        
         data = self.rfile.read(int(self.headers['content-length'])).decode('utf-8')
 
         HEADER = {
@@ -41,16 +46,14 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         res = requests.post(HOST + path + '?token=' + TOKEN, headers=HEADER, data=data_encode)
         print(res.status_code)
 
-        with open('last_act', 'w') as f:
-            f.write(data)
-        
-        if res.status_code != 200:
-            print('some error occured')
-
-        self.send_response(res.status_code)
+        self.send_response(200)
         self.send_header('Content-Type', 'text/plain; charset=utf-8')
         self.end_headers()
-        
-server_address = ('0.0.0.0', int(ip_dict['local-server-port']))
+
+        html_context = "送信完了"
+        self.wfile.write(html_context.encode())
+
+
+server_address = ('localhost', 8100)
 httpd = HTTPServer(server_address, CustomHTTPRequestHandler)
 httpd.serve_forever()
