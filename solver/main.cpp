@@ -148,23 +148,25 @@ Action *getActplan(Board *match, ev_function act_plan, int depth, int turn_num)
     bool is_evaluate = true;
     for(; itr != root_node[i]->childrenNode.end(); itr++) {
       if(root_node[i]->evaluation == (*itr)->evaluation) {
-        best_act[i] = (*itr)->pre_act;
-      } else {
-        Board *actc1 = new Board(*match);
-        Board *actc2 = new Board(*match);
-        if(is_evaluate) {
-          actc1->ActionAnAgent(match->next_turn, i, best_act[i]);
-          smax = evaluate_current_board(actc1, match->next_turn);
-          is_evaluate = false;
+        if(best_act[i].kind == ACT_NONE) {
+            best_act[i] = (*itr)->pre_act;
+        } else {
+          Board *actc1 = new Board(*init_board);
+          Board *actc2 = new Board(*init_board);
+          if(is_evaluate) {
+            actc1->ActionAnAgent(init_board->next_turn, i, best_act[i]);
+            smax = evaluate_current_board(actc1, init_board->next_turn);
+            is_evaluate = false;
+          }
+          actc2->ActionAnAgent(init_board->next_turn, i, (*itr)->pre_act);
+          scom = evaluate_current_board(actc2, init_board->next_turn);
+          if(smax < scom) {
+            best_act[i] = (*itr)->pre_act;
+            smax = scom;
+          }
+          delete actc1;
+          delete actc2;
         }
-        actc2->ActionAnAgent(match->next_turn, i, (*itr)->pre_act);
-        scom = evaluate_current_board(actc2, match->next_turn);
-        if(smax < scom) {
-          best_act[i] = (*itr)->pre_act;
-          smax = scom;
-        }
-        delete actc1;
-        delete actc2;
       }
     }
 
