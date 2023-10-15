@@ -110,7 +110,7 @@ Board *getInfobyJson(json jobj)
   return match;
 }
 
-Action *getActplan(Board *match, ev_function act_plan, int depth, int turn_num, int shape)
+Action *getActplan(Board *match, ev_function act_plan, int depth, int turn_num)
 {
   if(match == nullptr) {
     cout << "error: matchがnullです\n";
@@ -144,52 +144,27 @@ Action *getActplan(Board *match, ev_function act_plan, int depth, int turn_num, 
     // 評価値から次に行動するべき手(最善手)を出す
     auto itr = root_node[i]->childrenNode.begin();
     // 子供の評価値と自身の評価値が一致したゲームノードの行動を最善手として選択
+    int smax, scom;
+    bool is_evaluate = true;
     for(; itr != root_node[i]->childrenNode.end(); itr++) {
       if(root_node[i]->evaluation == (*itr)->evaluation) {
         best_act[i] = (*itr)->pre_act;
-        break;
-      }
-    }
-    
-    if(match->turn < 10){
-      if(shape != 0){
-        uint8_t dir[4] = {2,0,4,6};
-        uint8_t sx[4]  = {(uint8_t)info->length/2 +2,(uint8_t)info->length/2 -3,(uint8_t)info->length/2 +3,(uint8_t)info->length/2 -2};
-        uint8_t sy[4]  = {(uint8_t)info->length/2 -3,(uint8_t)info->length/2 -2,(uint8_t)info->length/2 +2,(uint8_t)info->length/2 +3};
-        uint8_t ssx[4]  = {(uint8_t)info->length/2 -1,(uint8_t)info->length/2 -2,(uint8_t)info->length/2 +2,(uint8_t)info->length/2 +1};
-        uint8_t ssy[4]  = {(uint8_t)info->length/2 -2,(uint8_t)info->length/2 +1,(uint8_t)info->length/2 -1,(uint8_t)info->length/2 +2};
-
-        switch((shape == 15) ? (match->turn+1)/2 +1 : (match->turn+1)/2){
-          case 1:
-            best_act[i].kind = ACT_MOVE;
-            best_act[i].direc = dir[i];
-            break;
-          case 2:
-            best_act[i].kind = ACT_BUILD;
-            if(match->map[(int)(sy[i])][(int)(sx[i])] & BIT_AGENT2){
-              best_act[i].direc = (uint8_t)((dir[i] + 6) % 8);
-            }else{
-              best_act[i].direc = (uint8_t)((dir[i] + 2) % 8);
-            }
-            break;
-          case 3:
-            best_act[i].kind = ACT_BUILD;
-            if(match->map[(int)(ssy[i])][(int)(ssx[i])] & BIT_AGENT2){
-              best_act[i].direc = dir[i];
-            }else if(match->map[(int)(ssy[i])][(int)(ssx[i])] & BIT_WALL1){
-              best_act[i].direc = (uint8_t)((dir[i] + 6) % 8);
-            }else{
-              best_act[i].direc = (uint8_t)((dir[i] + 2) % 8);
-            }
-            cout << (int)ssx[i] << ":" << (int)ssy[i] << "\n";
-            break;
-          case 4:
-            if(!(match->map[(int)(ssy[i])][(int)(ssx[i])] & BIT_AGENT2)){
-              best_act[i].kind = ACT_BUILD;
-              best_act[i].direc = (uint8_t)((dir[i] + 4) % 8);
-            }
-            break;
+      } else {
+        Board *actc1 = new Board(*match);
+        Board *actc2 = new Board(*match);
+        if(is_evaluate) {
+          actc1->ActionAnAgent(match->next_turn, i, best_act[i]);
+          smax = evaluate_current_board(actc1, match->next_turn);
+          is_evaluate = false;
         }
+        actc2->ActionAnAgent(match->next_turn, i, (*itr)->pre_act);
+        scom = evaluate_current_board(actc2, match->next_turn);
+        if(smax < scom) {
+          best_act[i] = (*itr)->pre_act;
+          smax = scom;
+        }
+        delete actc1;
+        delete actc2;
       }
     }
 
@@ -210,7 +185,7 @@ Action *getActplan(Board *match, ev_function act_plan, int depth, int turn_num, 
 #include <thread>
 using namespace chrono;
 
-void calc(char *map_json, char *ip, int port, int turns, bool first, int shape)
+void calc(char *map_json, char *ip, int port, int turns, bool first)
 {
   auto jobj = json::parse(map_json);
 
@@ -242,7 +217,7 @@ void calc(char *map_json, char *ip, int port, int turns, bool first, int shape)
   // 最善手を計算する
   Action *act;
   for(auto depth = 1; depth <= 5; depth++) {
-    act = getActplan(match, evaluate_current_board, depth, turns, shape);
+    act = getActplan(match, evaluate_current_board, depth, turns);
 
     json post_json;
     post_json["turn"] = match->turn + 1;
