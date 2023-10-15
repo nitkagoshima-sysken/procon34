@@ -34,12 +34,12 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         get_turn = jobj['turn']
 
         # print(json.dumps(jobj['logs'], indent=2))
-        procon.calc(3, 1, data, ip_dict['local-server-ip'], turn_num, first, shape)
+        procon.calc(data, ip_dict['local-server-ip'], int(ip_dict['local-server-port']), turn_num, first, shape)
 
         self.send_response(200)
         self.send_header('Content-Type', 'text/plain; charset=utf-8')
         self.end_headers()
 
-server_address = ('0.0.0.0', 8091)
+server_address = ('0.0.0.0', int(ip_dict['app-server-port']))
 httpd = HTTPServer(server_address, CustomHTTPRequestHandler)
 httpd.serve_forever()
