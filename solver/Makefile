@@ -1,5 +1,5 @@
 CC	= g++
-CFLAGS = -Wall -O3 -std=c++11 -pthread -shared -fPIC
+CFLAGS = -Wall -O3
 CFLAGS += $(shell python3 -m pybind11 --includes)
 SRCS = main.cpp Game.cpp FieldMap.cpp Game_Node.cpp
 SRCS += Evaluation_functions.cpp

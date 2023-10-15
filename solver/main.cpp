@@ -207,7 +207,7 @@ Action *getActplan(Board *match, ev_function act_plan, int depth, json jobj, int
   Game_Node **root_node = new Game_Node*[info->agent]();
 
   // 最後の数ターンのみ，探索深度を調整する
-  int lastdepth = ((turn_num - turn) < depth) ? (turn_num - turn) : depth;
+  int lastdepth = ((turn_num - turn -1) < depth) ? (turn_num - turn) : depth;
 
   // 生成した最善手を格納するためのオブジェクト
   Action *best_act = new Action[info->agent]();
